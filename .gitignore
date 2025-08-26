@@ -30,8 +30,17 @@ yarn-error.*
 .DS_Store
 *.pem
 
-# local env files
-.env*.local
 
 # typescript
 *.tsbuildinfo
+
+# Environment variables
+.env*.local
+.env
+.env.development
+.env.production
+
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
