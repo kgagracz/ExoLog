@@ -12,8 +12,9 @@ import {
 } from 'react-native';
 import Layout from '../../components/Layout/Layout';
 import { useTheme } from '../../context/ThemeContext';
-import { getAnimals, addAnimal, getAnimalTemplate } from '../../services/firebase/firebaseService';
-import { Theme } from '../../theme/themes';
+import {getAnimalTemplate} from "../../services/firebase/firebaseService";
+import {Theme} from "../../styles/theme";
+
 
 // Typy dla zwierząt
 interface Animal {
