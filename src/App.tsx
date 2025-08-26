@@ -2,6 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import {addAnimal, getAnimalTemplate} from "./services/firebase/firebaseService";
 import {useEffect} from "react";
+import {ThemeProvider} from "./context/ThemeContext";
 
 const addSpider = async () => {
   const newTarantula = getAnimalTemplate("tarantula");
@@ -18,10 +19,12 @@ export default function App() {
   }, []);
 
   return (
+      <ThemeProvider>
     <View style={styles.container}>
       <Text>Open up App.tsx to start working on your app!</Text>
       <StatusBar style="auto" />
     </View>
+      </ThemeProvider>
   );
 }
 
