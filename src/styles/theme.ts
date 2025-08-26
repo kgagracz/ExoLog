@@ -102,7 +102,7 @@ export const lightTheme = {
             semibold: '600',
             bold: '700',
             extrabold: '800',
-        },
+        } as const,
 
         lineHeight: {
             tight: 1.25,
