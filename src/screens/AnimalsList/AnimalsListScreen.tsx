@@ -56,7 +56,7 @@ const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => 
 
     const filteredAnimals = animals.filter(animal =>
         animal.name.toLowerCase().includes(searchText.toLowerCase()) ||
-        animal.species.toLowerCase().includes(searchText.toLowerCase())
+        animal.species?.toLowerCase().includes(searchText.toLowerCase())
     );
 
     // Pokazuj loading state gdy ładuje dane po raz pierwszy
