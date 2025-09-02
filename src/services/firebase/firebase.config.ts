@@ -1,6 +1,7 @@
 // ================================
 // src/services/firebase/config.ts
 // ================================
+// @ts-ignore
 
 import { initializeApp } from 'firebase/app';
 import { getAuth, connectAuthEmulator } from 'firebase/auth';
@@ -16,6 +17,7 @@ import {
     EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID,
     EXPO_PUBLIC_APP_ENV,
     EXPO_PUBLIC_DEBUG_MODE
+// @ts-ignore
 } from '@env';
 
 // Validate environment variables
@@ -97,6 +99,7 @@ export const getFirebaseConfig = () => {
 // Types for environment variables
 // ================================
 
+//@ts-ignore
 declare module '@env' {
     export const EXPO_PUBLIC_FIREBASE_API_KEY: string;
     export const EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN: string;
