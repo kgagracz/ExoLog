@@ -1,17 +1,18 @@
 import { useState, useEffect, useCallback } from 'react';
 import { animalsService } from "../services/firebase";
 import { Animal } from "../types";
-
-const user = { uid: '12' }; // Tymczasowy user - zastąp przez useAuth() później
+import { useAuth } from './useAuth';
 
 export const useAnimals = () => {
     const [animals, setAnimals] = useState<Animal[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+    const { user, isAuthenticated } = useAuth();
+
     // Załaduj zwierzęta
     const loadAnimals = useCallback(async () => {
-        if (!user) {
+        if (!user || !isAuthenticated) {
             setAnimals([]);
             setLoading(false);
             return;
@@ -34,16 +35,18 @@ export const useAnimals = () => {
         } finally {
             setLoading(false);
         }
-    }, [user]);
+    }, [user, isAuthenticated]);
 
     // Dodaj nowe zwierzę
     const addAnimal = async (animalData: Omit<Animal, 'id' | 'createdAt' | 'updatedAt'>) => {
-        if (!user) return { success: false, error: 'User not authenticated' };
+        if (!user || !isAuthenticated) {
+            return { success: false, error: 'User not authenticated' };
+        }
 
         try {
             const result = await animalsService.add({
                 ...animalData,
-                userId: user.uid
+                userId: user.uid // PRAWDZIWY USER ID
             });
 
             if (result.success) {
@@ -63,13 +66,15 @@ export const useAnimals = () => {
         type: 'tarantula' | 'scorpion' | 'other';
         age: number;
     }) => {
-        if (!user) throw new Error('User not authenticated');
+        if (!user || !isAuthenticated) {
+            throw new Error('User not authenticated');
+        }
 
         // Mapuj podstawowe dane na pełną strukturę Animal
         const fullAnimalData: Omit<Animal, 'id' | 'createdAt' | 'updatedAt'> = {
-            userId: user.uid,
-            categoryId: 'temp-category-id', // Tymczasowo - później z wyboru użytkownika
-            animalTypeId: 'temp-type-id', // Tymczasowo - później z wyboru użytkownika
+            userId: user.uid, // PRAWDZIWY USER ID
+            categoryId: 'temp-category-id', // Będzie zastąpione prawdziwym ID
+            animalTypeId: 'temp-type-id', // Będzie zastąpione prawdziwym ID
             name: basicData.name,
             species: basicData.species,
             commonName: basicData.species,
@@ -162,7 +167,9 @@ export const useAnimals = () => {
 
     // Pobierz zwierzęta według kategorii
     const getAnimalsByCategory = async (categoryId: string) => {
-        if (!user) return { success: false, error: 'User not authenticated' };
+        if (!user || !isAuthenticated) {
+            return { success: false, error: 'User not authenticated' };
+        }
 
         try {
             const result = await animalsService.getByCategory(user.uid, categoryId);
@@ -172,7 +179,7 @@ export const useAnimals = () => {
         }
     };
 
-    // Załaduj dane przy pierwszym renderze
+    // Załaduj dane przy pierwszym renderze lub zmianie użytkownika
     useEffect(() => {
         loadAnimals();
     }, [loadAnimals]);
@@ -219,6 +226,10 @@ export const useAnimals = () => {
 
         // Pomocnicze
         reload: loadAnimals,
-        clearError: () => setError(null)
+        clearError: () => setError(null),
+
+        // Status uwierzytelnienia
+        isAuthenticated,
+        currentUser: user
     };
 };

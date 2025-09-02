@@ -306,3 +306,11 @@ export interface UserProfile {
   createdAt: string;
   updatedAt: string;
 }
+
+export type TabParamList = {
+  Dashboard: undefined;
+  Animals: undefined;
+  Events: undefined;
+  Stats: undefined;
+  Settings: undefined;
+};
