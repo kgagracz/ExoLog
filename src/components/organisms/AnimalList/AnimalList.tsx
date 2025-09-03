@@ -5,10 +5,10 @@ import {
   ListRenderItem,
 } from 'react-native';
 import { useTheme } from '../../../context/ThemeContext';
-import { Theme } from '../../../theme/themes';
 import { Separator } from '../../atoms';
 import AnimalCard from '../AnimalCard/AnimalCard';
 import EmptyState from '../EmptyState/EmptyState';
+import {Theme} from "../../../styles/theme";
 
 interface Animal {
   id: string;
