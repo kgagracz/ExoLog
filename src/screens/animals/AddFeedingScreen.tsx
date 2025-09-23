@@ -82,7 +82,15 @@ export const AddFeedingScreen: React.FC<AddFeedingScreenProps> = ({ navigation }
             Alert.alert('Błąd', 'Wybierz przynajmniej jedno zwierzę do nakarmienia');
             return;
         }
-        await performSave()
+
+        Alert.alert(
+            'Potwierdź karmienie',
+            `Nakarm ${selectedAnimals.size} zwierząt?\n\nPokarm: Świerszcz (średni)\nIlość: 1 szt.`,
+            [
+                { text: 'Anuluj', style: 'cancel' },
+                { text: 'Zapisz', onPress: performSave }
+            ]
+        );
     };
 
     const performSave = async () => {
@@ -136,136 +144,120 @@ export const AddFeedingScreen: React.FC<AddFeedingScreenProps> = ({ navigation }
 
     return (
         <View style={styles.container}>
-            <Appbar.Header>
-                <Appbar.BackAction onPress={() => navigation?.goBack()} />
-                <Appbar.Content title="🍽️ Dodaj karmienie" />
-            </Appbar.Header>
+            <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+                <Appbar.Header>
+                    <Appbar.BackAction onPress={() => navigation?.goBack()} />
+                    <Appbar.Content title="🍽️ Dodaj karmienie" />
+                </Appbar.Header>
 
-            <View style={styles.content}>
-                {/* Statystyki szybkie */}
-                {stats.feeding && (
-                    <Card style={styles.statsCard}>
+                <View style={styles.content}>
+                    {/* Statystyki szybkie */}
+                    {stats.feeding && (
+                        <Card style={styles.statsCard}>
+                            <Card.Content>
+                                <Text variant="titleSmall" style={styles.statsTitle}>
+                                    📊 Status karmienia
+                                </Text>
+                                <View style={styles.statsRow}>
+                                    <Text variant="bodySmall">
+                                        Nakarmione dzisiaj: {stats.feeding.fedToday}
+                                    </Text>
+                                    <Text variant="bodySmall" style={styles.statsError}>
+                                        Wymagają karmienia: {stats.feeding.dueForFeeding}
+                                    </Text>
+                                </View>
+                            </Card.Content>
+                        </Card>
+                    )}
+
+                    {/* Wybór trybu karmienia */}
+                    <Card style={styles.modeCard}>
                         <Card.Content>
-                            <Text variant="titleSmall" style={styles.statsTitle}>
-                                📊 Status karmienia
-                            </Text>
-                            <View style={styles.statsRow}>
-                                <Text variant="bodySmall">
-                                    Nakarmione dzisiaj: {stats.feeding.fedToday}
-                                </Text>
-                                <Text variant="bodySmall" style={styles.statsError}>
-                                    Wymagają karmienia: {stats.feeding.dueForFeeding}
-                                </Text>
-                            </View>
-                        </Card.Content>
-                    </Card>
-                )}
-
-                {/* Wybór trybu karmienia */}
-                <Card style={styles.modeCard}>
-                    <Card.Content>
-                        <Text variant="titleMedium" style={styles.sectionTitle}>
-                            Tryb karmienia
-                        </Text>
-                        <Text variant="bodyMedium" style={styles.sectionDescription}>
-                            Wybierz czy chcesz nakarmić wszystkie zwierzęta, czy tylko wybrane
-                        </Text>
-
-                        <SegmentedButtons
-                            value={feedingMode}
-                            onValueChange={(value) => setFeedingMode(value as FeedingMode)}
-                            buttons={segmentedButtonsData}
-                            style={styles.segmentedButtons}
-                        />
-                    </Card.Content>
-                </Card>
-
-                {/* Lista zwierząt */}
-                <Card style={styles.animalsCard}>
-                    <Card.Content>
-                        <View style={styles.headerRow}>
                             <Text variant="titleMedium" style={styles.sectionTitle}>
-                                Zwierzęta ({selectedAnimals.size}/{animals.length})
+                                Tryb karmienia
+                            </Text>
+                            <Text variant="bodyMedium" style={styles.sectionDescription}>
+                                Wybierz czy chcesz nakarmić wszystkie zwierzęta, czy tylko wybrane
                             </Text>
 
-                            {feedingMode === 'select' && animals.length > 0 && (
-                                <Button
-                                    mode="text"
-                                    onPress={toggleSelectAll}
-                                    compact
-                                >
-                                    {allSelected ? 'Odznacz wszystkie' : 'Zaznacz wszystkie'}
-                                </Button>
-                            )}
-                        </View>
+                            <SegmentedButtons
+                                value={feedingMode}
+                                onValueChange={(value) => setFeedingMode(value as FeedingMode)}
+                                buttons={segmentedButtonsData}
+                                style={styles.segmentedButtons}
+                            />
+                        </Card.Content>
+                    </Card>
 
-                        {animals.length === 0 ? (
-                            <Text variant="bodyMedium" style={styles.emptyText}>
-                                Brak zwierząt do nakarmienia
-                            </Text>
-                        ) : (
-                            <ScrollView style={styles.animalsList} showsVerticalScrollIndicator={false}>
-                                {animals.map((animal, index) => (
-                                    <View key={animal.id}>
-                                        <List.Item
-                                            title={animal.name}
-                                            description={`${animal.species || 'Nieznany gatunek'} • L${animal.stage || '?'}`}
-                                            left={() =>
-                                                <Checkbox
-                                                    status={selectedAnimals.has(animal.id) ? 'checked' : 'unchecked'}
-                                                    onPress={() => feedingMode === 'select' ? toggleAnimalSelection(animal.id) : null}
-                                                    disabled={feedingMode === 'all'}
-                                                />
-                                            }
-                                            right={() => animal.feeding?.lastFed ? (
-                                                <View style={styles.lastFeedingContainer}>
-                                                    <Text variant="bodySmall" style={styles.lastFeedingText}>
-                                                        Ostatnie karmienie:
-                                                    </Text>
-                                                    <Text variant="bodySmall" style={styles.lastFeedingDate}>
-                                                        {new Date(animal.feeding.lastFed).toLocaleDateString('pl-PL')}
-                                                    </Text>
-                                                </View>
-                                            ) : (
-                                                <Text variant="bodySmall" style={styles.neverFedText}>
-                                                    Nigdy nie karmione
-                                                </Text>
-                                            )}
-                                            onPress={() => feedingMode === 'select' ? toggleAnimalSelection(animal.id) : null}
-                                            style={[
-                                                styles.animalItem,
-                                                selectedAnimals.has(animal.id) && styles.selectedAnimalItem
-                                            ]}
-                                        />
-                                        {index < animals.length - 1 && <Divider />}
-                                    </View>
-                                ))}
-                            </ScrollView>
-                        )}
-                    </Card.Content>
-                </Card>
-
-                {/* Informacja o wybranych zwierzętach */}
-                {selectedAnimals.size > 0 && (
-                    <Card style={styles.summaryCard}>
+                    {/* Lista zwierząt */}
+                    <Card style={styles.animalsCard}>
                         <Card.Content>
-                            <Text variant="titleSmall" style={styles.summaryTitle}>
-                                📝 Podsumowanie
-                            </Text>
-                            <Text variant="bodyMedium">
-                                Wybrano {selectedAnimals.size} zwierząt do nakarmienia
-                            </Text>
-                            {feedingMode === 'all' && (
-                                <Text variant="bodySmall" style={styles.summaryNote}>
-                                    Wszystkie zwierzęta zostaną nakarmione jednocześnie
+                            <View style={styles.headerRow}>
+                                <Text variant="titleMedium" style={styles.sectionTitle}>
+                                    Zwierzęta ({selectedAnimals.size}/{animals.length})
                                 </Text>
+
+                                {feedingMode === 'select' && animals.length > 0 && (
+                                    <Button
+                                        mode="text"
+                                        onPress={toggleSelectAll}
+                                        compact
+                                    >
+                                        {allSelected ? 'Odznacz wszystkie' : 'Zaznacz wszystkie'}
+                                    </Button>
+                                )}
+                            </View>
+
+                            {animals.length === 0 ? (
+                                <Text variant="bodyMedium" style={styles.emptyText}>
+                                    Brak zwierząt do nakarmienia
+                                </Text>
+                            ) : (
+                                <ScrollView style={styles.animalsList} showsVerticalScrollIndicator={false}>
+                                    {animals.map((animal, index) => (
+                                        <View key={animal.id}>
+                                            <List.Item
+                                                title={animal.name}
+                                                description={`${animal.species || 'Nieznany gatunek'} • L${animal.stage || '?'}`}
+                                                left={() =>
+                                                    <Checkbox
+                                                        status={selectedAnimals.has(animal.id) ? 'checked' : 'unchecked'}
+                                                        onPress={() => feedingMode === 'select' ? toggleAnimalSelection(animal.id) : null}
+                                                        disabled={feedingMode === 'all'}
+                                                    />
+                                                }
+                                                right={() => animal.feeding?.lastFed ? (
+                                                    <View style={styles.lastFeedingContainer}>
+                                                        <Text variant="bodySmall" style={styles.lastFeedingText}>
+                                                            Ostatnie karmienie:
+                                                        </Text>
+                                                        <Text variant="bodySmall" style={styles.lastFeedingDate}>
+                                                            {new Date(animal.feeding.lastFed).toLocaleDateString('pl-PL')}
+                                                        </Text>
+                                                    </View>
+                                                ) : (
+                                                    <Text variant="bodySmall" style={styles.neverFedText}>
+                                                        Nigdy nie karmione
+                                                    </Text>
+                                                )}
+                                                onPress={() => feedingMode === 'select' ? toggleAnimalSelection(animal.id) : null}
+                                                style={[
+                                                    styles.animalItem,
+                                                    selectedAnimals.has(animal.id) && styles.selectedAnimalItem
+                                                ]}
+                                            />
+                                            {index < animals.length - 1 && <Divider />}
+                                        </View>
+                                    ))}
+                                </ScrollView>
                             )}
                         </Card.Content>
                     </Card>
-                )}
-            </View>
 
-            {/* FAB zapisz */}
+                </View>
+            </ScrollView>
+
+            {/* FAB zapisz - poza ScrollView */}
             <FAB
                 icon="content-save"
                 style={[
@@ -306,6 +298,9 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         flex: 1,
         backgroundColor: theme.colors.background,
     },
+    scrollContainer: {
+        flex: 1,
+    },
     centerContent: {
         justifyContent: 'center',
         alignItems: 'center',
@@ -337,7 +332,6 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         marginBottom: 16,
     },
     animalsCard: {
-        flex: 1,
         marginBottom: 16,
     },
     summaryCard: {
@@ -362,7 +356,8 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         marginBottom: 16,
     },
     animalsList: {
-        maxHeight: 300,
+        flexGrow: 0,
+        flexShrink: 1,
     },
     animalItem: {
         paddingHorizontal: 0,
