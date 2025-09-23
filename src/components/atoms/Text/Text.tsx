@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text as RNText, TextStyle, StyleSheet } from 'react-native';
 import { useTheme } from '../../../context/ThemeContext';
-import { Theme } from '../../../theme/themes';
+import {Theme} from "../../../styles/theme";
 
 type TextVariant = 'h1' | 'h2' | 'h3' | 'body' | 'bodySmall' | 'caption' | 'button';
 

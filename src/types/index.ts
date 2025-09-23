@@ -136,7 +136,6 @@ export interface Animal {
   animalTypeId: string;
   name: string;
   species?: string;
-  commonName?: string;
   breed?: string;
   sex: 'male' | 'female' | 'unknown' | 'hermaphrodite';
   stage: 'baby' | 'juvenile' | 'subadult' | 'adult' | 'senior';
@@ -209,7 +208,6 @@ export interface Photo {
   id: string;
   url: string;
   thumbnailUrl?: string;
-  type: 'profile' | 'housing' | 'feeding' | 'event' | 'medical' | 'other';
   date: string;
   title?: string;
   description?: string;

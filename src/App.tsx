@@ -1,17 +1,20 @@
 import React from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { PaperProvider } from 'react-native-paper';
+import {MD3DarkTheme, PaperProvider} from 'react-native-paper';
 import { NavigationContainer } from '@react-navigation/native';
 import {AuthProvider} from "./hooks/useAuth";
 import AppNavigator from "./navigation/AppNavigator";
 import {useTheme} from "./context/ThemeContext";
 import {Theme} from "./styles/theme";
+import {initializeAppData} from "./services/firebase";
 
 
 const createPaperTheme = (theme: Theme) => ({
+    ...MD3DarkTheme,
     ...theme,
     colors: {
+        ...MD3DarkTheme.colors,
         ...theme.colors,
         primary: theme.colors.primary,
         onPrimary: '#FFFFFF',

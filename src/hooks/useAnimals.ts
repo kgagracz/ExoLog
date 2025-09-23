@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { animalsService } from "../services/firebase";
 import { Animal } from "../types";
 import { useAuth } from './useAuth';
+import {removeUndefined, removeUndefinedDeep} from "../utils/objectService";
 
 export const useAnimals = () => {
     const [animals, setAnimals] = useState<Animal[]>([]);
@@ -44,9 +45,10 @@ export const useAnimals = () => {
         }
 
         try {
+            const body = removeUndefinedDeep(animalData)
             const result = await animalsService.add({
-                ...animalData,
-                userId: user.uid // PRAWDZIWY USER ID
+                ...body,
+                userId: user.uid
             });
 
             if (result.success) {
@@ -77,7 +79,6 @@ export const useAnimals = () => {
             animalTypeId: 'temp-type-id', // Będzie zastąpione prawdziwym ID
             name: basicData.name,
             species: basicData.species,
-            commonName: basicData.species,
             sex: 'unknown',
             stage: basicData.age === 0 ? 'baby' : 'adult',
             dateAcquired: new Date().toISOString().split('T')[0],
