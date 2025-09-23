@@ -35,8 +35,9 @@ const createPaperTheme = (theme: Theme) => ({
 });
 
 export default function App() {
-    const {theme} = useTheme()
+    const {theme, isDark} = useTheme()
     const paperTheme = createPaperTheme(theme)
+    console.log(isDark)
     return (
         <SafeAreaProvider>
             <PaperProvider theme={paperTheme}>
