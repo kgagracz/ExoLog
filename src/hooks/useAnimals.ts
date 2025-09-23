@@ -2,7 +2,28 @@ import { useState, useEffect, useCallback } from 'react';
 import { animalsService } from "../services/firebase";
 import { Animal } from "../types";
 import { useAuth } from './useAuth';
-import {removeUndefined, removeUndefinedDeep} from "../utils/objectService";
+import { removeUndefined, removeUndefinedDeep } from "../utils/objectService";
+
+// Typy dla karmienia (z serwisu)
+interface FeedingData {
+    animalId: string;
+    foodType: 'cricket' | 'roach' | 'mealworm' | 'superworm' | 'other';
+    foodSize: 'small' | 'medium' | 'large';
+    quantity: number;
+    date: string;
+    notes?: string;
+    userId: string;
+}
+
+interface BulkFeedingData {
+    animalIds: string[];
+    foodType: 'cricket' | 'roach' | 'mealworm' | 'superworm' | 'other';
+    foodSize: 'small' | 'medium' | 'large';
+    quantity: number;
+    date: string;
+    notes?: string;
+    userId: string;
+}
 
 export const useAnimals = () => {
     const [animals, setAnimals] = useState<Animal[]>([]);
@@ -180,12 +201,151 @@ export const useAnimals = () => {
         }
     };
 
+    // ================== NOWE FUNKCJE KARMIENIA ==================
+
+    /**
+     * Nakarm pojedyncze zwierzę
+     */
+    const feedAnimal = async (feedingData: Omit<FeedingData, 'userId'>) => {
+        if (!user || !isAuthenticated) {
+            return { success: false, error: 'User not authenticated' };
+        }
+
+        try {
+            const result = await animalsService.feedAnimal({
+                ...feedingData,
+                userId: user.uid
+            });
+
+            if (result.success) {
+                await loadAnimals(); // Odśwież listę zwierząt
+            }
+
+            return result;
+        } catch (err: any) {
+            return { success: false, error: err.message };
+        }
+    };
+
+    /**
+     * Nakarm wiele zwierząt jednocześnie
+     */
+    const feedMultipleAnimals = async (bulkFeedingData: Omit<BulkFeedingData, 'userId'>) => {
+        if (!user || !isAuthenticated) {
+            return { success: false, error: 'User not authenticated' };
+        }
+
+        try {
+            const result = await animalsService.feedMultipleAnimals({
+                ...bulkFeedingData,
+                userId: user.uid
+            });
+
+            if (result.success) {
+                await loadAnimals(); // Odśwież listę zwierząt
+            }
+
+            return result;
+        } catch (err: any) {
+            return { success: false, error: err.message };
+        }
+    };
+
+    /**
+     * Pobierz historię karmienia dla zwierzęcia
+     */
+    const getFeedingHistory = async (animalId: string) => {
+        try {
+            const result = await animalsService.getFeedingHistory(animalId);
+            return result;
+        } catch (err: any) {
+            return { success: false, error: err.message };
+        }
+    };
+
+    /**
+     * Pobierz wszystkie karmienia użytkownika
+     */
+    const getUserFeedings = async (limit?: number) => {
+        if (!user || !isAuthenticated) {
+            return { success: false, error: 'User not authenticated' };
+        }
+
+        try {
+            const result = await animalsService.getUserFeedings(user.uid, limit);
+            return result;
+        } catch (err: any) {
+            return { success: false, error: err.message };
+        }
+    };
+
+    /**
+     * Usuń rekord karmienia
+     */
+    const deleteFeedingRecord = async (feedingId: string, animalId: string) => {
+        try {
+            const result = await animalsService.deleteFeedingRecord(feedingId, animalId);
+
+            if (result.success) {
+                await loadAnimals(); // Odśwież listę zwierząt
+            }
+
+            return result;
+        } catch (err: any) {
+            return { success: false, error: err.message };
+        }
+    };
+
+    /**
+     * Pobierz zwierzęta wymagające karmienia
+     */
+    const getAnimalsDueForFeeding = async (daysSinceLastFeeding: number = 7) => {
+        if (!user || !isAuthenticated) {
+            return { success: false, error: 'User not authenticated' };
+        }
+
+        try {
+            const result = await animalsService.getAnimalsDueForFeeding(user.uid, daysSinceLastFeeding);
+            return result;
+        } catch (err: any) {
+            return { success: false, error: err.message };
+        }
+    };
+
+    /**
+     * Szybka funkcja do nakarmienia wybranych zwierząt z podstawowymi parametrami
+     */
+    const quickFeed = async (
+        animalIds: string[],
+        foodType: FeedingData['foodType'] = 'cricket',
+        quantity: number = 1,
+        notes?: string
+    ) => {
+        const feedingData = {
+            animalIds,
+            foodType,
+            foodSize: 'medium' as const,
+            quantity,
+            date: new Date().toISOString().split('T')[0],
+            notes: notes || `Szybkie karmienie - ${foodType} x${quantity}`
+        };
+
+        if (animalIds.length === 1) {
+            return await feedAnimal({
+                animalId: animalIds[0],
+                ...feedingData
+            });
+        } else {
+            return await feedMultipleAnimals(feedingData);
+        }
+    };
+
     // Załaduj dane przy pierwszym renderze lub zmianie użytkownika
     useEffect(() => {
         loadAnimals();
     }, [loadAnimals]);
 
-    // Statystyki (przydatne dla dashboard)
+    // Statystyki (rozszerzone o informacje o karmieniu)
     const stats = {
         total: animals.length,
         active: animals.filter(animal => animal.isActive).length,
@@ -203,7 +363,29 @@ export const useAnimals = () => {
             const weekAgo = new Date();
             weekAgo.setDate(weekAgo.getDate() - 7);
             return addedDate > weekAgo;
-        }).length
+        }).length,
+        // Nowe statystyki karmienia
+        feeding: {
+            fedToday: animals.filter(animal => {
+                const today = new Date().toISOString().split('T')[0];
+                return animal.feeding?.lastFed === today;
+            }).length,
+            fedThisWeek: animals.filter(animal => {
+                if (!animal.feeding?.lastFed) return false;
+                const lastFed = new Date(animal.feeding.lastFed);
+                const weekAgo = new Date();
+                weekAgo.setDate(weekAgo.getDate() - 7);
+                return lastFed > weekAgo;
+            }).length,
+            neverFed: animals.filter(animal => !animal.feeding?.lastFed).length,
+            dueForFeeding: animals.filter(animal => {
+                if (!animal.feeding?.lastFed) return true;
+                const lastFed = new Date(animal.feeding.lastFed);
+                const weekAgo = new Date();
+                weekAgo.setDate(weekAgo.getDate() - 7);
+                return lastFed <= weekAgo;
+            }).length
+        }
     };
 
     return {
@@ -218,12 +400,21 @@ export const useAnimals = () => {
         removeAnimal,
         refresh,
 
-        // Dodatkowe funkcje
+        // Funkcje zarządzania zwierzętami
         addAnimal,
         updateAnimal,
         getAnimal,
         getAnimalsByCategory,
         refetch: loadAnimals,
+
+        // NOWE: Funkcje karmienia
+        feedAnimal,
+        feedMultipleAnimals,
+        getFeedingHistory,
+        getUserFeedings,
+        deleteFeedingRecord,
+        getAnimalsDueForFeeding,
+        quickFeed,
 
         // Pomocnicze
         reload: loadAnimals,
