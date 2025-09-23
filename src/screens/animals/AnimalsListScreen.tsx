@@ -105,7 +105,7 @@ const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => 
                         <Text variant="bodySmall" style={styles.animalInfo}>
                           {animal.sex === 'male' ? '♂ Samiec' :
                               animal.sex === 'female' ? '♀ Samica' :
-                                  'Nieznana płeć'} • L{animal.stage || '?'} {animal.measurements.length ? `• ${animal.measurements.length}DC` : ''}
+                                  'Nieznana płeć'} {animal.stage ? `• L${animal.stage}` : ''} {animal.measurements.length ? `• ${animal.measurements.length}DC` : ''}
                         </Text>
                         {animal.feeding?.lastFed && (
                             <Text variant="bodySmall" style={styles.animalDate}>
