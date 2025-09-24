@@ -46,7 +46,7 @@ const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => 
   };
 
   const handleAnimalPress = (animal: any): void => {
-    console.log('Przejście do szczegółów:', animal.name);
+    navigation?.navigate('AnimalDetails', { animalId: animal.id });
   };
 
   const filteredAnimals = animals.filter(animal =>
@@ -105,7 +105,7 @@ const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => 
                         <Text variant="bodySmall" style={styles.animalInfo}>
                           {animal.sex === 'male' ? '♂ Samiec' :
                               animal.sex === 'female' ? '♀ Samica' :
-                                  'Nieznana płeć'} {animal.stage ? `• L${animal.stage}` : ''} {animal.measurements.length ? `• ${animal.measurements.length}DC` : ''}
+                                  'Nieznana płeć'} • L{animal.stage || '?'}
                         </Text>
                         {animal.feeding?.lastFed && (
                             <Text variant="bodySmall" style={styles.animalDate}>
