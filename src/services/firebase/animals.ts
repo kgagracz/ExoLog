@@ -348,8 +348,74 @@ export const animalsService = {
   },
 
   /**
-   * Pobierz zwierzęta które nie były karmione przez X dni
+   * Usuń zwierzę na stałe (hard delete)
    */
+  async deleteAnimal(animalId: string): Promise<{ success: boolean; error?: string }> {
+    try {
+      const batch = writeBatch(db);
+
+      // 1. Usuń wszystkie rekordy karmienia dla tego zwierzęcia
+      const feedingsQuery = query(
+          collection(db, "feedings"),
+          where("animalId", "==", animalId)
+      );
+      const feedingsSnapshot = await getDocs(feedingsQuery);
+
+      feedingsSnapshot.forEach((feedingDoc) => {
+        batch.delete(doc(db, "feedings", feedingDoc.id));
+      });
+
+      // 2. Usuń dokument zwierzęcia
+      const animalRef = doc(db, "animals", animalId);
+      batch.delete(animalRef);
+
+      await batch.commit();
+      return { success: true };
+    } catch (error: any) {
+      console.error("Error deleting animal permanently:", error);
+      return { success: false, error: error.message };
+    }
+  },
+
+  /**
+   * Usuń zwierzę wraz z jego historią karmienia i wszystkimi powiązanymi danymi
+   */
+  async deleteAnimalCompletely(animalId: string): Promise<{ success: boolean; deletedRecords?: number; error?: string }> {
+    try {
+      const batch = writeBatch(db);
+      let deletedRecords = 0;
+
+      // 1. Usuń wszystkie karmienia dla tego zwierzęcia
+      const feedingsQuery = query(
+          collection(db, "feedings"),
+          where("animalId", "==", animalId)
+      );
+      const feedingsSnapshot = await getDocs(feedingsQuery);
+
+      feedingsSnapshot.forEach((feedingDoc) => {
+        batch.delete(doc(db, "feedings", feedingDoc.id));
+        deletedRecords++;
+      });
+
+      // 2. Dodaj tutaj inne kolekcje związane ze zwierzęciem w przyszłości
+      // np. zdjęcia, wydarzenia wylinek, notatki weterynaryjne
+
+      // 3. Usuń główny dokument zwierzęcia
+      const animalRef = doc(db, "animals", animalId);
+      batch.delete(animalRef);
+      deletedRecords++;
+
+      await batch.commit();
+
+      return {
+        success: true,
+        deletedRecords
+      };
+    } catch (error: any) {
+      console.error("Error deleting animal completely:", error);
+      return { success: false, error: error.message };
+    }
+  },
   async getAnimalsDueForFeeding(userId: string, daysSinceLastFeeding: number = 7): Promise<{ success: boolean; data?: Animal[]; error?: string }> {
     try {
       const cutoffDate = new Date();

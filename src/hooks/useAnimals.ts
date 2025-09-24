@@ -141,7 +141,7 @@ export const useAnimals = () => {
         return result;
     };
 
-    // Usuń zwierzę
+    // Usuń zwierzę (deaktywacja)
     const removeAnimal = async (animalId: string) => {
         try {
             const result = await animalsService.deactivate(animalId);
@@ -149,6 +149,41 @@ export const useAnimals = () => {
             if (result.success) {
                 await loadAnimals(); // Odśwież listę
                 return { success: true };
+            } else {
+                return { success: false, error: result.error };
+            }
+        } catch (err: any) {
+            return { success: false, error: err.message };
+        }
+    };
+
+    // Usuń zwierzę na stałe
+    const deleteAnimal = async (animalId: string) => {
+        try {
+            const result = await animalsService.deleteAnimal(animalId);
+
+            if (result.success) {
+                await loadAnimals(); // Odśwież listę
+                return { success: true };
+            } else {
+                return { success: false, error: result.error };
+            }
+        } catch (err: any) {
+            return { success: false, error: err.message };
+        }
+    };
+
+    // Usuń zwierzę kompletnie (wraz z historią)
+    const deleteAnimalCompletely = async (animalId: string) => {
+        try {
+            const result = await animalsService.deleteAnimalCompletely(animalId);
+
+            if (result.success) {
+                await loadAnimals(); // Odśwież listę
+                return {
+                    success: true,
+                    deletedRecords: result.deletedRecords
+                };
             } else {
                 return { success: false, error: result.error };
             }
@@ -405,6 +440,8 @@ export const useAnimals = () => {
         updateAnimal,
         getAnimal,
         getAnimalsByCategory,
+        deleteAnimal,
+        deleteAnimalCompletely,
         refetch: loadAnimals,
 
         // NOWE: Funkcje karmienia

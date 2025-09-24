@@ -64,14 +64,14 @@ export default function TabNavigator() {
         },
       })}
     >
-      <Tab.Screen 
-        name="Dashboard" 
-        component={() => <Text>HomeScreen</Text>}
-        options={{
-          title: 'Pulpit',
-          headerShown: false,
-        }}
-      />
+      {/*<Tab.Screen */}
+      {/*  name="Dashboard" */}
+      {/*  component={() => <Text>HomeScreen</Text>}*/}
+      {/*  options={{*/}
+      {/*    title: 'Pulpit',*/}
+      {/*    headerShown: false,*/}
+      {/*  }}*/}
+      {/*/>*/}
       <Tab.Screen 
         name="Animals" 
         component={AnimalStackNavigator}
@@ -80,30 +80,30 @@ export default function TabNavigator() {
           headerShown: false,
         }}
       />
-      <Tab.Screen 
-        name="Events" 
-        component={() => <Text>EventsScreen</Text>}
-        options={{
-          title: 'Wydarzenia',
-          headerTitle: 'Historia Wydarzeń',
-        }}
-      />
-      <Tab.Screen 
-        name="Stats" 
-        component={() => <Text>StatsScreen</Text>}
-        options={{
-          title: 'Statystyki',
-          headerTitle: 'Statystyki',
-        }}
-      />
-      <Tab.Screen 
-        name="Settings" 
-        component={() => <Text>SettingsScreen</Text>}
-        options={{
-          title: 'Ustawienia',
-          headerShown: false,
-        }}
-      />
+      {/*<Tab.Screen */}
+      {/*  name="Events" */}
+      {/*  component={() => <Text>EventsScreen</Text>}*/}
+      {/*  options={{*/}
+      {/*    title: 'Wydarzenia',*/}
+      {/*    headerTitle: 'Historia Wydarzeń',*/}
+      {/*  }}*/}
+      {/*/>*/}
+      {/*<Tab.Screen */}
+      {/*  name="Stats" */}
+      {/*  component={() => <Text>StatsScreen</Text>}*/}
+      {/*  options={{*/}
+      {/*    title: 'Statystyki',*/}
+      {/*    headerTitle: 'Statystyki',*/}
+      {/*  }}*/}
+      {/*/>*/}
+      {/*<Tab.Screen */}
+      {/*  name="Settings" */}
+      {/*  component={() => <Text>SettingsScreen</Text>}*/}
+      {/*  options={{*/}
+      {/*    title: 'Ustawienia',*/}
+      {/*    headerShown: false,*/}
+      {/*  }}*/}
+      {/*/>*/}
     </Tab.Navigator>
   );
 }

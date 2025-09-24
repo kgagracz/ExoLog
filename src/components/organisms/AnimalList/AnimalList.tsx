@@ -1,92 +1,44 @@
 import React from 'react';
-import {
-  FlatList,
-  StyleSheet,
-  ListRenderItem,
-} from 'react-native';
-import { useTheme } from '../../../context/ThemeContext';
-import { Separator } from '../../atoms';
-import AnimalCard from '../AnimalCard/AnimalCard';
-import EmptyState from '../EmptyState/EmptyState';
-import {Theme} from "../../../styles/theme";
+import { ScrollView, RefreshControl, StyleSheet } from 'react-native';
+import {Animal} from "../../../types";
+import AnimalCard from "../../molecules/AnimalCard";
 
-interface Animal {
-  id: string;
-  name: string;
-  species: string;
-  type: 'tarantula' | 'scorpion' | 'other';
-  dateAdded: Date;
-  eventsCount: number;
-  age: number;
-}
-
-interface AnimalListProps {
+interface AnimalsListProps {
   animals: Animal[];
+  loading: boolean;
+  onRefresh: () => void;
   onAnimalPress: (animal: Animal) => void;
-  onRefresh?: () => Promise<void>;
-  refreshing?: boolean;
-  emptyStateTitle?: string;
-  emptyStateDescription?: string;
-  emptyStateEmoji?: string;
 }
 
-const AnimalList: React.FC<AnimalListProps> = ({
-  animals,
-  onAnimalPress,
-  onRefresh,
-  refreshing = false,
-  emptyStateTitle = "Brak ptaszników",
-  emptyStateDescription = "Dodaj swojego pierwszego ptasznika, aby rozpocząć zarządzanie hodowlą",
-  emptyStateEmoji = "🕷️",
-}) => {
-  const { theme } = useTheme();
-  const styles = createStyles(theme);
-
-  const renderAnimalCard: ListRenderItem<Animal> = ({ item }) => (
-    <AnimalCard
-      animal={item}
-      onPress={onAnimalPress}
-    />
-  );
-
-  const renderSeparator = () => <Separator />;
-
-  const renderEmptyComponent = () => (
-    <EmptyState
-      emoji={emptyStateEmoji}
-      title={emptyStateTitle}
-      description={emptyStateDescription}
-    />
-  );
-
-  const keyExtractor = (item: Animal): string => item.id;
-
+const AnimalsList: React.FC<AnimalsListProps> = ({
+                                                   animals,
+                                                   loading,
+                                                   onRefresh,
+                                                   onAnimalPress
+                                                 }) => {
   return (
-    <FlatList
-      data={animals}
-      renderItem={renderAnimalCard}
-      keyExtractor={keyExtractor}
-      ItemSeparatorComponent={renderSeparator}
-      ListEmptyComponent={renderEmptyComponent}
-      contentContainerStyle={[
-        styles.contentContainer,
-        animals.length === 0 && { flex: 1 }
-      ]}
-      showsVerticalScrollIndicator={false}
-      onRefresh={onRefresh}
-      refreshing={refreshing}
-      removeClippedSubviews={true}
-      maxToRenderPerBatch={10}
-      windowSize={10}
-      initialNumToRender={8}
-    />
+      <ScrollView
+          style={styles.list}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={loading} onRefresh={onRefresh} />
+          }
+      >
+        {animals.map((animal) => (
+            <AnimalCard
+                key={animal.id}
+                animal={animal}
+                onPress={onAnimalPress}
+            />
+        ))}
+      </ScrollView>
   );
 };
 
-const createStyles = (theme: Theme) => StyleSheet.create({
-  contentContainer: {
-    paddingBottom: theme.spacing.large,
+const styles = StyleSheet.create({
+  list: {
+    flex: 1,
   },
 });
 
-export default AnimalList;
+export default AnimalsList;
