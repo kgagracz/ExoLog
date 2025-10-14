@@ -20,18 +20,6 @@ const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => 
 
   const [searchText, setSearchText] = useState<string>('');
   const [fabOpen, setFabOpen] = useState<boolean>(false);
-  const [isFocused, setIsFocused] = useState<boolean>(false);
-
-  // Hook kontrolujący widoczność FAB
-  useEffect(
-      useCallback(() => {
-        setIsFocused(true);
-        return () => {
-          setIsFocused(false);
-          setFabOpen(false);
-        };
-      }, [])
-  );
 
   // Obsługa nawigacji
   const handleAddSpider = (): void => {
@@ -74,7 +62,6 @@ const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => 
               <EmptyState
                   title="Brak zwierząt"
                   description="Dodaj swojego pierwszego ptasznika, aby rozpocząć zarządzanie hodowlą"
-                  buttonText="Dodaj ptasznika"
                   onButtonPress={handleAddSpider}
               />
           ) : (
@@ -88,7 +75,6 @@ const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => 
         </View>
 
         <AddActionsFAB
-            visible={isFocused}
             open={fabOpen}
             onStateChange={({ open }) => setFabOpen(open)}
             onAddAnimal={handleAddSpider}

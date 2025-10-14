@@ -4,7 +4,7 @@ import { FAB, Portal } from 'react-native-paper';
 import { useTheme } from "../../context/ThemeContext";
 
 interface AddActionsFABProps {
-  visible: boolean;
+  visible?: boolean;
   open: boolean;
   onStateChange: (state: { open: boolean }) => void;
   onAddAnimal: () => void;
@@ -12,7 +12,7 @@ interface AddActionsFABProps {
 }
 
 const AddActionsFAB: React.FC<AddActionsFABProps> = ({
-  visible,
+  visible = true,
   open,
   onStateChange,
   onAddAnimal,
