@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Alert } from 'react-native';
-import {Text, TextInput, Button, Card, IconButton} from 'react-native-paper';
+import {Text, TextInput, Button, Card, Checkbox} from 'react-native-paper';
 import {useAuth} from "../../hooks";
 import {Theme} from "../../styles/theme";
 import {useTheme} from "../../context/ThemeContext";
@@ -13,6 +13,7 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [rememberMe, setRememberMe] = useState(true);
     const [loading, setLoading] = useState(false);
     const { signIn } = useAuth();
     const {theme} = useTheme();
@@ -31,7 +32,7 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
 
         setLoading(true);
         try {
-            const result = await signIn(email, password);
+            const result = await signIn(email, password, rememberMe);
 
             if (!result.success) {
                 Alert.alert('Błąd logowania', result.error || 'Nieznany błąd');
@@ -109,6 +110,18 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
                             {loading ? 'Logowanie...' : 'Zaloguj się'}
                         </Button>
 
+                        <View style={styles.rememberMeContainer}>
+                            <Checkbox.Item
+                                label="Zapamiętaj mnie"
+                                status={rememberMe ? 'checked' : 'unchecked'}
+                                onPress={() => setRememberMe(!rememberMe)}
+                                disabled={loading}
+                                position="leading"
+                                labelStyle={styles.checkboxLabel}
+                                style={styles.checkbox}
+                            />
+                        </View>
+
                         <Button
                             mode="text"
                             onPress={handleForgotPassword}
@@ -169,6 +182,16 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     loginButton: {
         marginTop: 8,
         marginBottom: 8,
+    },
+    rememberMeContainer: {
+        marginTop: 8,
+        marginBottom: 8,
+    },
+    checkbox: {
+        paddingHorizontal: 0,
+    },
+    checkboxLabel: {
+        color: theme.colors.textSecondary,
     },
     forgotButton: {
         alignSelf: 'center',

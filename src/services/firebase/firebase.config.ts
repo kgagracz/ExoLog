@@ -3,10 +3,14 @@
 // ================================
 // @ts-ignore
 
-import { initializeApp } from 'firebase/app';
-import { getAuth, connectAuthEmulator } from 'firebase/auth';
-import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
-import { getStorage, connectStorageEmulator } from 'firebase/storage';
+import { initializeApp, getApps, getApp } from 'firebase/app';
+// @ts-ignore
+import {getReactNativePersistence, initializeAuth, Auth} from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
+import { getStorage } from 'firebase/storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
 import {
     EXPO_PUBLIC_FIREBASE_API_KEY,
     EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -55,13 +59,34 @@ const firebaseConfig = {
     }),
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+// Inicjalizacja Firebase - zapobiega duplikacji
+let app;
+if (!getApps().length) {
+    app = initializeApp(firebaseConfig);
+} else {
+    app = getApp();
+}
 
-// Initialize Firebase services
-export const auth = getAuth(app);
-export const db = getFirestore(app);
-export const storage = getStorage(app);
+// Inicjalizacja Auth z persistencją AsyncStorage
+let auth: Auth;
+try {
+    auth = initializeAuth(app, {
+        persistence: getReactNativePersistence(AsyncStorage)
+    });
+} catch (error: any) {
+    // Jeśli auth już istnieje (hot reload), użyj istniejącego
+    if (error.code === 'auth/already-initialized') {
+        const { getAuth } = require('firebase/auth');
+        auth = getAuth(app);
+    } else {
+        throw error;
+    }
+}
+
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+export { app, auth, db, storage };
 
 // Development mode configuration
 const isDev = EXPO_PUBLIC_APP_ENV === 'development';
