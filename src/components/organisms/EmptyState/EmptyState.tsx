@@ -1,12 +1,8 @@
 import React from 'react';
 import { EmptyStateContent } from '../../molecules';
+import {EmptyStateContentProps} from "../../molecules/EmptyStateContent/EmptyStateContent";
 
-interface EmptyStateProps {
-  emoji?: string;
-  title: string;
-  description: string;
-  style?: any;
-}
+interface EmptyStateProps extends EmptyStateContentProps {}
 
 const EmptyState: React.FC<EmptyStateProps> = (props) => {
   return <EmptyStateContent {...props} />;
