@@ -16,21 +16,19 @@ export default function AddSpiderScreen({ navigation }: AddSpiderScreenProps) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
 
-  const { addAnimal } = useAnimals();
+  const { addAnimal, addMultipleAnimals } = useAnimals();
   const { categories } = useCategories();
   const { animalTypes } = useAnimalTypes('tsXnqoMTNElLOrIplWhn');
 
   const {theme} = useTheme()
   const styles = createStyles(theme)
 
-  // Funkcja do wyciągnięcia ostatniego słowa z gatunku
   const getLastWordFromSpecies = (species: string): string => {
     if (!species) return 'Ptasznik';
 
     const words = species.split(' ');
     const lastWord = words[words.length - 1];
 
-    // Kapitalizuj pierwszą literę
     return lastWord.charAt(0).toUpperCase() + lastWord.slice(1).toLowerCase();
   };
 
@@ -49,6 +47,14 @@ export default function AddSpiderScreen({ navigation }: AddSpiderScreenProps) {
       newErrors.dateAcquired = 'Data nabycia jest wymagana';
     }
 
+    if (!formData.quantity || formData.quantity < 1) {
+      newErrors.quantity = 'Ilość musi być większa niż 0';
+    }
+
+    if (formData.quantity > 999) {
+      newErrors.quantity = 'Maksymalna ilość to 999';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -62,27 +68,30 @@ export default function AddSpiderScreen({ navigation }: AddSpiderScreenProps) {
     setSaving(true);
 
     try {
-      // Znajdź ID kategorii pajęczaków
       const arachnidsCategory = categories.find(cat => cat.name === 'arachnids');
       if (!arachnidsCategory) {
         Alert.alert('Błąd', 'Nie znaleziono kategorii pajęczaków. Zainicjalizuj bazę danych.');
+        setSaving(false);
         return;
       }
 
-      // Znajdź ID typu ptasznik
       const tarantulaType = animalTypes.find(type =>
           type.name === 'tarantula' && type.categoryId === arachnidsCategory.id
       );
       if (!tarantulaType) {
         Alert.alert('Błąd', 'Nie znaleziono typu ptasznik. Zainicjalizuj bazę danych.');
+        setSaving(false);
         return;
       }
 
-      // Przygotuj dane zwierzęcia
-      const animalData: Omit<Animal, 'id' | 'createdAt' | 'updatedAt' | 'userId'> = {
+      const quantity = formData.quantity || 1;
+      const baseName = formData.name?.trim() || getLastWordFromSpecies(formData.species);
+      const speciesLastWord = getLastWordFromSpecies(formData.species);
+
+      // Przygotuj bazowe dane zwierzęcia (bez nazwy)
+      const baseAnimalData: Omit<Animal, 'id' | 'createdAt' | 'updatedAt' | 'userId' | 'name'> = {
         categoryId: arachnidsCategory.id,
         animalTypeId: tarantulaType.id,
-        name: formData.name ? formData.name.trim() : getLastWordFromSpecies(formData.species),
         species: formData.species?.trim(),
         sex: formData.sex,
         stage: formData.stage,
@@ -130,16 +139,61 @@ export default function AddSpiderScreen({ navigation }: AddSpiderScreenProps) {
         },
       };
 
-      const result = await addAnimal(animalData);
+      // Dodaj ptaszniki
+      const results = [];
+      const errors = [];
 
-      if (result.success) {
+      for (let i = 0; i < quantity; i++) {
+        // Określ nazwę: jeśli quantity = 1, użyj podanej nazwy lub domyślnej
+        // Jeśli quantity > 1, zawsze numeruj
+        let animalName: string;
+        if (quantity === 1) {
+          animalName = baseName;
+        } else {
+          // Jeśli użytkownik podał własną nazwę i dodaje wiele, użyj tej nazwy + numer
+          // Jeśli nie podał, użyj ostatniego słowa z gatunku + numer
+          const namePrefix = formData.name?.trim() || speciesLastWord;
+          animalName = `${namePrefix}-${i + 1}`;
+        }
+
+        const animalData = {
+          ...baseAnimalData,
+          name: animalName,
+        };
+
+        const result = await addAnimal(animalData);
+
+        if (result.success) {
+          results.push(animalName);
+        } else {
+          errors.push({ name: animalName, error: result.error });
+        }
+      }
+
+      // Pokaż podsumowanie
+      if (errors.length === 0) {
+        const message = quantity === 1
+            ? `Ptasznik "${results[0]}" został dodany!`
+            : `Dodano ${results.length} ptaszników:\n${results.slice(0, 5).join(', ')}${results.length > 5 ? `\n... i ${results.length - 5} więcej` : ''}`;
+
         Alert.alert(
             'Sukces',
-            `Ptasznik "${animalData.name}" został dodany!`,
+            message,
+            [{ text: 'OK', onPress: () => navigation.goBack() }]
+        );
+      } else if (results.length > 0) {
+        // Częściowy sukces
+        Alert.alert(
+            'Częściowy sukces',
+            `Dodano ${results.length} ptaszników, ale ${errors.length} nie udało się dodać.\n\nBłędy:\n${errors.map(e => `${e.name}: ${e.error}`).join('\n')}`,
             [{ text: 'OK', onPress: () => navigation.goBack() }]
         );
       } else {
-        Alert.alert('Błąd', result.error || 'Nie udało się dodać ptasznika');
+        // Całkowita porażka
+        Alert.alert(
+            'Błąd',
+            `Nie udało się dodać żadnego ptasznika.\n\nBłędy:\n${errors.map(e => `${e.name}: ${e.error}`).join('\n')}`
+        );
       }
     } catch (error: any) {
       Alert.alert('Błąd', error.message || 'Wystąpił nieoczekiwany błąd');
@@ -166,7 +220,7 @@ export default function AddSpiderScreen({ navigation }: AddSpiderScreenProps) {
             onPress={handleSave}
             loading={saving}
             disabled={saving}
-            label={saving ? "Zapisywanie..." : "Zapisz"}
+            label={saving ? "Zapisywanie..." : formData.quantity > 1 ? `Zapisz (${formData.quantity})` : "Zapisz"}
         />
       </View>
   );

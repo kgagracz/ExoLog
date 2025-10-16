@@ -10,6 +10,8 @@ export const lightTheme = {
         backgroundSecondary: '#f8fafc',
         surface: '#ffffff',
         surfaceLight: '#f1f5f9',
+        onSurface: '#1f2937',
+        onSurfaceVariant: '#6b7280',
         text: '#000000',
         textPrimary: '#1f2937',
         textSecondary: '#6b7280',
@@ -196,6 +198,8 @@ export const darkTheme = {
         textSecondary: '#d1d5db',
         textLight: '#9ca3af',
         textInverse: '#000000',
+        onSurface: '#f9fafb',
+        onSurfaceVariant: '#9ca3af',
 
         // Kolory główne
         primary: '#818cf8',

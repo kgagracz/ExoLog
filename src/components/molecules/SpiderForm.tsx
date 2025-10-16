@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
-import { Text, Card, Divider } from 'react-native-paper';
+import { Text, Card, Divider, HelperText, Switch } from 'react-native-paper';
 import FormInput from '@components/atoms/FormInput';
 import FormSelect from '@components/atoms/FormSelect';
 import FormNumberInput from '@components/atoms/FormNumberInput';
@@ -13,7 +13,7 @@ interface SpiderFormData {
   name: string;
   species: string;
   sex: 'male' | 'female' | 'unknown';
-  stage: number | null; // Zmienione na numeryczne
+  stage: number | null;
   dateAcquired: string;
   dateOfBirth: string;
   bodyLength: number | null;
@@ -22,6 +22,7 @@ interface SpiderFormData {
   terrariumHeight: number | null;
   feedingSchedule: string;
   notes: string;
+  quantity: number; // Nowe pole
 }
 
 interface SpiderFormProps {
@@ -35,8 +36,6 @@ const sexOptions = [
   { label: 'Samica', value: 'female' },
   { label: 'Nieznana', value: 'unknown' },
 ];
-
-// Usunięte stageOptions - zastąpione polem numerycznym
 
 const webTypeOptions = [
   { label: 'Brak sieci', value: 'none' },
@@ -77,7 +76,6 @@ const substrateOptions = [
   { label: 'Mieszanka', value: 'mix' },
 ];
 
-// Funkcja pomocnicza do określenia kategorii stadium na podstawie numeru
 const getStageCategory = (stage: number | null): string => {
   if (!stage) return 'Nieznane';
   if (stage <= 3) return 'Młode (L1-L3)';
@@ -89,11 +87,12 @@ const getStageCategory = (stage: number | null): string => {
 export default function SpiderForm({ initialData = {}, onDataChange, errors }: SpiderFormProps) {
   const {theme} = useTheme()
   const styles = makeStyles(theme)
+  const [addMultiple, setAddMultiple] = useState(false);
   const [formData, setFormData] = useState<SpiderFormData>({
     name: '',
     species: '',
     sex: 'unknown',
-    stage: null, // Zmienione na null dla liczby
+    stage: null,
     dateAcquired: new Date().toISOString().split('T')[0],
     dateOfBirth: '',
     webType: 'minimal',
@@ -110,6 +109,7 @@ export default function SpiderForm({ initialData = {}, onDataChange, errors }: S
     feedingSchedule: 'weekly',
     foodType: 'cricket',
     notes: '',
+    quantity: 1, // Domyślnie 1
     ...initialData,
   });
 
@@ -122,6 +122,14 @@ export default function SpiderForm({ initialData = {}, onDataChange, errors }: S
       value: SpiderFormData[K]
   ) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleMultipleToggle = () => {
+    setAddMultiple(!addMultiple);
+    if (addMultiple) {
+      // Jeśli wyłączamy tryb wielokrotny, resetuj ilość do 1
+      updateField('quantity', 1);
+    }
   };
 
   return (
@@ -147,8 +155,42 @@ export default function SpiderForm({ initialData = {}, onDataChange, errors }: S
                 value={formData.name}
                 onChangeText={(value) => updateField('name', value)}
                 error={errors.name}
-                placeholder="np. Charlotte, Spider-1"
+                placeholder={addMultiple ? "np. Charlotte (opcjonalne przy ilości > 1)" : "np. Charlotte, Spider-1"}
             />
+
+            <View style={styles.switchRow}>
+              <View style={styles.switchContent}>
+                <Text variant="bodyLarge" style={styles.switchLabel}>Dodaj wiele</Text>
+                <Text variant="bodySmall" style={styles.switchHelper}>
+                  Włącz, aby dodać wiele ptaszników jednocześnie
+                </Text>
+              </View>
+              <Switch
+                  value={addMultiple}
+                  onValueChange={handleMultipleToggle}
+                  color={theme.colors.primary}
+              />
+            </View>
+
+            {addMultiple && (
+                <>
+                  <FormNumberInput
+                      label="Ilość ptaszników"
+                      value={formData.quantity}
+                      onValueChange={(value) => updateField('quantity', value || 1)}
+                      error={errors.quantity}
+                      min={1}
+                      max={999}
+                      placeholder="1"
+                      required
+                  />
+                  <HelperText type="info" visible={formData.quantity > 1}>
+                    {formData.quantity > 1
+                        ? `Zostanie utworzonych ${formData.quantity} ptaszników z automatycznymi nazwami (np. ${formData.species.split(' ').pop() || 'Ptasznik'}-1, ${formData.species.split(' ').pop() || 'Ptasznik'}-2...)`
+                        : 'Wprowadź liczbę większą niż 1, aby dodać wiele ptaszników jednocześnie'}
+                  </HelperText>
+                </>
+            )}
 
             <FormSelect
                 label="Płeć"
@@ -220,7 +262,6 @@ export default function SpiderForm({ initialData = {}, onDataChange, errors }: S
             />
           </Card.Content>
         </Card>
-
 
         {/* Terrarium */}
         <Card style={styles.section}>
@@ -310,11 +351,12 @@ export default function SpiderForm({ initialData = {}, onDataChange, errors }: S
 const makeStyles = (theme: Theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background,
+    backgroundColor: theme.colors.backgroundSecondary,
   },
   section: {
     marginHorizontal: 16,
     marginBottom: 16,
+    backgroundColor: theme.colors.backgroundSecondary,
   },
   sectionTitle: {
     marginBottom: 16,
@@ -327,5 +369,25 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
   },
   halfWidth: {
     flex: 1,
+  },
+  switchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 8,
+    marginBottom: 8,
+  },
+  switchContent: {
+    flex: 1,
+    marginRight: 16,
+  },
+  switchLabel: {
+    fontWeight: '500',
+    color: theme.colors.onSurface,
+    marginBottom: 4,
+  },
+  switchHelper: {
+    color: theme.colors.onSurfaceVariant,
+    fontSize: 12,
   },
 });
