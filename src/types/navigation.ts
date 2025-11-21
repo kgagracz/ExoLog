@@ -3,5 +3,6 @@ export type RootStackParamList = {
     AddAnimal: undefined;
     EditAnimal: { animalId: string }; // DODAJ
     AnimalDetails: { animalId: string };
-    // ... inne ekrany
+    AddMolting: { animalId: string };
+
 };

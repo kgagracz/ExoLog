@@ -5,6 +5,8 @@ import AddSpiderScreen from "../screens/animals/AddSpiderScreen";
 import {AddFeedingScreen} from "../screens/animals/AddFeedingScreen";
 import AnimalDetailsScreen from "../screens/animals/AnimalDetailsScreen";
 import EditAnimalScreen from "../screens/animals/EditAnimalScreen";
+import MoltingHistoryCard from "../screens/animals/MoltingHistoryScreen";
+import AddMoltingScreen from "../screens/animals/AddMoltingScreen";
 
 type AnimalStackParamList = {
   AnimalsList: undefined;
@@ -12,6 +14,7 @@ type AnimalStackParamList = {
   AddFeeding: undefined;
   AnimalDetails: undefined;
   EditAnimal: undefined
+  AddMolting: undefined
 };
 
 const Stack = createNativeStackNavigator<AnimalStackParamList>();
@@ -34,6 +37,11 @@ export default function AnimalStackNavigator() {
       <Stack.Screen
           name="EditAnimal"
           component={EditAnimalScreen}
+          options={{ headerShown: false }}
+      />
+      <Stack.Screen
+          name="AddMolting"
+          component={AddMoltingScreen}
           options={{ headerShown: false }}
       />
     </Stack.Navigator>

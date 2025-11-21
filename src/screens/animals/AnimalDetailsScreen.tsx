@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native';
-import { Text, ActivityIndicator, FAB } from 'react-native-paper';
+import {Text, ActivityIndicator, FAB, Card, IconButton} from 'react-native-paper';
 import {useAnimals} from "../../hooks";
 import {useTheme} from "../../context/ThemeContext";
 import {Animal} from "../../types";
@@ -13,6 +13,9 @@ import FeedingSection from "../../components/molecules/FeedingSection";
 import BehaviorSection from "../../components/molecules/BehaviorSection";
 import HealthStatusSection from "../../components/molecules/HealthStatusSection";
 import {Theme} from "../../styles/theme";
+import {useEvents} from "../../hooks/useEvents";
+import {MoltingEvent} from "../../types/events";
+import MoltingHistoryCard from "./MoltingHistoryScreen";
 
 interface AnimalDetailsScreenProps {
     route: {
@@ -33,10 +36,25 @@ const AnimalDetailsScreen: React.FC<AnimalDetailsScreenProps> = ({ route, naviga
     const [feedingHistory, setFeedingHistory] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [menuVisible, setMenuVisible] = useState(false);
+    const [moltingHistory, setMoltingHistory] = useState<MoltingEvent[]>([]);
+    const { getMoltingHistory } = useEvents();
 
     useEffect(() => {
         loadAnimalDetails();
     }, [animalId]);
+
+    const loadMoltingHistory = async () => {
+        const result = await getMoltingHistory(animalId, 5); // 5 ostatnich
+        if (result.success && result.data) {
+            setMoltingHistory(result.data);
+        }
+    };
+
+    useEffect(() => {
+        if (animal) {
+            loadMoltingHistory();
+        }
+    }, [animal]);
 
     const loadAnimalDetails = async () => {
         setLoading(true);
@@ -170,6 +188,33 @@ const AnimalDetailsScreen: React.FC<AnimalDetailsScreenProps> = ({ route, naviga
                         feedingHistory={feedingHistory}
                         onShowHistory={handleFeedingHistory}
                     />
+                </SectionCard>
+
+                <SectionCard>
+                    <Card.Title
+                        title="Historia wyliniek"
+                        right={(props) => (
+                            <IconButton
+                                {...props}
+                                icon="plus"
+                                onPress={() => navigation.navigate('AddMolting', { animalId })}
+                            />
+                        )}
+                    />
+                    <Card.Content>
+                        {moltingHistory.length > 0 ? (
+                            moltingHistory.map((molting) => (
+                                <MoltingHistoryCard
+                                    key={molting.id}
+                                    molting={molting}
+                                />
+                            ))
+                        ) : (
+                            <Text variant="bodyMedium" style={styles.emptyText}>
+                                Brak historii wyliniek
+                            </Text>
+                        )}
+                    </Card.Content>
                 </SectionCard>
 
                 {/* Zachowanie */}

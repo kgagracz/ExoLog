@@ -78,7 +78,7 @@ export const useAnimals = () => {
 
             return result;
         } catch (err: any) {
-            return { success: false, error: err.message };
+            return { success: false, error: err.message, data: null };
         }
     };
 
@@ -155,7 +155,7 @@ export const useAnimals = () => {
                 };
             }
         } catch (err: any) {
-            return { success: false, error: err.message };
+            return { success: false, error: err.message, data: null };
         }
     };
 
@@ -230,7 +230,7 @@ export const useAnimals = () => {
                 return { success: false, error: result.error };
             }
         } catch (err: any) {
-            return { success: false, error: err.message };
+            return { success: false, error: err.message, data: null };
         }
     };
 
@@ -246,7 +246,7 @@ export const useAnimals = () => {
                 return { success: false, error: result.error };
             }
         } catch (err: any) {
-            return { success: false, error: err.message };
+            return { success: false, error: err.message, data: null };
         }
     };
 
@@ -265,7 +265,7 @@ export const useAnimals = () => {
                 return { success: false, error: result.error };
             }
         } catch (err: any) {
-            return { success: false, error: err.message };
+            return { success: false, error: err.message, data: null };
         }
     };
 
@@ -285,7 +285,7 @@ export const useAnimals = () => {
 
             return result;
         } catch (err: any) {
-            return { success: false, error: err.message };
+            return { success: false, error: err.message, data: null };
         }
     };
 
@@ -309,7 +309,7 @@ export const useAnimals = () => {
             const result = await animalsService.getByCategory(user.uid, categoryId);
             return result;
         } catch (err: any) {
-            return { success: false, error: err.message };
+            return { success: false, error: err.message, data: null };
         }
     };
 
@@ -332,7 +332,7 @@ export const useAnimals = () => {
 
             return result;
         } catch (err: any) {
-            return { success: false, error: err.message };
+            return { success: false, error: err.message, data: null };
         }
     };
 
@@ -353,7 +353,7 @@ export const useAnimals = () => {
 
             return result;
         } catch (err: any) {
-            return { success: false, error: err.message };
+            return { success: false, error: err.message, data: null };
         }
     };
 
@@ -362,7 +362,7 @@ export const useAnimals = () => {
             const result = await animalsService.getFeedingHistory(animalId);
             return result;
         } catch (err: any) {
-            return { success: false, error: err.message };
+            return { success: false, error: err.message, data: null };
         }
     };
 
@@ -375,7 +375,7 @@ export const useAnimals = () => {
             const result = await animalsService.getUserFeedings(user.uid, limit);
             return result;
         } catch (err: any) {
-            return { success: false, error: err.message };
+            return { success: false, error: err.message, data: null };
         }
     };
 
@@ -389,7 +389,7 @@ export const useAnimals = () => {
 
             return result;
         } catch (err: any) {
-            return { success: false, error: err.message };
+            return { success: false, error: err.message, data: null };
         }
     };
 
@@ -402,7 +402,7 @@ export const useAnimals = () => {
             const result = await animalsService.getAnimalsDueForFeeding(user.uid, daysSinceLastFeeding);
             return result;
         } catch (err: any) {
-            return { success: false, error: err.message };
+            return { success: false, error: err.message, data: null };
         }
     };
 

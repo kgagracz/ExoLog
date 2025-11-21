@@ -1,0 +1,280 @@
+// src/services/eventsService.ts
+
+import {
+    collection,
+    addDoc,
+    updateDoc,
+    deleteDoc,
+    doc,
+    query,
+    where,
+    orderBy,
+    getDocs,
+    getDoc,
+    serverTimestamp,
+    limit as firebaseLimit,
+} from 'firebase/firestore';
+import {BaseEvent, MoltingEvent, MoltingEventData} from "../../types/events";
+import {db} from "./firebase.config";
+
+export const eventsService = {
+    // ================== WYLINKA ==================
+
+    addMolting: async (data: {
+        animalId: string;
+        userId: string;
+        date: string;
+        eventData: MoltingEventData;
+        description?: string;
+        photos?: string[];
+    }) => {
+        try {
+            const eventsRef = collection(db, 'events');
+
+            const eventDoc: Omit<BaseEvent, 'id' | 'createdAt' | 'updatedAt'> = {
+                animalId: data.animalId,
+                userId: data.userId,
+                eventTypeId: 'molting',
+                title: `Wylinka L${data.eventData.previousStage} → L${data.eventData.newStage}`,
+                description: data.description,
+                date: data.date,
+                eventData: data.eventData,
+                photos: data.photos?.map((url, index) => ({
+                    id: `photo-${Date.now()}-${index}`,
+                    url,
+                    date: data.date,
+                    isMain: index === 0,
+                })) || [],
+                status: 'completed',
+                importance: 'medium',
+            };
+
+            const docRef = await addDoc(eventsRef, {
+                ...eventDoc,
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp(),
+            });
+
+            // Automatyczna aktualizacja stadium ptasznika
+                const animalRef = doc(db, 'animals', data.animalId);
+                const updateData: any = {
+                    stage: data.eventData.newStage,
+                    updatedAt: serverTimestamp(),
+                };
+
+                // Zaktualizuj pole specificData.currentStage (numer wylinki)
+                updateData['specificData.currentStage'] = data.eventData.newStage;
+
+                // Jeśli podano nowy rozmiar, zaktualizuj pomiary
+                if (data.eventData.newBodyLength) {
+                    updateData['measurements.length'] = data.eventData.newBodyLength;
+                    updateData['measurements.lastMeasured'] = data.date;
+                }
+
+                await updateDoc(animalRef, updateData);
+
+            return {
+                success: true,
+                data: { id: docRef.id, ...eventDoc }
+            };
+        } catch (error: any) {
+            console.error('Error adding molting event:', error);
+            return {
+                success: false,
+                error: error.message || 'Failed to add molting event'
+            };
+        }
+    },
+
+    getMoltingHistory: async (animalId: string, limitCount: number = 20) => {
+        try {
+            const eventsRef = collection(db, 'events');
+            const q = query(
+                eventsRef,
+                where('animalId', '==', animalId),
+                where('eventTypeId', '==', 'molting'),
+                orderBy('date', 'desc'),
+                firebaseLimit(limitCount)
+            );
+
+            const snapshot = await getDocs(q);
+            const events = snapshot.docs.map(doc => {
+                const data = doc.data();
+                return {
+                    id: doc.id,
+                    ...data,
+                    createdAt: data.createdAt?.toDate?.()?.toISOString() || data.createdAt,
+                    updatedAt: data.updatedAt?.toDate?.()?.toISOString() || data.updatedAt,
+                } as MoltingEvent;
+            });
+
+            return {
+                success: true,
+                data: events
+            };
+        } catch (error: any) {
+            console.error('Error getting molting history:', error);
+            return {
+                success: false,
+                error: error.message || 'Failed to get molting history',
+                data: []
+            };
+        }
+    },
+
+    getUserMoltings: async (userId: string, limitCount: number = 50) => {
+        try {
+            const eventsRef = collection(db, 'events');
+            const q = query(
+                eventsRef,
+                where('userId', '==', userId),
+                where('eventTypeId', '==', 'molting'),
+                orderBy('date', 'desc'),
+                firebaseLimit(limitCount)
+            );
+
+            const snapshot = await getDocs(q);
+            const events = snapshot.docs.map(doc => {
+                const data = doc.data();
+                return {
+                    id: doc.id,
+                    ...data,
+                    createdAt: data.createdAt?.toDate?.()?.toISOString() || data.createdAt,
+                    updatedAt: data.updatedAt?.toDate?.()?.toISOString() || data.updatedAt,
+                } as MoltingEvent;
+            });
+
+            return {
+                success: true,
+                data: events
+            };
+        } catch (error: any) {
+            console.error('Error getting user moltings:', error);
+            return {
+                success: false,
+                error: error.message || 'Failed to get user moltings',
+                data: []
+            };
+        }
+    },
+
+    updateMolting: async (eventId: string, updates: Partial<BaseEvent>) => {
+        try {
+            const eventRef = doc(db, 'events', eventId);
+
+            await updateDoc(eventRef, {
+                ...updates,
+                updatedAt: serverTimestamp(),
+            });
+
+            return { success: true };
+        } catch (error: any) {
+            console.error('Error updating molting event:', error);
+            return {
+                success: false,
+                error: error.message || 'Failed to update molting event'
+            };
+        }
+    },
+
+    deleteMolting: async (eventId: string) => {
+        try {
+            const eventRef = doc(db, 'events', eventId);
+            await deleteDoc(eventRef);
+
+            return { success: true };
+        } catch (error: any) {
+            console.error('Error deleting molting event:', error);
+            return {
+                success: false,
+                error: error.message || 'Failed to delete molting event'
+            };
+        }
+    },
+
+    // ================== OGÓLNE FUNKCJE ==================
+
+    getAnimalEvents: async (
+        animalId: string,
+        eventTypeId?: string,
+        limitCount: number = 50
+    ) => {
+        try {
+            const eventsRef = collection(db, 'events');
+
+            let q;
+            if (eventTypeId) {
+                q = query(
+                    eventsRef,
+                    where('animalId', '==', animalId),
+                    where('eventTypeId', '==', eventTypeId),
+                    orderBy('date', 'desc'),
+                    firebaseLimit(limitCount)
+                );
+            } else {
+                q = query(
+                    eventsRef,
+                    where('animalId', '==', animalId),
+                    orderBy('date', 'desc'),
+                    firebaseLimit(limitCount)
+                );
+            }
+
+            const snapshot = await getDocs(q);
+            const events = snapshot.docs.map(doc => {
+                const data = doc.data();
+                return {
+                    id: doc.id,
+                    ...data,
+                    createdAt: data.createdAt?.toDate?.()?.toISOString() || data.createdAt,
+                    updatedAt: data.updatedAt?.toDate?.()?.toISOString() || data.updatedAt,
+                } as BaseEvent;
+            });
+
+            return {
+                success: true,
+                data: events
+            };
+        } catch (error: any) {
+            console.error('Error getting animal events:', error);
+            return {
+                success: false,
+                error: error.message || 'Failed to get animal events',
+                data: []
+            };
+        }
+    },
+
+    getEventById: async (eventId: string) => {
+        try {
+            const eventRef = doc(db, 'events', eventId);
+            const eventDoc = await getDoc(eventRef);
+
+            if (!eventDoc.exists()) {
+                return {
+                    success: false,
+                    error: 'Event not found',
+                    data: null
+                };
+            }
+
+            const data = eventDoc.data();
+            return {
+                success: true,
+                data: {
+                    id: eventDoc.id,
+                    ...data,
+                    createdAt: data.createdAt?.toDate?.()?.toISOString() || data.createdAt,
+                    updatedAt: data.updatedAt?.toDate?.()?.toISOString() || data.updatedAt,
+                } as BaseEvent
+            };
+        } catch (error: any) {
+            console.error('Error getting event:', error);
+            return {
+                success: false,
+                error: error.message || 'Failed to get event',
+                data: null
+            };
+        }
+    },
+};

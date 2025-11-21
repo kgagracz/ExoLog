@@ -80,13 +80,13 @@
     - [ ] Lista ptaszników do nakarmienia
 
 #### Wylinka
-- [ ] Dodawanie wydarzenia wylinki
-    - [ ] Data wylinki
-    - [ ] Nowe stadium (automatyczna inkrementacja)
-    - [ ] Nowy rozmiar (opcjonalnie)
-    - [ ] Notatki
-- [ ] Automatyczna aktualizacja stadium ptasznika
-- [ ] Historia wyliniek
+- [x] Dodawanie wydarzenia wylinki
+    - [x] Data wylinki
+    - [x] Nowe stadium (automatyczna inkrementacja)
+    - [x] Nowy rozmiar (opcjonalnie)
+    - [x] Notatki
+- [x] Automatyczna aktualizacja stadium ptasznika
+- [x] Historia wyliniek
 
 #### Dopuszczanie samicy
 - [ ] Dodawanie wydarzenia dopuszczania
