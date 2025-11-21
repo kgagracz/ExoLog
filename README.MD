@@ -8,7 +8,7 @@
 
 ---
 
-## ✅ TODO Lista Funkcjonalności
+## ✅ TODO Lista Funkcjonalności V1.0.0
 
 ### 🕷️ PTASZNIK
 
