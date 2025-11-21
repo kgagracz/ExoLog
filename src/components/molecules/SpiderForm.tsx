@@ -142,7 +142,7 @@ export default function SpiderForm({ initialData = {}, onDataChange, errors }: S
             </Text>
 
             <FormInput
-                label="Gatunek naukowy"
+                label="Nazwa gatunkowa"
                 value={formData.species}
                 onChangeText={(value) => updateField('species', value)}
                 error={errors.species}
@@ -151,7 +151,7 @@ export default function SpiderForm({ initialData = {}, onDataChange, errors }: S
             />
 
             <FormInput
-                label="Nazwa/Imię"
+                label="Nazwa własna/Imię"
                 value={formData.name}
                 onChangeText={(value) => updateField('name', value)}
                 error={errors.name}
@@ -162,7 +162,7 @@ export default function SpiderForm({ initialData = {}, onDataChange, errors }: S
               <View style={styles.switchContent}>
                 <Text variant="bodyLarge" style={styles.switchLabel}>Dodaj wiele</Text>
                 <Text variant="bodySmall" style={styles.switchHelper}>
-                  Włącz, aby dodać wiele ptaszników jednocześnie
+                  Włącz, aby dodać wiele ptaszników tego samego gatunku jednocześnie
                 </Text>
               </View>
               <Switch
