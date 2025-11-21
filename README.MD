@@ -36,8 +36,8 @@
     - [ ] Rozmiar ciała
     - [ ] Data urodzenia
     - [ ] Data nabycia
-    - [ ] Dokument CITES
     - [ ] Częstotliwość karmienia (własna/automatyczna)
+    - [ ] Dokument CITES
 - [ ] Aktualizacja danych w Firestore
 - [ ] Zarządzanie dokumentem CITES (upload/usuwanie)
 

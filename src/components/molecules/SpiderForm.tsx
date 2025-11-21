@@ -29,6 +29,7 @@ interface SpiderFormProps {
   initialData?: Partial<SpiderFormData>;
   onDataChange: (data: SpiderFormData) => void;
   errors: Record<string, string>;
+  editMode?: boolean;
 }
 
 const sexOptions = [
@@ -84,7 +85,7 @@ const getStageCategory = (stage: number | null): string => {
   return 'Adult (L9+)';
 };
 
-export default function SpiderForm({ initialData = {}, onDataChange, errors }: SpiderFormProps) {
+export default function SpiderForm({ initialData = {}, onDataChange, errors, editMode = false }: SpiderFormProps) {
   const {theme} = useTheme()
   const styles = makeStyles(theme)
   const [addMultiple, setAddMultiple] = useState(false);
@@ -158,7 +159,7 @@ export default function SpiderForm({ initialData = {}, onDataChange, errors }: S
                 placeholder={addMultiple ? "np. Charlotte (opcjonalne przy ilości > 1)" : "np. Charlotte, Spider-1"}
             />
 
-            <View style={styles.switchRow}>
+            {!editMode && <View style={styles.switchRow}>
               <View style={styles.switchContent}>
                 <Text variant="bodyLarge" style={styles.switchLabel}>Dodaj wiele</Text>
                 <Text variant="bodySmall" style={styles.switchHelper}>
@@ -170,7 +171,7 @@ export default function SpiderForm({ initialData = {}, onDataChange, errors }: S
                   onValueChange={handleMultipleToggle}
                   color={theme.colors.primary}
               />
-            </View>
+            </View>}
 
             {addMultiple && (
                 <>
@@ -264,7 +265,7 @@ export default function SpiderForm({ initialData = {}, onDataChange, errors }: S
         </Card>
 
         {/* Terrarium */}
-        <Card style={styles.section}>
+        {!editMode && <Card style={styles.section}>
           <Card.Content>
             <Text variant="titleMedium" style={styles.sectionTitle}>
               🏠 Terrarium
@@ -306,7 +307,7 @@ export default function SpiderForm({ initialData = {}, onDataChange, errors }: S
             />
 
           </Card.Content>
-        </Card>
+        </Card>}
 
         {/* Karmienie */}
         <Card style={styles.section}>

@@ -295,7 +295,7 @@ export const useAnimals = () => {
             const result = await animalsService.getById(animalId);
             return result;
         } catch (err: any) {
-            return { success: false, error: err.message };
+            return { success: false, error: err.message, data: null };
         }
     };
 
