@@ -23,7 +23,6 @@ const AddActionsFAB: React.FC<AddActionsFABProps> = ({
   if (!visible) return null;
 
   return (
-    <Portal>
       <FAB.Group
         open={open}
         visible={true}
@@ -46,7 +45,6 @@ const AddActionsFAB: React.FC<AddActionsFABProps> = ({
         style={styles.fabGroup}
         fabStyle={{ backgroundColor: theme.colors.primary }}
       />
-    </Portal>
   );
 };
 
