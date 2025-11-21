@@ -29,16 +29,16 @@
 
 #### Edytowanie ptasznika
 - [ ] Ekran edycji ptasznika
-    - [ ] Gatunek
-    - [ ] Imię
-    - [ ] Płeć
-    - [ ] Stadium wylinkowe
-    - [ ] Rozmiar ciała
-    - [ ] Data urodzenia
-    - [ ] Data nabycia
-    - [ ] Częstotliwość karmienia (własna/automatyczna)
+    - [x] Gatunek
+    - [x] Imię
+    - [x] Płeć
+    - [x] Stadium wylinkowe
+    - [x] Rozmiar ciała
+    - [x] Data urodzenia
+    - [x] Data nabycia
+    - [x] Częstotliwość karmienia (własna/automatyczna)
     - [ ] Dokument CITES
-- [ ] Aktualizacja danych w Firestore
+- [x] Aktualizacja danych w Firestore
 - [ ] Zarządzanie dokumentem CITES (upload/usuwanie)
 
 #### Usuwanie ptasznika
