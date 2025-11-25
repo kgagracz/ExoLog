@@ -42,9 +42,9 @@
 - [ ] Zarządzanie dokumentem CITES (upload/usuwanie)
 
 #### Usuwanie ptasznika
-- [ ] Funkcja usuwania ptasznika
-- [ ] Dialog potwierdzenia usunięcia
-- [ ] Usuwanie z Firestore
+- [x] Funkcja usuwania ptasznika
+- [x] Dialog potwierdzenia usunięcia
+- [x] Usuwanie z Firestore
 - [ ] Usuwanie powiązanych zdjęć z Storage
 - [ ] Usuwanie powiązanych dokumentów CITES
 
