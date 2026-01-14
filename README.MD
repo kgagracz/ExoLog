@@ -134,7 +134,7 @@
 #### Autoryzacja
 - [x] Rejestracja użytkownika
 - [x] Logowanie
-- [ ] Wylogowanie
+- [x] Wylogowanie
 - [ ] Reset hasła
 - [ ] Profil użytkownika
 
