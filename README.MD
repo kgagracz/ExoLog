@@ -136,7 +136,7 @@
 - [x] Logowanie
 - [x] Wylogowanie
 - [ ] Reset hasła
-- [ ] Profil użytkownika
+- [x] Profil użytkownika
 
 #### Powiadomienia
 - [ ] System powiadomień push
