@@ -8,12 +8,12 @@ import {useTheme} from "../../context/ThemeContext";
 import {useAnimals} from "../../hooks";
 import SpiderForm from "../../components/molecules/SpiderForm";
 import {Theme} from "../../styles/theme";
-import {RootStackParamList} from "../../types/navigation";
+import { AnimalStackParamList } from "../../types/navigation";
 
-type EditAnimalScreenRouteProp = RouteProp<RootStackParamList, 'EditAnimal'>;
+type EditAnimalScreenRouteProp = RouteProp<AnimalStackParamList, 'EditAnimal'>;
 type EditAnimalScreenNavigationProp = NativeStackNavigationProp<
-RootStackParamList,
-'EditAnimal'
+    AnimalStackParamList,
+    'EditAnimal'
 >;
 
 
@@ -215,7 +215,7 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         gap: 12,
         backgroundColor: theme.colors.surface,
         borderTopWidth: 1,
-        borderTopColor: theme.colors.outline,
+        borderTopColor: theme.colors.border,
     },
     cancelButton: {
         flex: 1,

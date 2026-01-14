@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native';
 import {Text, ActivityIndicator, FAB, Card, IconButton} from 'react-native-paper';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import {useAnimals} from "../../hooks";
 import {useTheme} from "../../context/ThemeContext";
 import {Animal} from "../../types";
@@ -16,18 +18,16 @@ import {Theme} from "../../styles/theme";
 import {useEvents} from "../../hooks/useEvents";
 import {MoltingEvent} from "../../types/events";
 import MoltingHistoryCard from "./MoltingHistoryScreen";
+import { AnimalStackParamList } from "../../types/navigation";
 
-interface AnimalDetailsScreenProps {
-    route: {
-        params: {
-            animalId: string;
-        }
-    };
-    navigation: any;
-}
+type AnimalDetailsScreenRouteProp = RouteProp<AnimalStackParamList, 'AnimalDetails'>;
+type AnimalDetailsScreenNavigationProp = NativeStackNavigationProp<AnimalStackParamList, 'AnimalDetails'>;
 
-const AnimalDetailsScreen: React.FC<AnimalDetailsScreenProps> = ({ route, navigation }) => {
+export function AnimalDetailsScreen() {
+    const navigation = useNavigation<AnimalDetailsScreenNavigationProp>();
+    const route = useRoute<AnimalDetailsScreenRouteProp>();
     const { animalId } = route.params;
+
     const { getAnimal, getFeedingHistory, deleteAnimalCompletely } = useAnimals();
     const { theme } = useTheme();
     const styles = makeStyles(theme);
@@ -290,6 +290,7 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         bottom: 16,
         backgroundColor: theme.colors.primary,
     },
+    emptyText: {}
 });
 
 export default AnimalDetailsScreen;

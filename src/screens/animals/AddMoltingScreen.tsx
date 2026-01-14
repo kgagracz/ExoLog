@@ -5,17 +5,17 @@ import { View, StyleSheet, Alert } from 'react-native';
 import { Appbar, Button, ActivityIndicator } from 'react-native-paper';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import {RootStackParamList} from "../../types/navigation";
+import { AnimalStackParamList } from "../../types/navigation";
 import {useTheme} from "../../context/ThemeContext";
 import {useEvents} from "../../hooks/useEvents";
 import {useAnimals} from "../../hooks";
 import {Theme} from "../../styles/theme";
 import MoltingForm from "../../components/organisms/MoltingForm";
 
-type AddMoltingScreenRouteProp = RouteProp<RootStackParamList, 'AddMolting'>;
+type AddMoltingScreenRouteProp = RouteProp<AnimalStackParamList, 'AddMolting'>;
 type AddMoltingScreenNavigationProp = NativeStackNavigationProp<
-RootStackParamList,
-'AddMolting'
+    AnimalStackParamList,
+    'AddMolting'
 >;
 
 export default function AddMoltingScreen() {

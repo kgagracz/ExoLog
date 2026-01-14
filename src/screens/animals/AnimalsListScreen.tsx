@@ -6,6 +6,7 @@ import {Appbar, Searchbar} from "react-native-paper";
 import {EmptyState} from "../../components";
 import AnimalsList from "../../components/organisms/AnimalList";
 import AddActionsFAB from "../../components/molecules/AddActionsFAB";
+import UserAvatar from "../../components/atoms/UserAvatar";
 import {Theme} from "../../styles/theme";
 import {Animal} from "../../types";
 
@@ -36,6 +37,10 @@ const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => 
     navigation?.navigate('AnimalDetails', { animalId: animal.id });
   };
 
+  const handleProfilePress = (): void => {
+    navigation?.navigate('Profile');
+  };
+
   // Filtrowanie zwierząt
   const filteredAnimals = animals.filter(animal =>
       animal.name.toLowerCase().includes(searchText.toLowerCase()) ||
@@ -48,6 +53,9 @@ const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => 
       <View style={styles.container}>
         <Appbar.Header>
           <Appbar.Content title="🕷️ Moje Zwierzęta" />
+          <View style={styles.avatarContainer}>
+            <UserAvatar onPress={handleProfilePress} size={36} />
+          </View>
         </Appbar.Header>
 
         <View style={styles.content}>
@@ -96,6 +104,9 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
   searchBar: {
     marginBottom: 16,
     backgroundColor: theme.colors.backgroundSecondary,
+  },
+  avatarContainer: {
+    marginRight: 8,
   },
 });
 

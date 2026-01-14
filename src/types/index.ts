@@ -177,7 +177,7 @@ export interface Animal {
   feeding: {
     schedule: string;
     lastFed?: string;
-    foodType: string;
+    foodType?: string;
     foodBrand?: string;
     amount?: string;
     feedingTime?: string;
