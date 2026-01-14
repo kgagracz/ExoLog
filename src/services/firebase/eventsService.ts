@@ -16,6 +16,7 @@ import {
 } from 'firebase/firestore';
 import {BaseEvent, MoltingEvent, MoltingEventData} from "../../types/events";
 import {db} from "./firebase.config";
+import {removeUndefinedDeep} from "../../utils/objectService";
 
 export const eventsService = {
     // ================== WYLINKA ==================
@@ -31,7 +32,7 @@ export const eventsService = {
         try {
             const eventsRef = collection(db, 'events');
 
-            const eventDoc: Omit<BaseEvent, 'id' | 'createdAt' | 'updatedAt'> = {
+            const eventDoc: Omit<BaseEvent, 'id' | 'createdAt' | 'updatedAt'> = removeUndefinedDeep({
                 animalId: data.animalId,
                 userId: data.userId,
                 eventTypeId: 'molting',
@@ -47,7 +48,7 @@ export const eventsService = {
                 })) || [],
                 status: 'completed',
                 importance: 'medium',
-            };
+            });
 
             const docRef = await addDoc(eventsRef, {
                 ...eventDoc,
@@ -70,8 +71,9 @@ export const eventsService = {
                     updateData['measurements.length'] = data.eventData.newBodyLength;
                     updateData['measurements.lastMeasured'] = data.date;
                 }
+                const body = removeUndefinedDeep(updateData)
 
-                await updateDoc(animalRef, updateData);
+                await updateDoc(animalRef, body);
 
             return {
                 success: true,

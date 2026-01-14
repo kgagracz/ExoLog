@@ -3,7 +3,7 @@
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
 import {Card, Chip, IconButton, Text} from 'react-native-paper';
-import {MoltingEvent} from "../../types/events";
+import {MoltingEvent, MoltingEventData} from "../../types/events";
 import {useTheme} from "../../context/ThemeContext";
 import {Theme} from "../../styles/theme";
 
@@ -40,13 +40,25 @@ export default function MoltingHistoryCard({
         return `+${growth.toFixed(1)}cm (${percentage.toFixed(0)}%)`;
     };
 
+    const getMoltingStepLabel = ({
+        previousStage,
+        newStage,
+        previousBodyLength,
+        newBodyLength,
+                                 }: MoltingEventData) => {
+        const stageLabel = (previousStage && newStage) ? `L${previousStage} → L${newStage}` : ''
+        const bodyLengthLabel = (previousBodyLength && newBodyLength) ? `${previousBodyLength}DC → ${newBodyLength}DC` : ''
+
+        return `Wylinka ${stageLabel} ${bodyLengthLabel}`
+    }
+
     return (
         <Card style={styles.card}>
             <Card.Content>
                 <View style={styles.header}>
                     <View style={styles.headerLeft}>
                         <Text variant="titleMedium" style={styles.title}>
-                            {molting.title || `L${molting.eventData.previousStage} → L${molting.eventData.newStage}`}
+                            {getMoltingStepLabel(molting.eventData)}
                         </Text>
                         <Text variant="bodySmall" style={styles.date}>
                             {formatDate(molting.date)}
@@ -145,22 +157,3 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         fontStyle: 'italic',
     },
 });
-
-// ## 6. Zaktualizuj indeksy Firestore
-//
-// W Firebase Console utwórz następujące indeksy:
-
-// Collection: events
-// Index 1:
-// - animalId (Ascending)
-// - eventTypeId (Ascending)
-// - date (Descending)
-//
-// Index 2:
-// - userId (Ascending)
-// - eventTypeId (Ascending)
-// - date (Descending)
-//
-// Index 3:
-// - animalId (Ascending)
-// - date (Descending)

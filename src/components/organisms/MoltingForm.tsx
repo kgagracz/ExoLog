@@ -5,11 +5,12 @@ import {useTheme} from "../../context/ThemeContext";
 import FormInput from "../atoms/FormInput";
 import FormNumberInput from "../atoms/FormNumberInput";
 import {Theme} from "../../styles/theme";
+import FormValueDisplay from "../molecules/FormValueDisplay";
 
 interface MoltingFormData {
     date: string;
-    previousStage: number;
-    newStage: number;
+    previousStage?: number;
+    newStage?: number;
     previousBodyLength: number | null;
     newBodyLength: number | null;
     notes: string;
@@ -17,7 +18,7 @@ interface MoltingFormData {
 
 interface MoltingFormProps {
     initialData?: Partial<MoltingFormData>;
-    currentStage: number;
+    currentStage?: number;
     currentBodyLength?: number | null;
     onDataChange: (data: MoltingFormData) => void;
     errors: Record<string, string>;
@@ -36,7 +37,7 @@ export default function MoltingForm({
     const [formData, setFormData] = useState<MoltingFormData>({
         date: new Date().toISOString().split('T')[0],
         previousStage: currentStage,
-        newStage: currentStage + 1,
+        newStage: currentStage ? currentStage + 1 : undefined,
         previousBodyLength: currentBodyLength || null,
         newBodyLength: null,
         notes: '',
@@ -49,7 +50,7 @@ export default function MoltingForm({
 
     const updateField = <K extends keyof MoltingFormData>(
         field: K,
-        value: MoltingFormData[K]
+        value: MoltingFormData[K] | null
     ) => {
         setFormData(prev => ({...prev, [field]: value}));
     };
@@ -83,29 +84,21 @@ export default function MoltingForm({
 
                     <View style={styles.row}>
                         <View style={styles.halfWidth}>
-                            <FormNumberInput
+                            <FormValueDisplay
                                 label="Poprzednie stadium"
-                                value={formData.previousStage}
-                                onValueChange={(value) => updateField('previousStage', value || 0)}
-                                error={errors.previousStage}
-                                min={1}
-                                max={15}
-                                placeholder="np. 4"
-                                required
-                                disabled
+                                value={formData.previousStage ? `L${formData.previousStage}` : undefined}
                             />
                         </View>
 
                         <View style={styles.halfWidth}>
                             <FormNumberInput
                                 label="Nowe stadium"
-                                value={formData.newStage}
-                                onValueChange={(value) => updateField('newStage', value || formData.previousStage + 1)}
+                                value={formData.newStage ?? null}
+                                onValueChange={(value) => updateField('newStage', value)}
                                 error={errors.newStage}
-                                min={formData.previousStage + 1}
+                                prefix="L"
+                                min={formData.previousStage ? formData.previousStage + 1 : undefined}
                                 max={16}
-                                placeholder={`${formData.previousStage + 1}`}
-                                required
                             />
                         </View>
                     </View>
@@ -116,22 +109,15 @@ export default function MoltingForm({
             <Card style={styles.section}>
                 <Card.Content>
                     <Text variant="titleMedium" style={styles.sectionTitle}>
-                        📏 Pomiary ciała (opcjonalnie)
+                        📏 Długość ciała
                     </Text>
 
                     <View style={styles.row}>
                         <View style={styles.halfWidth}>
-                            <FormNumberInput
+                            <FormValueDisplay
                                 label="Poprzedni rozmiar"
                                 value={formData.previousBodyLength}
-                                onValueChange={(value) => updateField('previousBodyLength', value)}
-                                error={errors.previousBodyLength}
                                 unit="cm"
-                                min={0}
-                                max={30}
-                                decimal
-                                placeholder="np. 5.5"
-                                disabled
                             />
                         </View>
 
@@ -150,16 +136,6 @@ export default function MoltingForm({
                         </View>
                     </View>
 
-                    <HelperText type="info">
-                        Zmierz długość ciała po wylince
-                    </HelperText>
-
-                    {formData.previousBodyLength && formData.newBodyLength && (
-                        <HelperText type="info" style={styles.growthHelper}>
-                            📈 Wzrost: +{(formData.newBodyLength - formData.previousBodyLength).toFixed(1)} cm (
-                            {(((formData.newBodyLength - formData.previousBodyLength) / formData.previousBodyLength) * 100).toFixed(1)}%)
-                        </HelperText>
-                    )}
                 </Card.Content>
             </Card>
 

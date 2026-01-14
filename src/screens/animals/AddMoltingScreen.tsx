@@ -66,11 +66,7 @@ export default function AddMoltingScreen() {
             newErrors.date = 'Data wylinki jest wymagana';
         }
 
-        if (!formData.previousStage || formData.previousStage < 1) {
-            newErrors.previousStage = 'Poprzednie stadium jest wymagane';
-        }
-
-        if (!formData.newStage || formData.newStage <= formData.previousStage) {
+        if ((formData.newStage && formData.previousStage) && formData.newStage <= formData.previousStage) {
             newErrors.newStage = 'Nowe stadium musi być większe od poprzedniego';
         }
 
@@ -106,7 +102,7 @@ export default function AddMoltingScreen() {
 
                 Alert.alert(
                     'Sukces',
-                    `Wylinka została dodana. Stadium ptasznika zaktualizowane do L${formData.newStage}.`,
+                    `Wylinka została dodana. ${formData.newStage ? `Stadium ptasznika zaktualizowane do L${formData.newStage}.` : ''}`,
                     [
                         {
                             text: 'OK',
@@ -152,7 +148,7 @@ export default function AddMoltingScreen() {
             </Appbar.Header>
 
             <MoltingForm
-                currentStage={animal.stage || 1}
+                currentStage={animal.stage}
                 currentBodyLength={animal.bodyLength}
                 onDataChange={setFormData}
                 errors={errors}
@@ -198,7 +194,7 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         gap: 12,
         backgroundColor: theme.colors.surface,
         borderTopWidth: 1,
-        borderTopColor: theme.colors.outline,
+        borderTopColor: theme.colors.divider,
     },
     cancelButton: {
         flex: 1,

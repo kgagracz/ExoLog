@@ -74,7 +74,7 @@
         - [x] Możliwość wykluczenia wybranych
         - [x] Zapis daty i godziny
     - [x] Nakarm pojedynczego ptasznika
-- [ ] Historia karmienia
+- [x] Historia karmienia
 - [ ] Przypomnienia o karmieniu
     - [ ] Notyfikacje push
     - [ ] Lista ptaszników do nakarmienia

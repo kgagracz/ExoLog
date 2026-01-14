@@ -27,9 +27,12 @@ export const lightTheme = {
 
         // Kolory statusu
         success: '#22c55e',
+        successContainer: '#dcfce7',
         warning: '#f59e0b',
         error: '#ef4444',
+        errorContainer: '#fee2e2',
         info: '#3b82f6',
+        primaryContainer: '#e0e7ff',
 
         // Kolory granic i separatorów
         border: '#e5e7eb',
@@ -210,9 +213,12 @@ export const darkTheme = {
 
         // Kolory statusu
         success: '#34d399',
+        successContainer: '#14532d',
         warning: '#fbbf24',
         error: '#f87171',
+        errorContainer: '#7f1d1d',
         info: '#60a5fa',
+        primaryContainer: '#312e81',
 
         // Kolory granic i separatorów
         border: '#4b5563',
