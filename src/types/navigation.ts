@@ -13,6 +13,7 @@ export type AnimalStackParamList = {
     AnimalDetails: { animalId: string };
     EditAnimal: { animalId: string };
     AddMolting: { animalId: string };
+    AddMating: { animalId: string };
     FeedingHistory: { animalId: string };
     Profile: undefined;
 };

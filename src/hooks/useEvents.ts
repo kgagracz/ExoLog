@@ -1,7 +1,7 @@
 // src/hooks/useEvents.ts
 
 import { useState } from 'react';
-import { MoltingEvent, BaseEvent, MoltingEventData } from '../types/events';
+import { MoltingEvent, BaseEvent, MoltingEventData, MatingEvent } from '../types/events';
 import { useAuth } from './useAuth';
 import {eventsService} from "../services/firebase/eventsService";
 
@@ -105,6 +105,56 @@ export const useEvents = () => {
         }
     };
 
+    // ================== KOPULACJA ==================
+
+    const addMating = async (data: {
+        animalId: string;
+        date: string;
+        eventData: {
+            maleId: string;
+            femaleId: string;
+            result: 'success' | 'failure' | 'in_progress' | 'unknown';
+        };
+        description?: string;
+        photos?: string[];
+    }) => {
+        if (!user || !isAuthenticated) {
+            return { success: false, error: 'User not authenticated' };
+        }
+
+        try {
+            setLoading(true);
+            setError(null);
+
+            const result = await eventsService.addMating({
+                ...data,
+                userId: user.uid,
+            });
+
+            return result;
+        } catch (err: any) {
+            setError(err.message);
+            return { success: false, error: err.message };
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const getMatingHistory = async (animalId: string, limit?: number) => {
+        try {
+            setLoading(true);
+            setError(null);
+
+            const result = await eventsService.getMatingHistory(animalId, limit);
+            return result;
+        } catch (err: any) {
+            setError(err.message);
+            return { success: false, error: err.message, data: [] };
+        } finally {
+            setLoading(false);
+        }
+    };
+
     // ================== OGÓLNE FUNKCJE ==================
 
     const getAnimalEvents = async (
@@ -152,6 +202,10 @@ export const useEvents = () => {
         getUserMoltings,
         updateMolting,
         deleteMolting,
+
+        // Kopulacja
+        addMating,
+        getMatingHistory,
 
         // Ogólne
         getAnimalEvents,

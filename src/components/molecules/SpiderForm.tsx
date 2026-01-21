@@ -1,11 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
-import { Text, Card, Divider, HelperText, Switch } from 'react-native-paper';
-import FormInput from '@components/atoms/FormInput';
-import FormSelect from '@components/atoms/FormSelect';
-import FormNumberInput from '@components/atoms/FormNumberInput';
-import { Animal } from '@types/index';
-import { theme } from '@styles/theme';
+import React, {useEffect, useState} from 'react';
+import {ScrollView, StyleSheet, View} from 'react-native';
+import {Card, HelperText, Switch, Text} from 'react-native-paper';
+import FormInput from '../atoms/FormInput';
+import FormSelect from '../atoms/FormSelect';
+import FormNumberInput from '../atoms/FormNumberInput';
 import {Theme} from "../../styles/theme";
 import {useTheme} from "../../context/ThemeContext";
 
@@ -96,19 +94,11 @@ export default function SpiderForm({ initialData = {}, onDataChange, errors, edi
     stage: null,
     dateAcquired: new Date().toISOString().split('T')[0],
     dateOfBirth: '',
-    webType: 'minimal',
-    urticatingHairs: false,
-    temperament: 'unknown',
     bodyLength: null,
-    weight: null,
     terrariumLength: null,
     terrariumWidth: null,
     terrariumHeight: null,
-    substrate: 'coconut_fiber',
-    temperature: null,
-    humidity: null,
     feedingSchedule: 'weekly',
-    foodType: 'cricket',
     notes: '',
     quantity: 1, // Domyślnie 1
     ...initialData,

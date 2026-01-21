@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native';
 import {Text, ActivityIndicator, FAB, Card, IconButton} from 'react-native-paper';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import {useAnimals} from "../../hooks";
 import {useTheme} from "../../context/ThemeContext";
 import {Animal} from "../../types";
@@ -18,14 +17,10 @@ import {Theme} from "../../styles/theme";
 import {useEvents} from "../../hooks/useEvents";
 import {MoltingEvent} from "../../types/events";
 import MoltingHistoryCard from "./MoltingHistoryScreen";
-import { AnimalStackParamList } from "../../types/navigation";
 
-type AnimalDetailsScreenRouteProp = RouteProp<AnimalStackParamList, 'AnimalDetails'>;
-type AnimalDetailsScreenNavigationProp = NativeStackNavigationProp<AnimalStackParamList, 'AnimalDetails'>;
-
-export function AnimalDetailsScreen() {
-    const navigation = useNavigation<AnimalDetailsScreenNavigationProp>();
-    const route = useRoute<AnimalDetailsScreenRouteProp>();
+export default function AnimalDetailsScreen() {
+    const navigation = useNavigation<any>();
+    const route = useRoute<any>();
     const { animalId } = route.params;
 
     const { getAnimal, getFeedingHistory, deleteAnimalCompletely } = useAnimals();
@@ -36,6 +31,7 @@ export function AnimalDetailsScreen() {
     const [feedingHistory, setFeedingHistory] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [menuVisible, setMenuVisible] = useState(false);
+    const [fabOpen, setFabOpen] = useState(false);
     const [moltingHistory, setMoltingHistory] = useState<MoltingEvent[]>([]);
     const { getMoltingHistory } = useEvents();
 
@@ -104,7 +100,25 @@ export function AnimalDetailsScreen() {
 
     const handleAddFeeding = () => {
         setMenuVisible(false);
+        setFabOpen(false);
         navigation.navigate('AddFeeding', { preSelectedAnimal: animalId });
+    };
+
+    const handleAddMolting = () => {
+        setFabOpen(false);
+        navigation.navigate('AddMolting', { animalId });
+    };
+
+    const handleAddMating = () => {
+        setFabOpen(false);
+        if (animal?.sex === 'unknown') {
+            Alert.alert(
+                'Nieznana płeć',
+                'Aby dodać kopulację, zwierzę musi mieć określoną płeć (samiec lub samica).'
+            );
+            return;
+        }
+        navigation.navigate('AddMating', { animalId });
     };
 
     const handleFeedingHistory = () => {
@@ -210,7 +224,7 @@ export function AnimalDetailsScreen() {
                                 />
                             ))
                         ) : (
-                            <Text variant="bodyMedium" style={styles.emptyText}>
+                            <Text variant="bodyMedium">
                                 Brak historii wyliniek
                             </Text>
                         )}
@@ -245,16 +259,40 @@ export function AnimalDetailsScreen() {
                 <View style={styles.fabSpacer} />
             </ScrollView>
 
-            {/* FAB do szybkich akcji */}
-            <FAB
-                icon="food-apple"
-                style={styles.fab}
-                onPress={handleAddFeeding}
-                label="Nakarm"
+            {/* FAB do dodawania wydarzeń */}
+            <FAB.Group
+                open={fabOpen}
+                visible
+                icon={fabOpen ? 'close' : 'plus'}
+                actions={[
+                    {
+                        icon: 'food-apple',
+                        label: 'Karmienie',
+                        onPress: handleAddFeeding,
+                        color: theme.colors.events.feeding.color,
+                        style: { backgroundColor: theme.colors.events.feeding.background },
+                    },
+                    {
+                        icon: 'sync',
+                        label: 'Wylinka',
+                        onPress: handleAddMolting,
+                        color: theme.colors.events.molting.color,
+                        style: { backgroundColor: theme.colors.events.molting.background },
+                    },
+                    {
+                        icon: 'heart',
+                        label: 'Kopulacja',
+                        onPress: handleAddMating,
+                        color: theme.colors.events.mating.color,
+                        style: { backgroundColor: theme.colors.events.mating.background },
+                    },
+                ]}
+                onStateChange={({ open }) => setFabOpen(open)}
+                fabStyle={styles.fab}
             />
         </View>
     );
-};
+}
 
 const makeStyles = (theme: Theme) => StyleSheet.create({
     container: {
@@ -290,7 +328,4 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         bottom: 16,
         backgroundColor: theme.colors.primary,
     },
-    emptyText: {}
 });
-
-export default AnimalDetailsScreen;

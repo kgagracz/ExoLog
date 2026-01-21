@@ -3,26 +3,18 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
 import { Appbar, Button, ActivityIndicator } from 'react-native-paper';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { AnimalStackParamList } from "../../types/navigation";
+import { useNavigation, useRoute } from '@react-navigation/native';
 import {useTheme} from "../../context/ThemeContext";
 import {useEvents} from "../../hooks/useEvents";
 import {useAnimals} from "../../hooks";
 import {Theme} from "../../styles/theme";
 import MoltingForm from "../../components/organisms/MoltingForm";
 
-type AddMoltingScreenRouteProp = RouteProp<AnimalStackParamList, 'AddMolting'>;
-type AddMoltingScreenNavigationProp = NativeStackNavigationProp<
-    AnimalStackParamList,
-    'AddMolting'
->;
-
 export default function AddMoltingScreen() {
     const { theme } = useTheme();
     const styles = makeStyles(theme);
-    const navigation = useNavigation<AddMoltingScreenNavigationProp>();
-    const route = useRoute<AddMoltingScreenRouteProp>();
+    const navigation = useNavigation<any>();
+    const route = useRoute<any>();
     const { animalId } = route.params;
 
     const { addMolting, loading: eventLoading } = useEvents();

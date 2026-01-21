@@ -14,7 +14,7 @@ import {
     serverTimestamp,
     limit as firebaseLimit,
 } from 'firebase/firestore';
-import {BaseEvent, MoltingEvent, MoltingEventData} from "../../types/events";
+import {BaseEvent, MoltingEvent, MoltingEventData, MatingEvent, MatingEventData} from "../../types/events";
 import {db} from "./firebase.config";
 import {removeUndefinedDeep} from "../../utils/objectService";
 
@@ -57,23 +57,23 @@ export const eventsService = {
             });
 
             // Automatyczna aktualizacja stadium ptasznika
-                const animalRef = doc(db, 'animals', data.animalId);
-                const updateData: any = {
-                    stage: data.eventData.newStage,
-                    updatedAt: serverTimestamp(),
-                };
+            const animalRef = doc(db, 'animals', data.animalId);
+            const updateData: any = {
+                stage: data.eventData.newStage,
+                updatedAt: serverTimestamp(),
+            };
 
-                // Zaktualizuj pole specificData.currentStage (numer wylinki)
-                updateData['specificData.currentStage'] = data.eventData.newStage;
+            // Zaktualizuj pole specificData.currentStage (numer wylinki)
+            updateData['specificData.currentStage'] = data.eventData.newStage;
 
-                // Jeśli podano nowy rozmiar, zaktualizuj pomiary
-                if (data.eventData.newBodyLength) {
-                    updateData['measurements.length'] = data.eventData.newBodyLength;
-                    updateData['measurements.lastMeasured'] = data.date;
-                }
-                const body = removeUndefinedDeep(updateData)
+            // Jeśli podano nowy rozmiar, zaktualizuj pomiary
+            if (data.eventData.newBodyLength) {
+                updateData['measurements.length'] = data.eventData.newBodyLength;
+                updateData['measurements.lastMeasured'] = data.date;
+            }
+            const body = removeUndefinedDeep(updateData)
 
-                await updateDoc(animalRef, body);
+            await updateDoc(animalRef, body);
 
             return {
                 success: true,
@@ -276,6 +276,124 @@ export const eventsService = {
                 success: false,
                 error: error.message || 'Failed to get event',
                 data: null
+            };
+        }
+    },
+
+    // ================== KOPULACJA ==================
+
+    addMating: async (data: {
+        animalId: string;
+        userId: string;
+        date: string;
+        eventData: {
+            maleId: string;
+            femaleId: string;
+            result: 'success' | 'failure' | 'in_progress' | 'unknown';
+        };
+        description?: string;
+        photos?: string[];
+    }) => {
+        try {
+            const eventsRef = collection(db, 'events');
+
+            const resultLabels: Record<string, string> = {
+                success: 'Sukces',
+                failure: 'Porażka',
+                in_progress: 'W trakcie',
+                unknown: 'Nieznany',
+            };
+
+            const eventDoc: Omit<BaseEvent, 'id' | 'createdAt' | 'updatedAt'> = removeUndefinedDeep({
+                animalId: data.animalId,
+                userId: data.userId,
+                eventTypeId: 'mating',
+                title: `Kopulacja - ${resultLabels[data.eventData.result]}`,
+                description: data.description,
+                date: data.date,
+                eventData: {
+                    maleId: data.eventData.maleId,
+                    femaleId: data.eventData.femaleId,
+                    successful: data.eventData.result === 'success',
+                    result: data.eventData.result,
+                },
+                photos: data.photos?.map((url, index) => ({
+                    id: `photo-${Date.now()}-${index}`,
+                    url,
+                    date: data.date,
+                    isMain: index === 0,
+                })) || [],
+                status: data.eventData.result === 'in_progress' ? 'in_progress' : 'completed',
+                importance: 'high',
+            });
+
+            const docRef = await addDoc(eventsRef, {
+                ...eventDoc,
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp(),
+            });
+
+            // Dodaj również wydarzenie do partnera
+            const partnerAnimalId = data.animalId === data.eventData.maleId
+                ? data.eventData.femaleId
+                : data.eventData.maleId;
+
+            const partnerEventDoc = {
+                ...eventDoc,
+                animalId: partnerAnimalId,
+            };
+
+            await addDoc(eventsRef, {
+                ...partnerEventDoc,
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp(),
+            });
+
+            return {
+                success: true,
+                data: { id: docRef.id, ...eventDoc }
+            };
+        } catch (error: any) {
+            console.error('Error adding mating event:', error);
+            return {
+                success: false,
+                error: error.message || 'Failed to add mating event'
+            };
+        }
+    },
+
+    getMatingHistory: async (animalId: string, limitCount: number = 20) => {
+        try {
+            const eventsRef = collection(db, 'events');
+            const q = query(
+                eventsRef,
+                where('animalId', '==', animalId),
+                where('eventTypeId', '==', 'mating'),
+                orderBy('date', 'desc'),
+                firebaseLimit(limitCount)
+            );
+
+            const snapshot = await getDocs(q);
+            const events = snapshot.docs.map(doc => {
+                const data = doc.data();
+                return {
+                    id: doc.id,
+                    ...data,
+                    createdAt: data.createdAt?.toDate?.()?.toISOString() || data.createdAt,
+                    updatedAt: data.updatedAt?.toDate?.()?.toISOString() || data.updatedAt,
+                } as MatingEvent;
+            });
+
+            return {
+                success: true,
+                data: events
+            };
+        } catch (error: any) {
+            console.error('Error getting mating history:', error);
+            return {
+                success: false,
+                error: error.message || 'Failed to get mating history',
+                data: []
             };
         }
     },

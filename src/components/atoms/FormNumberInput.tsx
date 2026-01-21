@@ -17,6 +17,7 @@ interface FormNumberInputProps {
   disabled?: boolean;
   required?: boolean;
   decimal?: boolean;
+  helperText?: string;
 }
 
 export default function FormNumberInput({
@@ -32,7 +33,8 @@ export default function FormNumberInput({
                                           disabled = false,
                                           required = false,
                                           decimal = false,
-                                          defaultValue
+                                          defaultValue,
+                                          helperText
                                         }: FormNumberInputProps) {
   const { theme } = useTheme();
 
@@ -74,6 +76,11 @@ export default function FormNumberInput({
         {error && (
             <HelperText type="error" visible={!!error}>
               {error}
+            </HelperText>
+        )}
+        {helperText && (
+            <HelperText type="error" visible={!!helperText}>
+              {helperText}
             </HelperText>
         )}
       </>

@@ -1,27 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native';
 import { Appbar, Button, ActivityIndicator } from 'react-native-paper';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import {Animal} from "../../types";
 import {useTheme} from "../../context/ThemeContext";
 import {useAnimals} from "../../hooks";
 import SpiderForm from "../../components/molecules/SpiderForm";
 import {Theme} from "../../styles/theme";
-import { AnimalStackParamList } from "../../types/navigation";
-
-type EditAnimalScreenRouteProp = RouteProp<AnimalStackParamList, 'EditAnimal'>;
-type EditAnimalScreenNavigationProp = NativeStackNavigationProp<
-    AnimalStackParamList,
-    'EditAnimal'
->;
-
 
 export default function EditAnimalScreen() {
     const { theme } = useTheme();
     const styles = makeStyles(theme);
-    const navigation = useNavigation<EditAnimalScreenNavigationProp>();
-    const route = useRoute<EditAnimalScreenRouteProp>();
+    const navigation = useNavigation<any>();
+    const route = useRoute<any>();
     const { animalId } = route.params;
     const {getAnimal, updateAnimal} = useAnimals()
 
