@@ -9,6 +9,13 @@ import AddActionsFAB from "../../components/molecules/AddActionsFAB";
 import UserAvatar from "../../components/atoms/UserAvatar";
 import {Theme} from "../../styles/theme";
 import {Animal} from "../../types";
+import {useEvents} from "../../hooks/useEvents";
+
+interface MatingStatus {
+  hasMating: boolean;
+  lastMatingDate?: string;
+  lastMatingResult?: string;
+}
 
 interface AnimalsListScreenProps {
   navigation?: any;
@@ -16,11 +23,33 @@ interface AnimalsListScreenProps {
 
 const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => {
   const { animals, loading, refresh } = useAnimals();
+  const { getMatingStatusForAnimals } = useEvents();
   const { theme } = useTheme();
   const styles = makeStyles(theme);
 
   const [searchText, setSearchText] = useState<string>('');
   const [fabOpen, setFabOpen] = useState<boolean>(false);
+  const [matingStatuses, setMatingStatuses] = useState<Record<string, MatingStatus>>({});
+
+  // Pobierz statusy kopulacji dla samic
+  useEffect(() => {
+    const loadMatingStatuses = async () => {
+      const femaleIds = animals
+          .filter(a => a.sex === 'female')
+          .map(a => a.id);
+
+      if (femaleIds.length > 0) {
+        const result = await getMatingStatusForAnimals(femaleIds);
+        if (result.success && result.data) {
+          setMatingStatuses(result.data);
+        }
+      }
+    };
+
+    if (animals.length > 0) {
+      loadMatingStatuses();
+    }
+  }, [animals]);
 
   // Obsługa nawigacji
   const handleAddSpider = (): void => {
@@ -78,6 +107,7 @@ const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => 
                   loading={loading}
                   onRefresh={refresh}
                   onAnimalPress={handleAnimalPress}
+                  matingStatuses={matingStatuses}
               />
           )}
         </View>

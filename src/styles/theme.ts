@@ -33,6 +33,7 @@ export const lightTheme = {
         errorContainer: '#fee2e2',
         info: '#3b82f6',
         primaryContainer: '#e0e7ff',
+        tertiaryContainer: '#fef3c7', // żółty/pomarańczowy dla "Dorosły"
 
         // Kolory granic i separatorów
         border: '#e5e7eb',
@@ -219,6 +220,7 @@ export const darkTheme = {
         errorContainer: '#7f1d1d',
         info: '#60a5fa',
         primaryContainer: '#312e81',
+        tertiaryContainer: '#451a03', // ciemny żółty/pomarańczowy dla "Dorosły"
 
         // Kolory granic i separatorów
         border: '#4b5563',

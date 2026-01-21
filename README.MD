@@ -89,12 +89,12 @@
 - [x] Historia wyliniek
 
 #### Dopuszczanie samicy
-- [ ] Dodawanie wydarzenia dopuszczania
-    - [ ] Wybór samicy
-    - [ ] Wybór samca
-    - [ ] Data dopuszczenia
-    - [ ] Wynik (sukces/porażka/w trakcie)
-    - [ ] Notatki
+- [x] Dodawanie wydarzenia dopuszczania
+    - [x] Wybór samicy
+    - [x] Wybór samca
+    - [x] Data dopuszczenia
+    - [x] Wynik (sukces/porażka/w trakcie)
+    - [x] Notatki
 - [ ] Historia dopuszczeń
 - [ ] Tracking par hodowlanych
 

@@ -5,11 +5,18 @@ import { useTheme } from "../../context/ThemeContext";
 import { Theme } from "../../styles/theme";
 import { Animal } from "../../types";
 
-interface AnimalHeaderProps {
-  animal: Animal;
+interface MatingStatus {
+  hasMating: boolean;
+  lastMatingDate?: string;
+  lastMatingResult?: string;
 }
 
-const AnimalHeader: React.FC<AnimalHeaderProps> = ({ animal }) => {
+interface AnimalHeaderProps {
+  animal: Animal;
+  matingStatus?: MatingStatus;
+}
+
+const AnimalHeader: React.FC<AnimalHeaderProps> = ({ animal, matingStatus }) => {
   const { theme } = useTheme();
   const styles = makeStyles(theme);
 
@@ -29,31 +36,82 @@ const AnimalHeader: React.FC<AnimalHeaderProps> = ({ animal }) => {
     return 'Adult (L9+)';
   };
 
-  return (
-    <>
-      <Text variant="headlineSmall" style={styles.animalName}>
-        {animal.name}
-      </Text>
-      <Text variant="titleMedium" style={styles.species}>
-        {animal.species || 'Nieznany gatunek'}
-      </Text>
+  // Pobierz numeryczne stadium z specificData
+  const numericStage = animal.specificData?.currentStage as number | null;
 
-      <View style={styles.chipContainer}>
-        <Chip icon="gender-male-female" style={styles.chip}>
-          {getSexDisplay(animal.sex)}
-        </Chip>
-        {animal.stage && (
-          <Chip icon="arrow-up-bold" style={styles.chip}>
-            L{animal.stage} - {getStageCategory(animal.stage)}
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return '';
+    return new Date(dateString).toLocaleDateString('pl-PL');
+  };
+
+  const getMatingChip = () => {
+    if (animal.sex !== 'female' || !matingStatus?.hasMating) return null;
+
+    switch (matingStatus.lastMatingResult) {
+      case 'success':
+        return (
+            <Chip
+                icon="heart"
+                style={[styles.chip, styles.matingSuccessChip]}
+                textStyle={styles.matingSuccessChipText}
+            >
+              💕 Udana kopulacja ({formatDate(matingStatus.lastMatingDate)})
+            </Chip>
+        );
+      case 'in_progress':
+        return (
+            <Chip
+                icon="heart"
+                style={[styles.chip, styles.matingProgressChip]}
+                textStyle={styles.matingProgressChipText}
+            >
+              💕 Kopulacja trwa ({formatDate(matingStatus.lastMatingDate)})
+            </Chip>
+        );
+      case 'failure':
+        return (
+            <Chip
+                icon="heart-broken"
+                style={[styles.chip, styles.matingFailureChip]}
+                textStyle={styles.matingFailureChipText}
+            >
+              💔 Nieudana kopulacja ({formatDate(matingStatus.lastMatingDate)})
+            </Chip>
+        );
+      default:
+        return (
+            <Chip
+                icon="heart"
+                style={[styles.chip, styles.matingProgressChip]}
+                textStyle={styles.matingProgressChipText}
+            >
+              💕 Po kopulacji ({formatDate(matingStatus.lastMatingDate)})
+            </Chip>
+        );
+    }
+  };
+
+  return (
+      <>
+        <Text variant="headlineSmall" style={styles.animalName}>
+          {animal.name}
+        </Text>
+        <Text variant="titleMedium" style={styles.species}>
+          {animal.species || 'Nieznany gatunek'}
+        </Text>
+
+        <View style={styles.chipContainer}>
+          <Chip icon="gender-male-female" style={styles.chip}>
+            {getSexDisplay(animal.sex)}
           </Chip>
-        )}
-        {animal.isAdult && (
-          <Chip icon="star" style={[styles.chip, styles.adultChip]}>
-            Dorosły
-          </Chip>
-        )}
-      </View>
-    </>
+          {numericStage && (
+              <Chip icon="arrow-up-bold" style={styles.chip}>
+                L{numericStage} - {getStageCategory(numericStage)}
+              </Chip>
+          )}
+          {getMatingChip()}
+        </View>
+      </>
   );
 };
 
@@ -77,8 +135,23 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     marginRight: 8,
     marginBottom: 8,
   },
-  adultChip: {
-    backgroundColor: theme.colors.tertiaryContainer,
+  matingSuccessChip: {
+    backgroundColor: theme.colors.successContainer,
+  },
+  matingSuccessChipText: {
+    color: theme.colors.success,
+  },
+  matingProgressChip: {
+    backgroundColor: theme.colors.primaryContainer,
+  },
+  matingProgressChipText: {
+    color: theme.colors.primary,
+  },
+  matingFailureChip: {
+    backgroundColor: theme.colors.errorContainer,
+  },
+  matingFailureChipText: {
+    color: theme.colors.error,
   },
 });
 

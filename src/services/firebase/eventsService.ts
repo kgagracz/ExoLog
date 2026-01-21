@@ -397,4 +397,63 @@ export const eventsService = {
             };
         }
     },
+
+    // Sprawdź status kopulacji dla wielu zwierząt naraz
+    getMatingStatusForAnimals: async (animalIds: string[]) => {
+        try {
+            if (animalIds.length === 0) {
+                return { success: true, data: {} };
+            }
+
+            const eventsRef = collection(db, 'events');
+            const matingStatus: Record<string, { hasMating: boolean; lastMatingDate?: string; lastMatingResult?: string }> = {};
+
+            // Inicjalizuj wszystkie jako bez kopulacji
+            animalIds.forEach(id => {
+                matingStatus[id] = { hasMating: false };
+            });
+
+            // Firestore limit 10 dla 'in', więc dzielimy na partie
+            const chunks = [];
+            for (let i = 0; i < animalIds.length; i += 10) {
+                chunks.push(animalIds.slice(i, i + 10));
+            }
+
+            for (const chunk of chunks) {
+                const q = query(
+                    eventsRef,
+                    where('animalId', 'in', chunk),
+                    where('eventTypeId', '==', 'mating')
+                );
+
+                const snapshot = await getDocs(q);
+
+                snapshot.docs.forEach(doc => {
+                    const data = doc.data();
+                    const animalId = data.animalId;
+
+                    if (!matingStatus[animalId]?.hasMating ||
+                        (matingStatus[animalId].lastMatingDate && data.date > matingStatus[animalId].lastMatingDate)) {
+                        matingStatus[animalId] = {
+                            hasMating: true,
+                            lastMatingDate: data.date,
+                            lastMatingResult: data.eventData?.result,
+                        };
+                    }
+                });
+            }
+
+            return {
+                success: true,
+                data: matingStatus
+            };
+        } catch (error: any) {
+            console.error('Error getting mating status:', error);
+            return {
+                success: false,
+                error: error.message || 'Failed to get mating status',
+                data: {}
+            };
+        }
+    },
 };

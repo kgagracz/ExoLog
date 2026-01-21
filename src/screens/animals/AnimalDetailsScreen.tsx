@@ -33,7 +33,12 @@ export default function AnimalDetailsScreen() {
     const [menuVisible, setMenuVisible] = useState(false);
     const [fabOpen, setFabOpen] = useState(false);
     const [moltingHistory, setMoltingHistory] = useState<MoltingEvent[]>([]);
-    const { getMoltingHistory } = useEvents();
+    const [matingStatus, setMatingStatus] = useState<{
+        hasMating: boolean;
+        lastMatingDate?: string;
+        lastMatingResult?: string;
+    } | undefined>(undefined);
+    const { getMoltingHistory, getMatingHistory } = useEvents();
 
     useEffect(() => {
         loadAnimalDetails();
@@ -46,9 +51,24 @@ export default function AnimalDetailsScreen() {
         }
     };
 
+    const loadMatingStatus = async () => {
+        if (animal?.sex !== 'female') return;
+
+        const result = await getMatingHistory(animalId, 1);
+        if (result.success && result.data && result.data.length > 0) {
+            const lastMating = result.data[0];
+            setMatingStatus({
+                hasMating: true,
+                lastMatingDate: lastMating.date,
+                lastMatingResult: lastMating.eventData?.result,
+            });
+        }
+    };
+
     useEffect(() => {
         if (animal) {
             loadMoltingHistory();
+            loadMatingStatus();
         }
     }, [animal]);
 
@@ -180,7 +200,7 @@ export default function AnimalDetailsScreen() {
             <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
                 {/* Podstawowe informacje */}
                 <SectionCard>
-                    <AnimalHeader animal={animal} />
+                    <AnimalHeader animal={animal} matingStatus={matingStatus} />
                 </SectionCard>
 
                 {/* Pomiary i wiek */}

@@ -155,6 +155,15 @@ export const useEvents = () => {
         }
     };
 
+    const getMatingStatusForAnimals = async (animalIds: string[]) => {
+        try {
+            const result = await eventsService.getMatingStatusForAnimals(animalIds);
+            return result;
+        } catch (err: any) {
+            return { success: false, error: err.message, data: {} };
+        }
+    };
+
     // ================== OGÓLNE FUNKCJE ==================
 
     const getAnimalEvents = async (
@@ -206,6 +215,7 @@ export const useEvents = () => {
         // Kopulacja
         addMating,
         getMatingHistory,
+        getMatingStatusForAnimals,
 
         // Ogólne
         getAnimalEvents,
