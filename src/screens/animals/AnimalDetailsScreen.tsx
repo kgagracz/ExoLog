@@ -244,7 +244,7 @@ export default function AnimalDetailsScreen() {
                                 />
                             ))
                         ) : (
-                            <Text variant="bodyMedium">
+                            <Text variant="bodyMedium" style={styles.emptyText}>
                                 Brak historii wyliniek
                             </Text>
                         )}
@@ -309,6 +309,7 @@ export default function AnimalDetailsScreen() {
                 ]}
                 onStateChange={({ open }) => setFabOpen(open)}
                 fabStyle={styles.fab}
+                style={styles.fabGroup}
             />
         </View>
     );
@@ -342,10 +343,10 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     fabSpacer: {
         height: 80,
     },
+    fabGroup: {
+        paddingBottom: 8,
+    },
     fab: {
-        position: 'absolute',
-        right: 16,
-        bottom: 16,
         backgroundColor: theme.colors.primary,
     },
 });
