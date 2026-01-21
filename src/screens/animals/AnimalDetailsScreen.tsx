@@ -244,7 +244,7 @@ export default function AnimalDetailsScreen() {
                                 />
                             ))
                         ) : (
-                            <Text variant="bodyMedium" style={styles.emptyText}>
+                            <Text variant="bodyMedium">
                                 Brak historii wyliniek
                             </Text>
                         )}
