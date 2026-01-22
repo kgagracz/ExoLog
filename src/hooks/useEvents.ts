@@ -1,7 +1,7 @@
 // src/hooks/useEvents.ts
 
 import { useState } from 'react';
-import { MoltingEvent, BaseEvent, MoltingEventData, MatingEvent } from '../types/events';
+import { MoltingEvent, BaseEvent, MoltingEventData, MatingEvent, CocoonEvent } from '../types/events';
 import { useAuth } from './useAuth';
 import {eventsService} from "../services/firebase/eventsService";
 
@@ -200,6 +200,101 @@ export const useEvents = () => {
         }
     };
 
+    // ================== KOKON ==================
+
+    const addCocoon = async (data: {
+        animalId: string;
+        date: string;
+        eventData: {
+            femaleId: string;
+            estimatedHatchDate?: string;
+            cocoonStatus: 'laid' | 'incubating' | 'hatched' | 'failed';
+            eggCount?: number;
+        };
+        description?: string;
+        photos?: string[];
+        setReminder?: boolean;
+    }) => {
+        if (!user || !isAuthenticated) {
+            return { success: false, error: 'User not authenticated' };
+        }
+
+        try {
+            setLoading(true);
+            setError(null);
+
+            const result = await eventsService.addCocoon({
+                ...data,
+                userId: user.uid,
+            });
+
+            return result;
+        } catch (err: any) {
+            setError(err.message);
+            return { success: false, error: err.message };
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const getCocoonHistory = async (animalId: string, limit?: number) => {
+        try {
+            setLoading(true);
+            setError(null);
+
+            const result = await eventsService.getCocoonHistory(animalId, limit);
+            return result;
+        } catch (err: any) {
+            setError(err.message);
+            return { success: false, error: err.message, data: [] };
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const updateCocoonStatus = async (eventId: string, newStatus: 'laid' | 'incubating' | 'hatched' | 'failed', hatchedCount?: number) => {
+        try {
+            setLoading(true);
+            setError(null);
+
+            const result = await eventsService.updateCocoonStatus(eventId, newStatus, hatchedCount);
+            return result;
+        } catch (err: any) {
+            setError(err.message);
+            return { success: false, error: err.message };
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const getUpcomingHatches = async (daysAhead: number = 14) => {
+        if (!user || !isAuthenticated) {
+            return { success: false, error: 'User not authenticated', data: [] };
+        }
+
+        try {
+            setLoading(true);
+            setError(null);
+
+            const result = await eventsService.getUpcomingHatches(user.uid, daysAhead);
+            return result;
+        } catch (err: any) {
+            setError(err.message);
+            return { success: false, error: err.message, data: [] };
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const getCocoonStatusForAnimals = async (animalIds: string[]) => {
+        try {
+            const result = await eventsService.getCocoonStatusForAnimals(animalIds);
+            return result;
+        } catch (err: any) {
+            return { success: false, error: err.message, data: {} };
+        }
+    };
+
     return {
         loading,
         error,
@@ -216,6 +311,13 @@ export const useEvents = () => {
         addMating,
         getMatingHistory,
         getMatingStatusForAnimals,
+
+        // Kokon
+        addCocoon,
+        getCocoonHistory,
+        updateCocoonStatus,
+        getUpcomingHatches,
+        getCocoonStatusForAnimals,
 
         // Ogólne
         getAnimalEvents,

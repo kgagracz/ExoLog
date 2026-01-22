@@ -14,7 +14,7 @@ import {
     serverTimestamp,
     limit as firebaseLimit,
 } from 'firebase/firestore';
-import {BaseEvent, MoltingEvent, MoltingEventData, MatingEvent, MatingEventData} from "../../types/events";
+import {BaseEvent, MoltingEvent, MoltingEventData, MatingEvent, MatingEventData, CocoonEvent, CocoonEventData} from "../../types/events";
 import {db} from "./firebase.config";
 import {removeUndefinedDeep} from "../../utils/objectService";
 
@@ -452,6 +452,266 @@ export const eventsService = {
             return {
                 success: false,
                 error: error.message || 'Failed to get mating status',
+                data: {}
+            };
+        }
+    },
+
+    // ================== KOKON ==================
+
+    addCocoon: async (data: {
+        animalId: string;
+        userId: string;
+        date: string;
+        eventData: {
+            femaleId: string;
+            estimatedHatchDate?: string;
+            cocoonStatus: 'laid' | 'incubating' | 'hatched' | 'failed';
+            eggCount?: number;
+        };
+        description?: string;
+        photos?: string[];
+        setReminder?: boolean;
+    }) => {
+        try {
+            const eventsRef = collection(db, 'events');
+
+            const statusLabels: Record<string, string> = {
+                laid: 'Złożony',
+                incubating: 'W inkubacji',
+                hatched: 'Wykluty',
+                failed: 'Nieudany',
+            };
+
+            const eventDoc: Omit<BaseEvent, 'id' | 'createdAt' | 'updatedAt'> = removeUndefinedDeep({
+                animalId: data.animalId,
+                userId: data.userId,
+                eventTypeId: 'cocoon',
+                title: `Kokon - ${statusLabels[data.eventData.cocoonStatus]}`,
+                description: data.description,
+                date: data.date,
+                eventData: {
+                    femaleId: data.eventData.femaleId,
+                    estimatedHatchDate: data.eventData.estimatedHatchDate,
+                    cocoonStatus: data.eventData.cocoonStatus,
+                    eggCount: data.eventData.eggCount,
+                },
+                photos: data.photos?.map((url, index) => ({
+                    id: `photo-${Date.now()}-${index}`,
+                    url,
+                    date: data.date,
+                    isMain: index === 0,
+                })) || [],
+                status: data.eventData.cocoonStatus === 'hatched' || data.eventData.cocoonStatus === 'failed'
+                    ? 'completed'
+                    : 'in_progress',
+                importance: 'high',
+                reminders: data.setReminder && data.eventData.estimatedHatchDate ? [{
+                    id: `reminder-${Date.now()}`,
+                    time: new Date(new Date(data.eventData.estimatedHatchDate).getTime() - (3 * 24 * 60 * 60 * 1000)).toISOString(), // 3 dni przed
+                    type: 'notification',
+                    sent: false,
+                    message: `Zbliża się przewidywana data wylęgu kokonu!`,
+                }] : [],
+            });
+
+            const docRef = await addDoc(eventsRef, {
+                ...eventDoc,
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp(),
+            });
+
+            return {
+                success: true,
+                data: { id: docRef.id, ...eventDoc }
+            };
+        } catch (error: any) {
+            console.error('Error adding cocoon event:', error);
+            return {
+                success: false,
+                error: error.message || 'Failed to add cocoon event'
+            };
+        }
+    },
+
+    getCocoonHistory: async (animalId: string, limitCount: number = 20) => {
+        try {
+            const eventsRef = collection(db, 'events');
+            const q = query(
+                eventsRef,
+                where('animalId', '==', animalId),
+                where('eventTypeId', '==', 'cocoon'),
+                orderBy('date', 'desc'),
+                firebaseLimit(limitCount)
+            );
+
+            const snapshot = await getDocs(q);
+            const events = snapshot.docs.map(doc => {
+                const data = doc.data();
+                return {
+                    id: doc.id,
+                    ...data,
+                    createdAt: data.createdAt?.toDate?.()?.toISOString() || data.createdAt,
+                    updatedAt: data.updatedAt?.toDate?.()?.toISOString() || data.updatedAt,
+                } as CocoonEvent;
+            });
+
+            return {
+                success: true,
+                data: events
+            };
+        } catch (error: any) {
+            console.error('Error getting cocoon history:', error);
+            return {
+                success: false,
+                error: error.message || 'Failed to get cocoon history',
+                data: []
+            };
+        }
+    },
+
+    updateCocoonStatus: async (eventId: string, newStatus: 'laid' | 'incubating' | 'hatched' | 'failed', hatchedCount?: number) => {
+        try {
+            const eventRef = doc(db, 'events', eventId);
+
+            const statusLabels: Record<string, string> = {
+                laid: 'Złożony',
+                incubating: 'W inkubacji',
+                hatched: 'Wykluty',
+                failed: 'Nieudany',
+            };
+
+            const updates: any = {
+                'eventData.cocoonStatus': newStatus,
+                title: `Kokon - ${statusLabels[newStatus]}`,
+                status: newStatus === 'hatched' || newStatus === 'failed' ? 'completed' : 'in_progress',
+                updatedAt: serverTimestamp(),
+            };
+
+            if (hatchedCount !== undefined) {
+                updates['eventData.hatchedCount'] = hatchedCount;
+            }
+
+            await updateDoc(eventRef, updates);
+
+            return { success: true };
+        } catch (error: any) {
+            console.error('Error updating cocoon status:', error);
+            return {
+                success: false,
+                error: error.message || 'Failed to update cocoon status'
+            };
+        }
+    },
+
+    // Pobierz kokony ze zbliżającą się datą wylęgu
+    getUpcomingHatches: async (userId: string, daysAhead: number = 14) => {
+        try {
+            const eventsRef = collection(db, 'events');
+            const today = new Date();
+            const futureDate = new Date();
+            futureDate.setDate(today.getDate() + daysAhead);
+
+            const q = query(
+                eventsRef,
+                where('userId', '==', userId),
+                where('eventTypeId', '==', 'cocoon'),
+                where('status', '==', 'in_progress')
+            );
+
+            const snapshot = await getDocs(q);
+            const events = snapshot.docs
+                .map(doc => {
+                    const data = doc.data();
+                    return {
+                        id: doc.id,
+                        ...data,
+                        createdAt: data.createdAt?.toDate?.()?.toISOString() || data.createdAt,
+                        updatedAt: data.updatedAt?.toDate?.()?.toISOString() || data.updatedAt,
+                    } as CocoonEvent;
+                })
+                .filter(event => {
+                    if (!event.eventData?.estimatedHatchDate) return false;
+                    const hatchDate = new Date(event.eventData.estimatedHatchDate);
+                    return hatchDate >= today && hatchDate <= futureDate;
+                })
+                .sort((a, b) => {
+                    const dateA = new Date(a.eventData?.estimatedHatchDate || '');
+                    const dateB = new Date(b.eventData?.estimatedHatchDate || '');
+                    return dateA.getTime() - dateB.getTime();
+                });
+
+            return {
+                success: true,
+                data: events
+            };
+        } catch (error: any) {
+            console.error('Error getting upcoming hatches:', error);
+            return {
+                success: false,
+                error: error.message || 'Failed to get upcoming hatches',
+                data: []
+            };
+        }
+    },
+
+    // Pobierz status kokonu dla wielu zwierząt
+    getCocoonStatusForAnimals: async (animalIds: string[]) => {
+        try {
+            if (animalIds.length === 0) {
+                return { success: true, data: {} };
+            }
+
+            const eventsRef = collection(db, 'events');
+            const cocoonStatus: Record<string, { hasCocoon: boolean; lastCocoonDate?: string; cocoonStatus?: string }> = {};
+
+            // Inicjalizuj wszystkie jako bez kokonu
+            animalIds.forEach(id => {
+                cocoonStatus[id] = { hasCocoon: false };
+            });
+
+            // Firestore limit 10 dla 'in', więc dzielimy na partie
+            const chunks = [];
+            for (let i = 0; i < animalIds.length; i += 10) {
+                chunks.push(animalIds.slice(i, i + 10));
+            }
+
+            for (const chunk of chunks) {
+                const q = query(
+                    eventsRef,
+                    where('animalId', 'in', chunk),
+                    where('eventTypeId', '==', 'cocoon')
+                );
+
+                const snapshot = await getDocs(q);
+
+                snapshot.docs.forEach(doc => {
+                    const data = doc.data();
+                    const animalId = data.animalId;
+
+                    // Tylko aktywne kokony (laid lub incubating)
+                    const isActive = data.eventData?.cocoonStatus === 'laid' || data.eventData?.cocoonStatus === 'incubating';
+
+                    if (isActive && (!cocoonStatus[animalId]?.hasCocoon ||
+                        (cocoonStatus[animalId].lastCocoonDate && data.date > cocoonStatus[animalId].lastCocoonDate))) {
+                        cocoonStatus[animalId] = {
+                            hasCocoon: true,
+                            lastCocoonDate: data.date,
+                            cocoonStatus: data.eventData?.cocoonStatus,
+                        };
+                    }
+                });
+            }
+
+            return {
+                success: true,
+                data: cocoonStatus
+            };
+        } catch (error: any) {
+            console.error('Error getting cocoon status:', error);
+            return {
+                success: false,
+                error: error.message || 'Failed to get cocoon status',
                 data: {}
             };
         }

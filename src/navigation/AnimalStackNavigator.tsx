@@ -7,6 +7,7 @@ import AnimalDetailsScreen from "../screens/animals/AnimalDetailsScreen";
 import EditAnimalScreen from "../screens/animals/EditAnimalScreen";
 import AddMoltingScreen from "../screens/animals/AddMoltingScreen";
 import AddMatingScreen from "../screens/animals/AddMatingScreen";
+import AddCocoonScreen from "../screens/animals/AddCocoonScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 
 type AnimalStackParamList = {
@@ -17,6 +18,7 @@ type AnimalStackParamList = {
     EditAnimal: { animalId: string };
     AddMolting: { animalId: string };
     AddMating: { animalId: string };
+    AddCocoon: { animalId: string };
     FeedingHistory: { animalId: string };
     Profile: undefined;
 };
@@ -51,6 +53,11 @@ export default function AnimalStackNavigator() {
             <Stack.Screen
                 name="AddMating"
                 component={AddMatingScreen}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="AddCocoon"
+                component={AddCocoonScreen}
                 options={{ headerShown: false }}
             />
             <Stack.Screen

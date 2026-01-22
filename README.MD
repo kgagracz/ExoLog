@@ -99,13 +99,13 @@
 - [ ] Tracking par hodowlanych
 
 #### Złożenie kokonu
-- [ ] Dodawanie wydarzenia złożenia kokonu
-    - [ ] Wybór samicy
-    - [ ] Data złożenia
-    - [ ] Przewidywana data wyjścia młodych
-    - [ ] Notatki
-- [ ] Przypomnienie o zbliżającej się dacie wyjścia młodych
-- [ ] Historia kokonów
+- [x] Dodawanie wydarzenia złożenia kokonu
+    - [x] Wybór samicy
+    - [x] Data złożenia
+    - [x] Przewidywana data wyjścia młodych
+    - [x] Notatki
+- [] Przypomnienie o zbliżającej się dacie wyjścia młodych
+- [] Historia kokonów
 
 #### Napełnianie się samca
 - [ ] Dodawanie wydarzenia napełnienia

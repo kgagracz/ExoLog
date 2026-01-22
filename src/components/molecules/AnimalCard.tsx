@@ -11,13 +11,20 @@ interface MatingStatus {
   lastMatingResult?: string;
 }
 
+interface CocoonStatus {
+  hasCocoon: boolean;
+  lastCocoonDate?: string;
+  cocoonStatus?: string;
+}
+
 interface AnimalCardProps {
   animal: Animal;
   onPress: (animal: Animal) => void;
   matingStatus?: MatingStatus;
+  cocoonStatus?: CocoonStatus;
 }
 
-const AnimalCard: React.FC<AnimalCardProps> = ({ animal, onPress, matingStatus }) => {
+const AnimalCard: React.FC<AnimalCardProps> = ({ animal, onPress, matingStatus, cocoonStatus }) => {
   const { theme } = useTheme();
   const styles = makeStyles(theme);
 
@@ -36,7 +43,21 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal, onPress, matingStatus }
     }
   };
 
+  const getCocoonLabel = () => {
+    if (!cocoonStatus?.hasCocoon) return null;
+
+    switch (cocoonStatus.cocoonStatus) {
+      case 'laid':
+        return { label: '🥚 Kokon', style: styles.cocoonChip, textStyle: styles.cocoonChipText };
+      case 'incubating':
+        return { label: '🥚 Inkubacja', style: styles.cocoonChip, textStyle: styles.cocoonChipText };
+      default:
+        return { label: '🥚 Kokon', style: styles.cocoonChip, textStyle: styles.cocoonChipText };
+    }
+  };
+
   const matingLabel = animal.sex === 'female' ? getMatingLabel() : null;
+  const cocoonLabel = animal.sex === 'female' ? getCocoonLabel() : null;
 
   return (
       <Card style={styles.animalCard} onPress={() => onPress(animal)}>
@@ -45,15 +66,26 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal, onPress, matingStatus }
             <Text variant="titleLarge" style={styles.animalName}>
               {animal.name}
             </Text>
-            {matingLabel && (
-                <Chip
-                    style={[styles.matingChip, matingLabel.style]}
-                    textStyle={[styles.matingChipText, matingLabel.textStyle]}
-                    compact
-                >
-                  {matingLabel.label}
-                </Chip>
-            )}
+            <View style={styles.chipsRow}>
+              {cocoonLabel && (
+                  <Chip
+                      style={[styles.statusChip, cocoonLabel.style]}
+                      textStyle={[styles.statusChipText, cocoonLabel.textStyle]}
+                      compact
+                  >
+                    {cocoonLabel.label}
+                  </Chip>
+              )}
+              {matingLabel && !cocoonLabel && (
+                  <Chip
+                      style={[styles.statusChip, matingLabel.style]}
+                      textStyle={[styles.statusChipText, matingLabel.textStyle]}
+                      compact
+                  >
+                    {matingLabel.label}
+                  </Chip>
+              )}
+            </View>
           </View>
           <Text variant="bodyMedium" style={styles.animalSpecies}>
             {animal.species || 'Nieznany gatunek'}
@@ -84,6 +116,10 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     alignItems: 'center',
     marginBottom: 4,
   },
+  chipsRow: {
+    flexDirection: 'row',
+    gap: 4,
+  },
   animalName: {
     fontWeight: 'bold',
     color: theme.colors.text,
@@ -101,10 +137,10 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
   animalDate: {
     color: theme.colors.textSecondary,
   },
-  matingChip: {
+  statusChip: {
     height: 24,
   },
-  matingChipText: {
+  statusChipText: {
     fontSize: 10,
     marginVertical: 0,
     marginHorizontal: 4,
@@ -126,6 +162,12 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
   },
   matingFailureChipText: {
     color: theme.colors.error,
+  },
+  cocoonChip: {
+    backgroundColor: theme.colors.events.cocoon.background,
+  },
+  cocoonChipText: {
+    color: theme.colors.events.cocoon.color,
   },
 });
 

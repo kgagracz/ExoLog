@@ -17,37 +17,51 @@ interface MatingStatus {
   lastMatingResult?: string;
 }
 
+interface CocoonStatus {
+  hasCocoon: boolean;
+  lastCocoonDate?: string;
+  cocoonStatus?: string;
+}
+
 interface AnimalsListScreenProps {
   navigation?: any;
 }
 
 const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => {
   const { animals, loading, refresh } = useAnimals();
-  const { getMatingStatusForAnimals } = useEvents();
+  const { getMatingStatusForAnimals, getCocoonStatusForAnimals } = useEvents();
   const { theme } = useTheme();
   const styles = makeStyles(theme);
 
   const [searchText, setSearchText] = useState<string>('');
   const [fabOpen, setFabOpen] = useState<boolean>(false);
   const [matingStatuses, setMatingStatuses] = useState<Record<string, MatingStatus>>({});
+  const [cocoonStatuses, setCocoonStatuses] = useState<Record<string, CocoonStatus>>({});
 
-  // Pobierz statusy kopulacji dla samic
+  // Pobierz statusy kopulacji i kokonów dla samic
   useEffect(() => {
-    const loadMatingStatuses = async () => {
+    const loadStatuses = async () => {
       const femaleIds = animals
           .filter(a => a.sex === 'female')
           .map(a => a.id);
 
       if (femaleIds.length > 0) {
-        const result = await getMatingStatusForAnimals(femaleIds);
-        if (result.success && result.data) {
-          setMatingStatuses(result.data);
+        const [matingResult, cocoonResult] = await Promise.all([
+          getMatingStatusForAnimals(femaleIds),
+          getCocoonStatusForAnimals(femaleIds),
+        ]);
+
+        if (matingResult.success && matingResult.data) {
+          setMatingStatuses(matingResult.data);
+        }
+        if (cocoonResult.success && cocoonResult.data) {
+          setCocoonStatuses(cocoonResult.data);
         }
       }
     };
 
     if (animals.length > 0) {
-      loadMatingStatuses();
+      loadStatuses();
     }
   }, [animals]);
 
@@ -108,6 +122,7 @@ const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => 
                   onRefresh={refresh}
                   onAnimalPress={handleAnimalPress}
                   matingStatuses={matingStatuses}
+                  cocoonStatuses={cocoonStatuses}
               />
           )}
         </View>

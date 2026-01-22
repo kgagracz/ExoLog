@@ -9,12 +9,19 @@ interface MatingStatus {
     lastMatingResult?: string;
 }
 
+interface CocoonStatus {
+    hasCocoon: boolean;
+    lastCocoonDate?: string;
+    cocoonStatus?: string;
+}
+
 interface AnimalsListProps {
     animals: Animal[];
     loading: boolean;
     onRefresh: () => void;
     onAnimalPress: (animal: Animal) => void;
     matingStatuses?: Record<string, MatingStatus>;
+    cocoonStatuses?: Record<string, CocoonStatus>;
 }
 
 const AnimalsList: React.FC<AnimalsListProps> = ({
@@ -22,7 +29,8 @@ const AnimalsList: React.FC<AnimalsListProps> = ({
                                                      loading,
                                                      onRefresh,
                                                      onAnimalPress,
-                                                     matingStatuses = {}
+                                                     matingStatuses = {},
+                                                     cocoonStatuses = {}
                                                  }) => {
     return (
         <ScrollView
@@ -38,6 +46,7 @@ const AnimalsList: React.FC<AnimalsListProps> = ({
                     animal={animal}
                     onPress={onAnimalPress}
                     matingStatus={matingStatuses[animal.id]}
+                    cocoonStatus={cocoonStatuses[animal.id]}
                 />
             ))}
         </ScrollView>

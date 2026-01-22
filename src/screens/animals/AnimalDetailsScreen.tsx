@@ -38,7 +38,13 @@ export default function AnimalDetailsScreen() {
         lastMatingDate?: string;
         lastMatingResult?: string;
     } | undefined>(undefined);
-    const { getMoltingHistory, getMatingHistory } = useEvents();
+    const [cocoonStatus, setCocoonStatus] = useState<{
+        hasCocoon: boolean;
+        lastCocoonDate?: string;
+        cocoonStatus?: string;
+        estimatedHatchDate?: string;
+    } | undefined>(undefined);
+    const { getMoltingHistory, getMatingHistory, getCocoonHistory } = useEvents();
 
     useEffect(() => {
         loadAnimalDetails();
@@ -65,10 +71,29 @@ export default function AnimalDetailsScreen() {
         }
     };
 
+    const loadCocoonStatus = async () => {
+        if (animal?.sex !== 'female') return;
+
+        const result = await getCocoonHistory(animalId, 1);
+        if (result.success && result.data && result.data.length > 0) {
+            const lastCocoon = result.data[0];
+            // Tylko aktywne kokony (laid lub incubating)
+            if (lastCocoon.eventData?.cocoonStatus === 'laid' || lastCocoon.eventData?.cocoonStatus === 'incubating') {
+                setCocoonStatus({
+                    hasCocoon: true,
+                    lastCocoonDate: lastCocoon.date,
+                    cocoonStatus: lastCocoon.eventData?.cocoonStatus,
+                    estimatedHatchDate: lastCocoon.eventData?.estimatedHatchDate,
+                });
+            }
+        }
+    };
+
     useEffect(() => {
         if (animal) {
             loadMoltingHistory();
             loadMatingStatus();
+            loadCocoonStatus();
         }
     }, [animal]);
 
@@ -141,6 +166,18 @@ export default function AnimalDetailsScreen() {
         navigation.navigate('AddMating', { animalId });
     };
 
+    const handleAddCocoon = () => {
+        setFabOpen(false);
+        if (animal?.sex !== 'female') {
+            Alert.alert(
+                'Tylko samice',
+                'Tylko samice mogą składać kokony.'
+            );
+            return;
+        }
+        navigation.navigate('AddCocoon', { animalId });
+    };
+
     const handleFeedingHistory = () => {
         setMenuVisible(false);
         navigation.navigate('FeedingHistory', { animalId });
@@ -200,7 +237,7 @@ export default function AnimalDetailsScreen() {
             <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
                 {/* Podstawowe informacje */}
                 <SectionCard>
-                    <AnimalHeader animal={animal} matingStatus={matingStatus} />
+                    <AnimalHeader animal={animal} matingStatus={matingStatus} cocoonStatus={cocoonStatus} />
                 </SectionCard>
 
                 {/* Pomiary i wiek */}
@@ -305,6 +342,13 @@ export default function AnimalDetailsScreen() {
                         onPress: handleAddMating,
                         color: theme.colors.events.mating.color,
                         style: { backgroundColor: theme.colors.events.mating.background },
+                    },
+                    {
+                        icon: 'egg',
+                        label: 'Kokon',
+                        onPress: handleAddCocoon,
+                        color: theme.colors.events.cocoon.color,
+                        style: { backgroundColor: theme.colors.events.cocoon.background },
                     },
                 ]}
                 onStateChange={({ open }) => setFabOpen(open)}

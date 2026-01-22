@@ -11,12 +11,20 @@ interface MatingStatus {
   lastMatingResult?: string;
 }
 
+interface CocoonStatus {
+  hasCocoon: boolean;
+  lastCocoonDate?: string;
+  cocoonStatus?: string;
+  estimatedHatchDate?: string;
+}
+
 interface AnimalHeaderProps {
   animal: Animal;
   matingStatus?: MatingStatus;
+  cocoonStatus?: CocoonStatus;
 }
 
-const AnimalHeader: React.FC<AnimalHeaderProps> = ({ animal, matingStatus }) => {
+const AnimalHeader: React.FC<AnimalHeaderProps> = ({ animal, matingStatus, cocoonStatus }) => {
   const { theme } = useTheme();
   const styles = makeStyles(theme);
 
@@ -44,7 +52,61 @@ const AnimalHeader: React.FC<AnimalHeaderProps> = ({ animal, matingStatus }) => 
     return new Date(dateString).toLocaleDateString('pl-PL');
   };
 
+  const getDaysUntilHatch = (estimatedHatchDate?: string): number | null => {
+    if (!estimatedHatchDate) return null;
+    const today = new Date();
+    const hatchDate = new Date(estimatedHatchDate);
+    const diffTime = hatchDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
+  const getCocoonChip = () => {
+    if (animal.sex !== 'female' || !cocoonStatus?.hasCocoon) return null;
+
+    const daysUntil = getDaysUntilHatch(cocoonStatus.estimatedHatchDate);
+    const daysText = daysUntil !== null && daysUntil > 0
+        ? ` (${daysUntil} dni do wylęgu)`
+        : daysUntil !== null && daysUntil <= 0
+            ? ' (termin minął!)'
+            : '';
+
+    switch (cocoonStatus.cocoonStatus) {
+      case 'laid':
+        return (
+            <Chip
+                icon="egg"
+                style={[styles.chip, styles.cocoonChip]}
+                textStyle={styles.cocoonChipText}
+            >
+              🥚 Kokon złożony ({formatDate(cocoonStatus.lastCocoonDate)}){daysText}
+            </Chip>
+        );
+      case 'incubating':
+        return (
+            <Chip
+                icon="egg"
+                style={[styles.chip, styles.cocoonChip]}
+                textStyle={styles.cocoonChipText}
+            >
+              🥚 Inkubacja{daysText}
+            </Chip>
+        );
+      default:
+        return (
+            <Chip
+                icon="egg"
+                style={[styles.chip, styles.cocoonChip]}
+                textStyle={styles.cocoonChipText}
+            >
+              🥚 Kokon ({formatDate(cocoonStatus.lastCocoonDate)})
+            </Chip>
+        );
+    }
+  };
+
   const getMatingChip = () => {
+    // Pokazuj kopulację niezależnie od kokonu
     if (animal.sex !== 'female' || !matingStatus?.hasMating) return null;
 
     switch (matingStatus.lastMatingResult) {
@@ -55,7 +117,7 @@ const AnimalHeader: React.FC<AnimalHeaderProps> = ({ animal, matingStatus }) => 
                 style={[styles.chip, styles.matingSuccessChip]}
                 textStyle={styles.matingSuccessChipText}
             >
-              💕 Udana kopulacja ({formatDate(matingStatus.lastMatingDate)})
+              💕 Zapłodniona ({formatDate(matingStatus.lastMatingDate)})
             </Chip>
         );
       case 'in_progress':
@@ -65,7 +127,7 @@ const AnimalHeader: React.FC<AnimalHeaderProps> = ({ animal, matingStatus }) => 
                 style={[styles.chip, styles.matingProgressChip]}
                 textStyle={styles.matingProgressChipText}
             >
-              💕 Kopulacja trwa ({formatDate(matingStatus.lastMatingDate)})
+              💕 Po kopulacji ({formatDate(matingStatus.lastMatingDate)})
             </Chip>
         );
       case 'failure':
@@ -109,6 +171,7 @@ const AnimalHeader: React.FC<AnimalHeaderProps> = ({ animal, matingStatus }) => 
                 L{numericStage} - {getStageCategory(numericStage)}
               </Chip>
           )}
+          {getCocoonChip()}
           {getMatingChip()}
         </View>
       </>
@@ -152,6 +215,12 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
   },
   matingFailureChipText: {
     color: theme.colors.error,
+  },
+  cocoonChip: {
+    backgroundColor: theme.colors.events.cocoon.background,
+  },
+  cocoonChipText: {
+    color: theme.colors.events.cocoon.color,
   },
 });
 
