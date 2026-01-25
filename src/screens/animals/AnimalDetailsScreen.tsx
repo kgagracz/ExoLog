@@ -13,6 +13,7 @@ import TerrariumSection from "../../components/molecules/TerrariumSection";
 import FeedingSection from "../../components/molecules/FeedingSection";
 import BehaviorSection from "../../components/molecules/BehaviorSection";
 import HealthStatusSection from "../../components/molecules/HealthStatusSection";
+import QRCodeModal from "../../components/organisms/QRCodeModal";
 import {Theme} from "../../styles/theme";
 import {useEvents} from "../../hooks/useEvents";
 import {MoltingEvent} from "../../types/events";
@@ -32,6 +33,7 @@ export default function AnimalDetailsScreen() {
     const [loading, setLoading] = useState(true);
     const [menuVisible, setMenuVisible] = useState(false);
     const [fabOpen, setFabOpen] = useState(false);
+    const [qrModalVisible, setQrModalVisible] = useState(false);
     const [moltingHistory, setMoltingHistory] = useState<MoltingEvent[]>([]);
     const [matingStatus, setMatingStatus] = useState<{
         hasMating: boolean;
@@ -232,6 +234,7 @@ export default function AnimalDetailsScreen() {
                 onAddFeeding={handleAddFeeding}
                 onShowHistory={handleFeedingHistory}
                 onDelete={handleDelete}
+                onShowQR={() => setQrModalVisible(true)}
             />
 
             <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
@@ -354,6 +357,13 @@ export default function AnimalDetailsScreen() {
                 onStateChange={({ open }) => setFabOpen(open)}
                 fabStyle={styles.fab}
                 style={styles.fabGroup}
+            />
+
+            {/* Modal z kodem QR */}
+            <QRCodeModal
+                visible={qrModalVisible}
+                onClose={() => setQrModalVisible(false)}
+                animal={animal}
             />
         </View>
     );

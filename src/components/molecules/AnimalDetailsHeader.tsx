@@ -10,6 +10,7 @@ interface AnimalDetailsHeaderProps {
     onAddFeeding: () => void;
     onShowHistory: () => void;
     onDelete: () => void;
+    onShowQR?: () => void;
 }
 
 const AnimalDetailsHeader: React.FC<AnimalDetailsHeaderProps> = ({
@@ -20,12 +21,16 @@ const AnimalDetailsHeader: React.FC<AnimalDetailsHeaderProps> = ({
                                                                      onEdit,
                                                                      onAddFeeding,
                                                                      onShowHistory,
-                                                                     onDelete
+                                                                     onDelete,
+                                                                     onShowQR
                                                                  }) => {
     return (
         <Appbar.Header>
             <Appbar.BackAction onPress={onGoBack} />
             <Appbar.Content title={animalName} />
+            {onShowQR && (
+                <Appbar.Action icon="qrcode" onPress={onShowQR} />
+            )}
             <Menu
                 visible={menuVisible}
                 onDismiss={() => onMenuToggle(false)}
@@ -39,6 +44,12 @@ const AnimalDetailsHeader: React.FC<AnimalDetailsHeaderProps> = ({
                 <Menu.Item onPress={onEdit} title="Edytuj" leadingIcon="pencil" />
                 <Menu.Item onPress={onAddFeeding} title="Dodaj karmienie" leadingIcon="food-apple" />
                 <Menu.Item onPress={onShowHistory} title="Historia karmienia" leadingIcon="history" />
+                {onShowQR && (
+                    <>
+                        <Divider />
+                        <Menu.Item onPress={() => { onMenuToggle(false); onShowQR(); }} title="Pokaż kod QR" leadingIcon="qrcode" />
+                    </>
+                )}
                 <Divider />
                 <Menu.Item
                     onPress={onDelete}

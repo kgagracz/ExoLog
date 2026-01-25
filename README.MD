@@ -107,15 +107,23 @@
 - [] Przypomnienie o zbliżającej się dacie wyjścia młodych
 - [] Historia kokonów
 
-#### Napełnianie się samca
-- [ ] Dodawanie wydarzenia napełnienia
-    - [ ] Wybór samca
-    - [ ] Data napełnienia
-    - [ ] Stadium (subadult/adult)
-    - [ ] Notatki
-    - [ ] Zdjęcia (opcjonalnie)
-- [ ] Oznaczenie samca jako gotowego do rozmnażania
-- [ ] Historia napełnień
+[//]: # (#### Napełnianie się samca - nie w MVP)
+
+[//]: # (- [ ] Dodawanie wydarzenia napełnienia)
+
+[//]: # (    - [ ] Wybór samca)
+
+[//]: # (    - [ ] Data napełnienia)
+
+[//]: # (    - [ ] Stadium &#40;subadult/adult&#41;)
+
+[//]: # (    - [ ] Notatki)
+
+[//]: # (    - [ ] Zdjęcia &#40;opcjonalnie&#41;)
+
+[//]: # (- [ ] Oznaczenie samca jako gotowego do rozmnażania)
+
+[//]: # (- [ ] Historia napełnień)
 
 #### Zdjęcia
 - [ ] Dodawanie zdjęć ptasznika
@@ -128,6 +136,11 @@
 - [ ] Upload do Firebase Storage
 
 ---
+
+### 🔧 FUNKCJE KODU QR
+- [x] Generowanie kodu QR 
+- [x] Skanowanie kodu QR i przenoszenie na strone pająka
+
 
 ### 🔧 FUNKCJE DODATKOWE
 
