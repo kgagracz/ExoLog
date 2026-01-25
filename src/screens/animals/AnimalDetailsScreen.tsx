@@ -248,12 +248,12 @@ export default function AnimalDetailsScreen() {
                     <MeasurementsSection animal={animal} />
                 </SectionCard>
 
-                {/* Terrarium */}
-                {animal.housing && (
-                    <SectionCard>
-                        <TerrariumSection animal={animal} />
-                    </SectionCard>
-                )}
+                {/*/!* Terrarium *!/*/}
+                {/*{animal.housing && (*/}
+                {/*    <SectionCard>*/}
+                {/*        <TerrariumSection animal={animal} />*/}
+                {/*    </SectionCard>*/}
+                {/*)}*/}
 
                 {/* Karmienie */}
                 <SectionCard>
@@ -291,12 +291,12 @@ export default function AnimalDetailsScreen() {
                     </Card.Content>
                 </SectionCard>
 
-                {/* Zachowanie */}
-                {animal.specificData && (
-                    <SectionCard>
-                        <BehaviorSection animal={animal} />
-                    </SectionCard>
-                )}
+                {/*/!* Zachowanie *!/*/}
+                {/*{animal.specificData && (*/}
+                {/*    <SectionCard>*/}
+                {/*        <BehaviorSection animal={animal} />*/}
+                {/*    </SectionCard>*/}
+                {/*)}*/}
 
                 {/* Notatki */}
                 {animal.notes && (
@@ -310,10 +310,10 @@ export default function AnimalDetailsScreen() {
                     </SectionCard>
                 )}
 
-                {/* Status zdrowia */}
-                <SectionCard>
-                    <HealthStatusSection animal={animal} />
-                </SectionCard>
+                {/*/!* Status zdrowia *!/*/}
+                {/*<SectionCard>*/}
+                {/*    <HealthStatusSection animal={animal} />*/}
+                {/*</SectionCard>*/}
 
                 {/* Spacer dla FAB */}
                 <View style={styles.fabSpacer} />

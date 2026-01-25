@@ -92,10 +92,15 @@ const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => 
 
   const showEmptyState = animals.length === 0 && !loading;
 
+  const handleQRPrint = (): void => {
+    navigation?.navigate('QRPrint');
+  };
+
   return (
       <View style={styles.container}>
         <Appbar.Header>
           <Appbar.Content title="🕷️ Moje Zwierzęta" />
+          <Appbar.Action icon="qrcode" onPress={handleQRPrint} />
           <View style={styles.avatarContainer}>
             <UserAvatar onPress={handleProfilePress} size={36} />
           </View>

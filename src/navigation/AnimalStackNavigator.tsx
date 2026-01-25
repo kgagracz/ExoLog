@@ -8,6 +8,7 @@ import EditAnimalScreen from "../screens/animals/EditAnimalScreen";
 import AddMoltingScreen from "../screens/animals/AddMoltingScreen";
 import AddMatingScreen from "../screens/animals/AddMatingScreen";
 import AddCocoonScreen from "../screens/animals/AddCocoonScreen";
+import QRPrintScreen from "../screens/QRPrintScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 
 type AnimalStackParamList = {
@@ -19,6 +20,7 @@ type AnimalStackParamList = {
     AddMolting: { animalId: string };
     AddMating: { animalId: string };
     AddCocoon: { animalId: string };
+    QRPrint: undefined;
     FeedingHistory: { animalId: string };
     Profile: undefined;
 };
@@ -58,6 +60,11 @@ export default function AnimalStackNavigator() {
             <Stack.Screen
                 name="AddCocoon"
                 component={AddCocoonScreen}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="QRPrint"
+                component={QRPrintScreen}
                 options={{ headerShown: false }}
             />
             <Stack.Screen
