@@ -159,6 +159,151 @@ export const useAnimals = () => {
         }
     };
 
+    // Interfejs danych dla addSpider
+    interface SpiderData {
+        name?: string;
+        species: string;
+        sex?: 'male' | 'female' | 'unknown';
+        stage?: 'baby' | 'juvenile' | 'subadult' | 'adult';
+        currentStage?: number; // L1-L9
+        dateAcquired?: string;
+        dateOfBirth?: string;
+        notes?: string;
+        // Opcjonalne szczegóły
+        weight?: number;
+        bodyLength?: number;
+        temperament?: string;
+        // Terrarium
+        terrariumLength?: number;
+        terrariumWidth?: number;
+        terrariumHeight?: number;
+        substrate?: string;
+        temperature?: number;
+        humidity?: number;
+        // Karmienie
+        feedingSchedule?: string;
+        foodType?: string;
+        // Powiązania (dla potomstwa)
+        parentFemaleId?: string;
+        cocoonId?: string;
+    }
+
+    // Uniwersalna funkcja dodawania pająka
+    const addSpider = async (spiderData: SpiderData) => {
+        if (!user || !isAuthenticated) {
+            return { success: false, error: 'User not authenticated' };
+        }
+
+        try {
+            // Znajdź kategorię i typ
+            const arachnidsCategory = 'tsXnqoMTNElLOrIplWhn'; // ID kategorii arachnids
+            const tarantulaType = 'E2VPLNh0lSYNxQuzJvS8'; // ID typu tarantula
+
+            // Przygotuj pełne dane zwierzęcia
+            const fullAnimalData: Omit<Animal, 'id' | 'createdAt' | 'updatedAt'> = {
+                userId: user.uid,
+                categoryId: arachnidsCategory,
+                animalTypeId: tarantulaType,
+                name: spiderData.name || spiderData.species,
+                species: spiderData.species,
+                sex: spiderData.sex || 'unknown',
+                stage: spiderData.stage || 'baby',
+                dateAcquired: spiderData.dateAcquired || new Date().toISOString().split('T')[0],
+                dateOfBirth: spiderData.dateOfBirth,
+                measurements: {
+                    weight: spiderData.weight,
+                    length: spiderData.bodyLength,
+                    lastMeasured: new Date().toISOString().split('T')[0],
+                },
+                specificData: {
+                    currentStage: spiderData.currentStage || 1,
+                    webType: 'minimal',
+                    urticatingHairs: false,
+                    temperament: spiderData.temperament || 'unknown',
+                    legSpan: spiderData.bodyLength,
+                    parentFemaleId: spiderData.parentFemaleId,
+                    cocoonId: spiderData.cocoonId,
+                },
+                healthStatus: 'healthy',
+                isActive: true,
+                housing: {
+                    type: 'terrarium',
+                    dimensions: {
+                        length: spiderData.terrariumLength,
+                        width: spiderData.terrariumWidth,
+                        height: spiderData.terrariumHeight,
+                    },
+                    substrate: spiderData.substrate || 'coconut_fiber',
+                    temperature: {
+                        day: spiderData.temperature,
+                    },
+                    humidity: spiderData.humidity,
+                    accessories: [],
+                },
+                feeding: {
+                    schedule: spiderData.feedingSchedule || 'weekly',
+                    foodType: spiderData.foodType || 'cricket',
+                },
+                photos: [],
+                notes: spiderData.notes || '',
+                behavior: spiderData.temperament || 'unknown',
+                tags: ['tarantula'],
+                veterinary: {
+                    vaccinations: [],
+                    medications: [],
+                    allergies: [],
+                },
+            };
+
+            const result = await addAnimal(fullAnimalData);
+            return result;
+        } catch (err: any) {
+            return { success: false, error: err.message };
+        }
+    };
+
+    // Dodaj wiele pająków (np. z kokonu)
+    const addMultipleSpiders = async (
+        baseSpiderData: Omit<SpiderData, 'name'>,
+        quantity: number,
+        nameGenerator: (index: number, total: number) => string
+    ) => {
+        if (!user || !isAuthenticated) {
+            return { success: false, error: 'User not authenticated', added: 0, failed: 0 };
+        }
+
+        const results: string[] = [];
+        const errors: Array<{ name: string; error: string }> = [];
+
+        for (let i = 1; i <= quantity; i++) {
+            const spiderName = nameGenerator(i, quantity);
+
+            const result = await addSpider({
+                ...baseSpiderData,
+                name: spiderName,
+            });
+
+            if (result.success) {
+                results.push(spiderName);
+            } else {
+                errors.push({ name: spiderName, error: result.error || 'Unknown error' });
+            }
+
+            // Przerwa co 10 pająków
+            if (i % 10 === 0) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+        }
+
+        return {
+            success: errors.length === 0 || results.length > 0,
+            added: results.length,
+            failed: errors.length,
+            names: results,
+            errors: errors.length > 0 ? errors : undefined,
+        };
+    };
+
     // Funkcja addNewAnimal używana w screen
     const addNewAnimal = async (basicData: {
         name: string;
@@ -493,6 +638,8 @@ export const useAnimals = () => {
         // Funkcje zarządzania zwierzętami
         addAnimal,
         addMultipleAnimals,
+        addSpider,
+        addMultipleSpiders,
         updateAnimal,
         getAnimal,
         getAnimalsByCategory,
