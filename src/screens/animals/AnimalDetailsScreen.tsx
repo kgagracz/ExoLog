@@ -24,7 +24,7 @@ export default function AnimalDetailsScreen() {
     const route = useRoute<any>();
     const { animalId } = route.params;
 
-    const { getAnimal, getFeedingHistory, deleteAnimalCompletely } = useAnimals();
+    const { getAnimal, getFeedingHistory, deleteAnimalCompletely, markAsDeceased } = useAnimals();
     const { theme } = useTheme();
     const styles = makeStyles(theme);
 
@@ -140,6 +140,32 @@ export default function AnimalDetailsScreen() {
         );
     };
 
+    const handleMarkDeceased = () => {
+        Alert.alert(
+            '💀 Oznacz zgon',
+            `Czy na pewno chcesz oznaczyć ${animal?.name} jako martwe?\n\nZwierzę zostanie usunięte z listy, ale jego dane zostaną zachowane w historii.`,
+            [
+                { text: 'Anuluj', style: 'cancel' },
+                {
+                    text: 'Oznacz zgon',
+                    style: 'destructive',
+                    onPress: async () => {
+                        const result = await markAsDeceased(animalId);
+                        if (result.success) {
+                            Alert.alert(
+                                'Zapisano',
+                                `${animal?.name} został oznaczony jako martwy.`,
+                                [{ text: 'OK', onPress: () => navigation.navigate('AnimalsList') }]
+                            );
+                        } else {
+                            Alert.alert('Błąd', result.error || 'Nie udało się zapisać zmian.');
+                        }
+                    }
+                }
+            ]
+        );
+    };
+
     const handleEdit = () => {
         setMenuVisible(false);
         navigation.navigate('EditAnimal', { animalId });
@@ -235,6 +261,7 @@ export default function AnimalDetailsScreen() {
                 onShowHistory={handleFeedingHistory}
                 onDelete={handleDelete}
                 onShowQR={() => setQrModalVisible(true)}
+                onMarkDeceased={handleMarkDeceased}
             />
 
             <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>

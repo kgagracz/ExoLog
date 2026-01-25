@@ -11,6 +11,7 @@ interface AnimalDetailsHeaderProps {
     onShowHistory: () => void;
     onDelete: () => void;
     onShowQR?: () => void;
+    onMarkDeceased?: () => void;
 }
 
 const AnimalDetailsHeader: React.FC<AnimalDetailsHeaderProps> = ({
@@ -22,7 +23,8 @@ const AnimalDetailsHeader: React.FC<AnimalDetailsHeaderProps> = ({
                                                                      onAddFeeding,
                                                                      onShowHistory,
                                                                      onDelete,
-                                                                     onShowQR
+                                                                     onShowQR,
+                                                                     onMarkDeceased
                                                                  }) => {
     return (
         <Appbar.Header>
@@ -51,6 +53,14 @@ const AnimalDetailsHeader: React.FC<AnimalDetailsHeaderProps> = ({
                     </>
                 )}
                 <Divider />
+                {onMarkDeceased && (
+                    <Menu.Item
+                        onPress={() => { onMenuToggle(false); onMarkDeceased(); }}
+                        title="Oznacz zgon"
+                        leadingIcon="skull"
+                        titleStyle={{ color: '#666' }}
+                    />
+                )}
                 <Menu.Item
                     onPress={onDelete}
                     title="Usuń zwierzę"

@@ -379,6 +379,37 @@ export const useAnimals = () => {
         }
     };
 
+    // Oznacz zwierzę jako martwe
+    const markAsDeceased = async (animalId: string, deathDate?: string, deathReason?: string) => {
+        try {
+            const updateData: Partial<Animal> = {
+                healthStatus: 'deceased',
+                isActive: false,
+            };
+
+            // Pobierz aktualne dane zwierzęcia aby zachować specificData
+            const animalResult = await animalsService.getById(animalId);
+            if (animalResult.success && animalResult.data) {
+                updateData.specificData = {
+                    ...animalResult.data.specificData,
+                    deathDate: deathDate || new Date().toISOString().split('T')[0],
+                    // deathReason: deathReason || undefined,
+                };
+            }
+
+            const result = await animalsService.update(animalId, updateData);
+
+            if (result.success) {
+                await loadAnimals();
+                return { success: true };
+            } else {
+                return { success: false, error: result.error };
+            }
+        } catch (err: any) {
+            return { success: false, error: err.message };
+        }
+    };
+
     // Usuń zwierzę na stałe
     const deleteAnimal = async (animalId: string) => {
         try {
@@ -645,6 +676,7 @@ export const useAnimals = () => {
         getAnimalsByCategory,
         deleteAnimal,
         deleteAnimalCompletely,
+        markAsDeceased,
         refetch: loadAnimals,
 
         // Funkcje karmienia
