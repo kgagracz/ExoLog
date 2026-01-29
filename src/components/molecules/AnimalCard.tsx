@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Image } from 'react-native';
 import { Text, Card, Chip } from 'react-native-paper';
 import { useTheme } from "../../context/ThemeContext";
 import { Theme } from "../../styles/theme";
@@ -27,6 +27,10 @@ interface AnimalCardProps {
 const AnimalCard: React.FC<AnimalCardProps> = ({ animal, onPress, matingStatus, cocoonStatus }) => {
   const { theme } = useTheme();
   const styles = makeStyles(theme);
+
+  // Pobierz zdjęcie główne
+  const mainPhoto = animal.photos?.find(p => p.isMain) || animal.photos?.[0];
+  const photoUrl = mainPhoto?.url;
 
   const getMatingLabel = () => {
     if (!matingStatus?.hasMating) return null;
@@ -61,46 +65,64 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal, onPress, matingStatus, 
 
   return (
       <Card style={styles.animalCard} onPress={() => onPress(animal)}>
-        <Card.Content>
-          <View style={styles.headerRow}>
-            <Text variant="titleLarge" style={styles.animalName}>
-              {animal.name}
-            </Text>
-            <View style={styles.chipsRow}>
-              {cocoonLabel && (
-                  <Chip
-                      style={[styles.statusChip, cocoonLabel.style]}
-                      textStyle={[styles.statusChipText, cocoonLabel.textStyle]}
-                      compact
-                  >
-                    {cocoonLabel.label}
-                  </Chip>
-              )}
-              {matingLabel && !cocoonLabel && (
-                  <Chip
-                      style={[styles.statusChip, matingLabel.style]}
-                      textStyle={[styles.statusChipText, matingLabel.textStyle]}
-                      compact
-                  >
-                    {matingLabel.label}
-                  </Chip>
-              )}
-            </View>
+        <View style={styles.cardContent}>
+          {/* Miniaturka zdjęcia */}
+          <View style={styles.photoContainer}>
+            {photoUrl ? (
+                <Image
+                    source={{ uri: photoUrl }}
+                    style={styles.photo}
+                    resizeMode="cover"
+                />
+            ) : (
+                <View style={styles.photoPlaceholder}>
+                  <Text style={styles.photoPlaceholderText}>🕷️</Text>
+                </View>
+            )}
           </View>
-          <Text variant="bodyMedium" style={styles.animalSpecies}>
-            {animal.species || 'Nieznany gatunek'}
-          </Text>
-          <Text variant="bodySmall" style={styles.animalInfo}>
-            {animal.sex === 'male' ? '♂ Samiec' :
-                animal.sex === 'female' ? '♀ Samica' :
-                    'Nieznana płeć'} • L{animal.stage || '?'}
-          </Text>
-          {animal.feeding?.lastFed && (
-              <Text variant="bodySmall" style={styles.animalDate}>
-                Ostatnie karmienie: {new Date(animal.feeding.lastFed).toLocaleDateString('pl-PL')}
+
+          {/* Informacje */}
+          <View style={styles.infoContainer}>
+            <View style={styles.headerRow}>
+              <Text variant="titleMedium" style={styles.animalName} numberOfLines={1}>
+                {animal.name}
               </Text>
-          )}
-        </Card.Content>
+              <View style={styles.chipsRow}>
+                {cocoonLabel && (
+                    <Chip
+                        style={[styles.statusChip, cocoonLabel.style]}
+                        textStyle={[styles.statusChipText, cocoonLabel.textStyle]}
+                        compact
+                    >
+                      {cocoonLabel.label}
+                    </Chip>
+                )}
+                {matingLabel && !cocoonLabel && (
+                    <Chip
+                        style={[styles.statusChip, matingLabel.style]}
+                        textStyle={[styles.statusChipText, matingLabel.textStyle]}
+                        compact
+                    >
+                      {matingLabel.label}
+                    </Chip>
+                )}
+              </View>
+            </View>
+            <Text variant="bodyMedium" style={styles.animalSpecies} numberOfLines={1}>
+              {animal.species || 'Nieznany gatunek'}
+            </Text>
+            <Text variant="bodySmall" style={styles.animalInfo}>
+              {animal.sex === 'male' ? '♂ Samiec' :
+                  animal.sex === 'female' ? '♀ Samica' :
+                      'Nieznana płeć'} • L{animal.specificData?.currentStage || '?'}
+            </Text>
+            {animal.feeding?.lastFed && (
+                <Text variant="bodySmall" style={styles.animalDate}>
+                  Ostatnie karmienie: {new Date(animal.feeding.lastFed).toLocaleDateString('pl-PL')}
+                </Text>
+            )}
+          </View>
+        </View>
       </Card>
   );
 };
@@ -109,12 +131,43 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
   animalCard: {
     marginBottom: 12,
     backgroundColor: theme.colors.backgroundSecondary,
+    overflow: 'hidden',
+  },
+  cardContent: {
+    flexDirection: 'row',
+    padding: 12,
+  },
+  photoContainer: {
+    width: 70,
+    height: 70,
+    borderRadius: theme.borderRadius.medium,
+    overflow: 'hidden',
+    marginRight: 12,
+    backgroundColor: theme.colors.surfaceLight,
+  },
+  photo: {
+    width: '100%',
+    height: '100%',
+  },
+  photoPlaceholder: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: theme.colors.primaryContainer,
+  },
+  photoPlaceholderText: {
+    fontSize: 32,
+  },
+  infoContainer: {
+    flex: 1,
+    justifyContent: 'center',
   },
   headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   chipsRow: {
     flexDirection: 'row',
@@ -124,24 +177,26 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     fontWeight: 'bold',
     color: theme.colors.text,
     flex: 1,
+    marginRight: 8,
   },
   animalSpecies: {
     color: theme.colors.primary,
     fontStyle: 'italic',
-    marginBottom: 8,
+    marginBottom: 4,
   },
   animalInfo: {
     color: theme.colors.textSecondary,
-    marginBottom: 4,
+    marginBottom: 2,
   },
   animalDate: {
     color: theme.colors.textSecondary,
+    fontSize: 11,
   },
   statusChip: {
-    height: 24,
+    height: 22,
   },
   statusChipText: {
-    fontSize: 10,
+    fontSize: 9,
     marginVertical: 0,
     marginHorizontal: 4,
   },

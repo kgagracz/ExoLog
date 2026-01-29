@@ -129,13 +129,14 @@
 
 #### Zdjęcia
 - [ ] Dodawanie zdjęć ptasznika
-    - [ ] Upload z galerii
-    - [ ] Zdjęcie z aparatu
+    - [x] Upload z galerii
+    - [x] Zdjęcie z aparatu
     - [ ] Opis zdjęcia (opcjonalnie)
-    - [ ] Data automatyczna
-- [ ] Galeria zdjęć ptasznika
-- [ ] Usuwanie zdjęć
-- [ ] Upload do Firebase Storage
+    - [ ] Zapisywanie rozmiarów ptasznika
+    - [x] Data automatyczna
+- [x] Galeria zdjęć ptasznika
+- [x] Usuwanie zdjęć
+- [x] Upload do Firebase Storage
 
 ---
 

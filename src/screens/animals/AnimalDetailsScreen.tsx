@@ -1,18 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, Alert } from 'react-native';
-import {Text, ActivityIndicator, FAB, Card, IconButton} from 'react-native-paper';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import React, {useEffect, useState} from 'react';
+import {Alert, ScrollView, StyleSheet, View} from 'react-native';
+import {ActivityIndicator, FAB, Text} from 'react-native-paper';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import {useAnimals} from "../../hooks";
+import {useAuth} from "../../hooks/useAuth";
 import {useTheme} from "../../context/ThemeContext";
 import {Animal} from "../../types";
 import AnimalDetailsHeader from "../../components/molecules/AnimalDetailsHeader";
 import SectionCard from "../../components/atoms/SectionCard";
 import AnimalHeader from "../../components/molecules/AnimalHeader";
 import MeasurementsSection from "../../components/molecules/MeasurementsSection";
-import TerrariumSection from "../../components/molecules/TerrariumSection";
 import FeedingSection from "../../components/molecules/FeedingSection";
-import BehaviorSection from "../../components/molecules/BehaviorSection";
-import HealthStatusSection from "../../components/molecules/HealthStatusSection";
+import PhotosSection from "../../components/molecules/PhotoSection";
 import QRCodeModal from "../../components/organisms/QRCodeModal";
 import {Theme} from "../../styles/theme";
 import {useEvents} from "../../hooks/useEvents";
@@ -25,6 +24,7 @@ export default function AnimalDetailsScreen() {
     const { animalId } = route.params;
 
     const { getAnimal, getFeedingHistory, deleteAnimalCompletely, markAsDeceased } = useAnimals();
+    const { user } = useAuth();
     const { theme } = useTheme();
     const styles = makeStyles(theme);
 
@@ -206,6 +206,14 @@ export default function AnimalDetailsScreen() {
         navigation.navigate('AddCocoon', { animalId });
     };
 
+    const handlePhotos = () => {
+        setFabOpen(false);
+        navigation.navigate('AnimalPhotos', {
+            animalId,
+            animalName: animal?.name || 'Zwierzę'
+        });
+    };
+
     const handleFeedingHistory = () => {
         setMenuVisible(false);
         navigation.navigate('FeedingHistory', { animalId });
@@ -265,25 +273,34 @@ export default function AnimalDetailsScreen() {
             />
 
             <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-                {/* Podstawowe informacje */}
-                <SectionCard>
-                    <AnimalHeader animal={animal} matingStatus={matingStatus} cocoonStatus={cocoonStatus} />
-                </SectionCard>
+                {/* Hero ze zdjęciem głównym */}
+                <AnimalHeader
+                    animal={animal}
+                    matingStatus={matingStatus}
+                    cocoonStatus={cocoonStatus}
+                />
 
                 {/* Pomiary i wiek */}
-                <SectionCard>
+                <SectionCard title="Pomiary" icon="📏">
                     <MeasurementsSection animal={animal} />
                 </SectionCard>
 
                 {/*/!* Terrarium *!/*/}
                 {/*{animal.housing && (*/}
-                {/*    <SectionCard>*/}
+                {/*    <SectionCard title="Terrarium" icon="🏠">*/}
                 {/*        <TerrariumSection animal={animal} />*/}
                 {/*    </SectionCard>*/}
                 {/*)}*/}
 
                 {/* Karmienie */}
-                <SectionCard>
+                <SectionCard
+                    title="Karmienie"
+                    icon="🦗"
+                    rightAction={{
+                        icon: 'history',
+                        onPress: handleFeedingHistory
+                    }}
+                >
                     <FeedingSection
                         animal={animal}
                         feedingHistory={feedingHistory}
@@ -291,50 +308,54 @@ export default function AnimalDetailsScreen() {
                     />
                 </SectionCard>
 
-                <SectionCard>
-                    <Card.Title
-                        title="Historia wyliniek"
-                        right={(props) => (
-                            <IconButton
-                                {...props}
-                                icon="plus"
-                                onPress={() => navigation.navigate('AddMolting', { animalId })}
+                {/* Historia wyliniek */}
+                <SectionCard
+                    title="Historia wyliniek"
+                    icon="🔄"
+                    rightAction={{
+                        icon: 'plus',
+                        onPress: () => navigation.navigate('AddMolting', { animalId })
+                    }}
+                >
+                    {moltingHistory.length > 0 ? (
+                        moltingHistory.map((molting) => (
+                            <MoltingHistoryCard
+                                key={molting.id}
+                                molting={molting}
                             />
-                        )}
-                    />
-                    <Card.Content>
-                        {moltingHistory.length > 0 ? (
-                            moltingHistory.map((molting) => (
-                                <MoltingHistoryCard
-                                    key={molting.id}
-                                    molting={molting}
-                                />
-                            ))
-                        ) : (
-                            <Text variant="bodyMedium">
-                                Brak historii wyliniek
-                            </Text>
-                        )}
-                    </Card.Content>
+                        ))
+                    ) : (
+                        <Text variant="bodyMedium" style={styles.emptyText}>
+                            Brak historii wyliniek
+                        </Text>
+                    )}
                 </SectionCard>
 
                 {/*/!* Zachowanie *!/*/}
                 {/*{animal.specificData && (*/}
-                {/*    <SectionCard>*/}
+                {/*    <SectionCard title="Zachowanie" icon="🧠">*/}
                 {/*        <BehaviorSection animal={animal} />*/}
                 {/*    </SectionCard>*/}
                 {/*)}*/}
 
                 {/* Notatki */}
                 {animal.notes && (
-                    <SectionCard>
-                        <Text variant="titleMedium" style={styles.sectionTitle}>
-                            📝 Notatki
-                        </Text>
+                    <SectionCard title="Notatki" icon="📝">
                         <Text variant="bodyMedium" style={styles.notesText}>
                             {animal.notes}
                         </Text>
                     </SectionCard>
+                )}
+
+                {/* Zdjęcia */}
+                {user && (
+                    <PhotosSection
+                        userId={user.uid}
+                        animalId={animalId}
+                        editable={true}
+                        maxDisplay={4}
+                        onSeeAll={handlePhotos}
+                    />
                 )}
 
                 {/*/!* Status zdrowia *!/*/}
@@ -380,6 +401,13 @@ export default function AnimalDetailsScreen() {
                         color: theme.colors.events.cocoon.color,
                         style: { backgroundColor: theme.colors.events.cocoon.background },
                     },
+                    {
+                        icon: 'camera',
+                        label: 'Zdjęcie',
+                        onPress: handlePhotos,
+                        color: theme.colors.events.photo.color,
+                        style: { backgroundColor: theme.colors.events.photo.background },
+                    },
                 ]}
                 onStateChange={({ open }) => setFabOpen(open)}
                 fabStyle={styles.fab}
@@ -412,14 +440,13 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         marginTop: 16,
         color: theme.colors.onSurfaceVariant,
     },
-    sectionTitle: {
-        fontWeight: 'bold',
-        color: theme.colors.primary,
-        marginBottom: 8,
-    },
     notesText: {
         lineHeight: 20,
         color: theme.colors.onSurfaceVariant,
+    },
+    emptyText: {
+        color: theme.colors.onSurfaceVariant,
+        fontStyle: 'italic',
     },
     fabSpacer: {
         height: 80,

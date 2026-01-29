@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, ImageBackground, Dimensions } from 'react-native';
 import { Text, Chip } from 'react-native-paper';
 import { useTheme } from "../../context/ThemeContext";
 import { Theme } from "../../styles/theme";
@@ -18,15 +18,22 @@ interface CocoonStatus {
   estimatedHatchDate?: string;
 }
 
-interface AnimalHeaderProps {
+interface AnimalHeroHeaderProps {
   animal: Animal;
   matingStatus?: MatingStatus;
   cocoonStatus?: CocoonStatus;
 }
 
-const AnimalHeader: React.FC<AnimalHeaderProps> = ({ animal, matingStatus, cocoonStatus }) => {
+const { width } = Dimensions.get('window');
+const HERO_HEIGHT = 280;
+
+const AnimalHeader: React.FC<AnimalHeroHeaderProps> = ({ animal, matingStatus, cocoonStatus }) => {
   const { theme } = useTheme();
   const styles = makeStyles(theme);
+
+  // Pobierz główne zdjęcie
+  const mainPhoto = animal.photos?.find(p => p.isMain) || animal.photos?.[0];
+  const photoUrl = mainPhoto?.url || animal.specificData?.mainPhotoUrl;
 
   const getSexDisplay = (sex: string): string => {
     switch (sex) {
@@ -44,7 +51,6 @@ const AnimalHeader: React.FC<AnimalHeaderProps> = ({ animal, matingStatus, cocoo
     return 'Adult (L9+)';
   };
 
-  // Pobierz numeryczne stadium z specificData
   const numericStage = animal.specificData?.currentStage as number | null;
 
   const formatDate = (dateString?: string) => {
@@ -66,47 +72,24 @@ const AnimalHeader: React.FC<AnimalHeaderProps> = ({ animal, matingStatus, cocoo
 
     const daysUntil = getDaysUntilHatch(cocoonStatus.estimatedHatchDate);
     const daysText = daysUntil !== null && daysUntil > 0
-        ? ` (${daysUntil} dni do wylęgu)`
+        ? ` (${daysUntil} dni)`
         : daysUntil !== null && daysUntil <= 0
             ? ' (termin minął!)'
             : '';
 
-    switch (cocoonStatus.cocoonStatus) {
-      case 'laid':
-        return (
-            <Chip
-                icon="egg"
-                style={[styles.chip, styles.cocoonChip]}
-                textStyle={styles.cocoonChipText}
-            >
-              🥚 Kokon złożony ({formatDate(cocoonStatus.lastCocoonDate)}){daysText}
-            </Chip>
-        );
-      case 'incubating':
-        return (
-            <Chip
-                icon="egg"
-                style={[styles.chip, styles.cocoonChip]}
-                textStyle={styles.cocoonChipText}
-            >
-              🥚 Inkubacja{daysText}
-            </Chip>
-        );
-      default:
-        return (
-            <Chip
-                icon="egg"
-                style={[styles.chip, styles.cocoonChip]}
-                textStyle={styles.cocoonChipText}
-            >
-              🥚 Kokon ({formatDate(cocoonStatus.lastCocoonDate)})
-            </Chip>
-        );
-    }
+    return (
+        <Chip
+            icon="egg"
+            style={[styles.chip, styles.cocoonChip]}
+            textStyle={styles.cocoonChipText}
+            compact
+        >
+          🥚 Kokon{daysText}
+        </Chip>
+    );
   };
 
   const getMatingChip = () => {
-    // Pokazuj kopulację niezależnie od kokonu
     if (animal.sex !== 'female' || !matingStatus?.hasMating) return null;
 
     switch (matingStatus.lastMatingResult) {
@@ -116,8 +99,9 @@ const AnimalHeader: React.FC<AnimalHeaderProps> = ({ animal, matingStatus, cocoo
                 icon="heart"
                 style={[styles.chip, styles.matingSuccessChip]}
                 textStyle={styles.matingSuccessChipText}
+                compact
             >
-              💕 Zapłodniona ({formatDate(matingStatus.lastMatingDate)})
+              💕 Zapłodniona
             </Chip>
         );
       case 'in_progress':
@@ -126,68 +110,150 @@ const AnimalHeader: React.FC<AnimalHeaderProps> = ({ animal, matingStatus, cocoo
                 icon="heart"
                 style={[styles.chip, styles.matingProgressChip]}
                 textStyle={styles.matingProgressChipText}
+                compact
             >
-              💕 Po kopulacji ({formatDate(matingStatus.lastMatingDate)})
-            </Chip>
-        );
-      case 'failure':
-        return (
-            <Chip
-                icon="heart-broken"
-                style={[styles.chip, styles.matingFailureChip]}
-                textStyle={styles.matingFailureChipText}
-            >
-              💔 Nieudana kopulacja ({formatDate(matingStatus.lastMatingDate)})
+              💕 Po kopulacji
             </Chip>
         );
       default:
-        return (
-            <Chip
-                icon="heart"
-                style={[styles.chip, styles.matingProgressChip]}
-                textStyle={styles.matingProgressChipText}
-            >
-              💕 Po kopulacji ({formatDate(matingStatus.lastMatingDate)})
-            </Chip>
-        );
+        return null;
     }
   };
 
-  return (
-      <>
-        <Text variant="headlineSmall" style={styles.animalName}>
-          {animal.name}
-        </Text>
-        <Text variant="titleMedium" style={styles.species}>
-          {animal.species || 'Nieznany gatunek'}
-        </Text>
+  const renderContent = () => (
+      <View style={styles.gradientContainer}>
+        {/* Wielowarstwowy gradient */}
+        <View style={styles.gradientLayer1} />
+        <View style={styles.gradientLayer2} />
+        <View style={styles.gradientLayer3} />
 
-        <View style={styles.chipContainer}>
-          <Chip icon="gender-male-female" style={styles.chip}>
-            {getSexDisplay(animal.sex)}
-          </Chip>
-          {numericStage && (
-              <Chip icon="arrow-up-bold" style={styles.chip}>
-                L{numericStage} - {getStageCategory(numericStage)}
-              </Chip>
-          )}
-          {getCocoonChip()}
-          {getMatingChip()}
+        <View style={styles.content}>
+          <Text style={styles.animalName}>{animal.name}</Text>
+          <Text style={styles.species}>
+            {animal.species || 'Nieznany gatunek'}
+          </Text>
+
+          <View style={styles.chipContainer}>
+            <Chip
+                icon="gender-male-female"
+                style={[styles.chip, styles.infoChip]}
+                textStyle={styles.infoChipText}
+                compact
+            >
+              {getSexDisplay(animal.sex)}
+            </Chip>
+            {numericStage && (
+                <Chip
+                    icon="arrow-up-bold"
+                    style={[styles.chip, styles.infoChip]}
+                    textStyle={styles.infoChipText}
+                    compact
+                >
+                  L{numericStage}
+                </Chip>
+            )}
+            {getCocoonChip()}
+            {getMatingChip()}
+          </View>
         </View>
-      </>
+      </View>
+  );
+
+  if (photoUrl) {
+    return (
+        <ImageBackground
+            source={{ uri: photoUrl }}
+            style={styles.heroContainer}
+            resizeMode="cover"
+        >
+          {renderContent()}
+        </ImageBackground>
+    );
+  }
+
+  // Fallback bez zdjęcia
+  return (
+      <View style={[styles.heroContainer, styles.noPhotoContainer]}>
+        <View style={styles.placeholderIcon}>
+          <Text style={styles.placeholderEmoji}>🕷️</Text>
+        </View>
+        {renderContent()}
+      </View>
   );
 };
 
 const makeStyles = (theme: Theme) => StyleSheet.create({
+  heroContainer: {
+    width: width,
+    height: HERO_HEIGHT,
+    backgroundColor: theme.colors.surfaceLight,
+  },
+  noPhotoContainer: {
+    backgroundColor: theme.colors.primary,
+  },
+  placeholderIcon: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    opacity: 0.3,
+  },
+  placeholderEmoji: {
+    fontSize: 120,
+  },
+  gradientContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+  },
+  // Wielowarstwowy gradient - od góry do dołu coraz ciemniejszy
+  gradientLayer1: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: '70%',
+    backgroundColor: 'rgba(0,0,0,0.15)',
+  },
+  gradientLayer2: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: '50%',
+    backgroundColor: 'rgba(0,0,0,0.25)',
+  },
+  gradientLayer3: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: '30%',
+    backgroundColor: 'rgba(0,0,0,0.35)',
+  },
+  content: {
+    padding: theme.spacing.medium,
+    paddingBottom: theme.spacing.large,
+  },
   animalName: {
+    fontSize: 28,
     fontWeight: 'bold',
-    color: theme.colors.onSurface,
-    marginBottom: 8,
+    color: '#ffffff',
+    marginBottom: 4,
+    textShadowColor: 'rgba(0,0,0,0.75)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
   },
   species: {
-    color: theme.colors.primary,
+    fontSize: 16,
+    color: 'rgba(255,255,255,0.95)',
     fontStyle: 'italic',
-    marginBottom: 16,
+    marginBottom: 12,
+    textShadowColor: 'rgba(0,0,0,0.5)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   chipContainer: {
     flexDirection: 'row',
@@ -195,32 +261,35 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     gap: 8,
   },
   chip: {
-    marginRight: 8,
-    marginBottom: 8,
+    height: 28,
+  },
+  infoChip: {
+    backgroundColor: 'rgba(255,255,255,0.25)',
+  },
+  infoChipText: {
+    color: '#ffffff',
+    fontSize: 12,
   },
   matingSuccessChip: {
     backgroundColor: theme.colors.successContainer,
   },
   matingSuccessChipText: {
     color: theme.colors.success,
+    fontSize: 12,
   },
   matingProgressChip: {
     backgroundColor: theme.colors.primaryContainer,
   },
   matingProgressChipText: {
     color: theme.colors.primary,
-  },
-  matingFailureChip: {
-    backgroundColor: theme.colors.errorContainer,
-  },
-  matingFailureChipText: {
-    color: theme.colors.error,
+    fontSize: 12,
   },
   cocoonChip: {
     backgroundColor: theme.colors.events.cocoon.background,
   },
   cocoonChipText: {
     color: theme.colors.events.cocoon.color,
+    fontSize: 12,
   },
 });
 

@@ -186,6 +186,7 @@ export interface Animal {
     feedingNotes?: string;
   };
   photos: Photo[];
+  mainPhotoUrl?: string;
   notes: string;
   behavior: string;
   personality?: string;
@@ -207,12 +208,14 @@ export interface Animal {
 export interface Photo {
   id: string;
   url: string;
+  path: string;
   thumbnailUrl?: string;
-  date: string;
+  date?: string;
+  uploadedAt: string;
   title?: string;
   description?: string;
   tags?: string[];
-  isMain?: boolean;
+  isMain: boolean;
 }
 
 export interface AnimalEvent {
