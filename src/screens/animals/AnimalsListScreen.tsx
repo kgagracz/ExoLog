@@ -29,7 +29,7 @@ interface AnimalsListScreenProps {
 
 const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => {
   const { animals, loading, refresh } = useAnimals();
-  const { getMatingStatusForAnimals, getCocoonStatusForAnimals } = useEvents();
+  const { getMatingStatusForAnimals, getCocoonStatusForAnimals, getLastMoltDateForAnimals } = useEvents();
   const { theme } = useTheme();
   const styles = makeStyles(theme);
 
@@ -37,19 +37,37 @@ const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => 
   const [fabOpen, setFabOpen] = useState<boolean>(false);
   const [matingStatuses, setMatingStatuses] = useState<Record<string, MatingStatus>>({});
   const [cocoonStatuses, setCocoonStatuses] = useState<Record<string, CocoonStatus>>({});
+  const [lastMoltDates, setLastMoltDates] = useState<Record<string, string>>({});
 
-  // Pobierz statusy kopulacji i kokonów dla samic
+  // Pobierz statusy kopulacji, kokonów i wyliniek
   useEffect(() => {
     const loadStatuses = async () => {
+      const allIds = animals.map(a => a.id);
       const femaleIds = animals
           .filter(a => a.sex === 'female')
           .map(a => a.id);
 
+      const promises: Promise<any>[] = [
+        getLastMoltDateForAnimals(allIds),
+      ];
+
       if (femaleIds.length > 0) {
-        const [matingResult, cocoonResult] = await Promise.all([
+        promises.push(
           getMatingStatusForAnimals(femaleIds),
           getCocoonStatusForAnimals(femaleIds),
-        ]);
+        );
+      }
+
+      const results = await Promise.all(promises);
+
+      const moltResult = results[0];
+      if (moltResult.success && moltResult.data) {
+        setLastMoltDates(moltResult.data);
+      }
+
+      if (femaleIds.length > 0) {
+        const matingResult = results[1];
+        const cocoonResult = results[2];
 
         if (matingResult.success && matingResult.data) {
           setMatingStatuses(matingResult.data);
@@ -128,6 +146,7 @@ const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => 
                   onAnimalPress={handleAnimalPress}
                   matingStatuses={matingStatuses}
                   cocoonStatuses={cocoonStatuses}
+                  lastMoltDates={lastMoltDates}
               />
           )}
         </View>

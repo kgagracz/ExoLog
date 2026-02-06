@@ -51,6 +51,9 @@
 #### Wyświetlanie ptaszników
 - [x] Lista wszystkich ptaszników
 - [x] Karta pojedynczego ptasznika
+  - [x] Informacja o kokonie
+  - [x] Informacja o kopulacji
+  - [x] Informacja o ostatniej wylince jeśli mniej niż 14 dni temu (potrzebne do karmienia)
 - [x] Wyszukiwarka ptaszników
   - [x] Po nazwie
   - [x] Po gatunku

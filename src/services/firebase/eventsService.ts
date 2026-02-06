@@ -655,6 +655,54 @@ export const eventsService = {
         }
     },
 
+    // Pobierz datę ostatniej wylinki dla wielu zwierząt
+    getLastMoltDateForAnimals: async (animalIds: string[]) => {
+        try {
+            if (animalIds.length === 0) {
+                return { success: true, data: {} };
+            }
+
+            const eventsRef = collection(db, 'events');
+            const lastMoltDates: Record<string, string> = {};
+
+            const chunks = [];
+            for (let i = 0; i < animalIds.length; i += 10) {
+                chunks.push(animalIds.slice(i, i + 10));
+            }
+
+            for (const chunk of chunks) {
+                const q = query(
+                    eventsRef,
+                    where('animalId', 'in', chunk),
+                    where('eventTypeId', '==', 'molting')
+                );
+
+                const snapshot = await getDocs(q);
+
+                snapshot.docs.forEach(doc => {
+                    const data = doc.data();
+                    const animalId = data.animalId;
+
+                    if (!lastMoltDates[animalId] || data.date > lastMoltDates[animalId]) {
+                        lastMoltDates[animalId] = data.date;
+                    }
+                });
+            }
+
+            return {
+                success: true,
+                data: lastMoltDates
+            };
+        } catch (error: any) {
+            console.error('Error getting last molt dates:', error);
+            return {
+                success: false,
+                error: error.message || 'Failed to get last molt dates',
+                data: {}
+            };
+        }
+    },
+
     // Pobierz status kokonu dla wielu zwierząt
     getCocoonStatusForAnimals: async (animalIds: string[]) => {
         try {

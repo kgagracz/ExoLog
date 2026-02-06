@@ -286,6 +286,15 @@ export const useEvents = () => {
         }
     };
 
+    const getLastMoltDateForAnimals = async (animalIds: string[]) => {
+        try {
+            const result = await eventsService.getLastMoltDateForAnimals(animalIds);
+            return result;
+        } catch (err: any) {
+            return { success: false, error: err.message, data: {} };
+        }
+    };
+
     const getCocoonStatusForAnimals = async (animalIds: string[]) => {
         try {
             const result = await eventsService.getCocoonStatusForAnimals(animalIds);
@@ -311,6 +320,9 @@ export const useEvents = () => {
         addMating,
         getMatingHistory,
         getMatingStatusForAnimals,
+
+        // Wylinka - batch
+        getLastMoltDateForAnimals,
 
         // Kokon
         addCocoon,

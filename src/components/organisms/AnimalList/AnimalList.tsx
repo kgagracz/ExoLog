@@ -22,6 +22,7 @@ interface AnimalsListProps {
     onAnimalPress: (animal: Animal) => void;
     matingStatuses?: Record<string, MatingStatus>;
     cocoonStatuses?: Record<string, CocoonStatus>;
+    lastMoltDates?: Record<string, string>;
 }
 
 const AnimalsList: React.FC<AnimalsListProps> = ({
@@ -30,7 +31,8 @@ const AnimalsList: React.FC<AnimalsListProps> = ({
                                                      onRefresh,
                                                      onAnimalPress,
                                                      matingStatuses = {},
-                                                     cocoonStatuses = {}
+                                                     cocoonStatuses = {},
+                                                     lastMoltDates = {}
                                                  }) => {
     return (
         <ScrollView
@@ -47,6 +49,7 @@ const AnimalsList: React.FC<AnimalsListProps> = ({
                     onPress={onAnimalPress}
                     matingStatus={matingStatuses[animal.id]}
                     cocoonStatus={cocoonStatuses[animal.id]}
+                    lastMoltDate={lastMoltDates[animal.id]}
                 />
             ))}
         </ScrollView>

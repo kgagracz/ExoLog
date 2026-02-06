@@ -22,9 +22,10 @@ interface AnimalCardProps {
   onPress: (animal: Animal) => void;
   matingStatus?: MatingStatus;
   cocoonStatus?: CocoonStatus;
+  lastMoltDate?: string;
 }
 
-const AnimalCard: React.FC<AnimalCardProps> = ({ animal, onPress, matingStatus, cocoonStatus }) => {
+const AnimalCard: React.FC<AnimalCardProps> = ({ animal, onPress, matingStatus, cocoonStatus, lastMoltDate }) => {
   const { theme } = useTheme();
   const styles = makeStyles(theme);
 
@@ -60,8 +61,26 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal, onPress, matingStatus, 
     }
   };
 
+  const getMoltLabel = () => {
+    if (!lastMoltDate) return null;
+
+    const today = new Date();
+    const moltDate = new Date(lastMoltDate);
+    const diffTime = today.getTime() - moltDate.getTime();
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays > 14) return null;
+
+    const daysText = diffDays === 0 ? 'dzisiaj'
+        : diffDays === 1 ? '1 dzień temu'
+        : `${diffDays} dni temu`;
+
+    return { label: `🔄 ${daysText}`, style: styles.moltChip, textStyle: styles.moltChipText };
+  };
+
   const matingLabel = animal.sex === 'female' ? getMatingLabel() : null;
   const cocoonLabel = animal.sex === 'female' ? getCocoonLabel() : null;
+  const moltLabel = getMoltLabel();
 
   return (
       <Card style={styles.animalCard} onPress={() => onPress(animal)}>
@@ -104,6 +123,15 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal, onPress, matingStatus, 
                         compact
                     >
                       {matingLabel.label}
+                    </Chip>
+                )}
+                {moltLabel && (
+                    <Chip
+                        style={[styles.statusChip, moltLabel.style]}
+                        textStyle={[styles.statusChipText, moltLabel.textStyle]}
+                        compact
+                    >
+                      {moltLabel.label}
                     </Chip>
                 )}
               </View>
@@ -223,6 +251,12 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
   },
   cocoonChipText: {
     color: theme.colors.events.cocoon.color,
+  },
+  moltChip: {
+    backgroundColor: theme.colors.events.molting.background,
+  },
+  moltChipText: {
+    color: theme.colors.events.molting.color,
   },
 });
 

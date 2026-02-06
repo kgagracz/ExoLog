@@ -22,12 +22,13 @@ interface AnimalHeroHeaderProps {
   animal: Animal;
   matingStatus?: MatingStatus;
   cocoonStatus?: CocoonStatus;
+  lastMoltDate?: string;
 }
 
 const { width } = Dimensions.get('window');
 const HERO_HEIGHT = 280;
 
-const AnimalHeader: React.FC<AnimalHeroHeaderProps> = ({ animal, matingStatus, cocoonStatus }) => {
+const AnimalHeader: React.FC<AnimalHeroHeaderProps> = ({ animal, matingStatus, cocoonStatus, lastMoltDate }) => {
   const { theme } = useTheme();
   const styles = makeStyles(theme);
 
@@ -120,6 +121,32 @@ const AnimalHeader: React.FC<AnimalHeroHeaderProps> = ({ animal, matingStatus, c
     }
   };
 
+  const getMoltChip = () => {
+    if (!lastMoltDate) return null;
+
+    const today = new Date();
+    const moltDate = new Date(lastMoltDate);
+    const diffTime = today.getTime() - moltDate.getTime();
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays > 14) return null;
+
+    const daysText = diffDays === 0 ? 'dzisiaj'
+        : diffDays === 1 ? '1 dzień temu'
+        : `${diffDays} dni temu`;
+
+    return (
+        <Chip
+            icon="sync"
+            style={[styles.chip, styles.moltChip]}
+            textStyle={styles.moltChipText}
+            compact
+        >
+          🔄 Wylinka {daysText}
+        </Chip>
+    );
+  };
+
   const renderContent = () => (
       <View style={styles.gradientContainer}>
         {/* Wielowarstwowy gradient */}
@@ -154,6 +181,7 @@ const AnimalHeader: React.FC<AnimalHeroHeaderProps> = ({ animal, matingStatus, c
             )}
             {getCocoonChip()}
             {getMatingChip()}
+            {getMoltChip()}
           </View>
         </View>
       </View>
@@ -289,6 +317,13 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
   },
   cocoonChipText: {
     color: theme.colors.events.cocoon.color,
+    fontSize: 12,
+  },
+  moltChip: {
+    backgroundColor: theme.colors.events.molting.background,
+  },
+  moltChipText: {
+    color: theme.colors.events.molting.color,
     fontSize: 12,
   },
 });

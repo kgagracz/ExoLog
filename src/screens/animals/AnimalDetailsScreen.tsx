@@ -278,6 +278,7 @@ export default function AnimalDetailsScreen() {
                     animal={animal}
                     matingStatus={matingStatus}
                     cocoonStatus={cocoonStatus}
+                    lastMoltDate={moltingHistory[0]?.date}
                 />
 
                 {/* Pomiary i wiek */}
