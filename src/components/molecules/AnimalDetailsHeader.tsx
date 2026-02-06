@@ -12,6 +12,7 @@ interface AnimalDetailsHeaderProps {
     onDelete: () => void;
     onShowQR?: () => void;
     onMarkDeceased?: () => void;
+    isOwner?: boolean;
 }
 
 const AnimalDetailsHeader: React.FC<AnimalDetailsHeaderProps> = ({
@@ -24,7 +25,8 @@ const AnimalDetailsHeader: React.FC<AnimalDetailsHeaderProps> = ({
                                                                      onShowHistory,
                                                                      onDelete,
                                                                      onShowQR,
-                                                                     onMarkDeceased
+                                                                     onMarkDeceased,
+                                                                     isOwner = true
                                                                  }) => {
     return (
         <Appbar.Header>
@@ -33,41 +35,43 @@ const AnimalDetailsHeader: React.FC<AnimalDetailsHeaderProps> = ({
             {onShowQR && (
                 <Appbar.Action icon="qrcode" onPress={onShowQR} />
             )}
-            <Menu
-                visible={menuVisible}
-                onDismiss={() => onMenuToggle(false)}
-                anchor={
-                    <Appbar.Action
-                        icon="dots-vertical"
-                        onPress={() => onMenuToggle(true)}
-                    />
-                }
-            >
-                <Menu.Item onPress={onEdit} title="Edytuj" leadingIcon="pencil" />
-                <Menu.Item onPress={onAddFeeding} title="Dodaj karmienie" leadingIcon="food-apple" />
-                <Menu.Item onPress={onShowHistory} title="Historia karmienia" leadingIcon="history" />
-                {onShowQR && (
-                    <>
-                        <Divider />
-                        <Menu.Item onPress={() => { onMenuToggle(false); onShowQR(); }} title="Pokaż kod QR" leadingIcon="qrcode" />
-                    </>
-                )}
-                <Divider />
-                {onMarkDeceased && (
+            {isOwner && (
+                <Menu
+                    visible={menuVisible}
+                    onDismiss={() => onMenuToggle(false)}
+                    anchor={
+                        <Appbar.Action
+                            icon="dots-vertical"
+                            onPress={() => onMenuToggle(true)}
+                        />
+                    }
+                >
+                    <Menu.Item onPress={onEdit} title="Edytuj" leadingIcon="pencil" />
+                    <Menu.Item onPress={onAddFeeding} title="Dodaj karmienie" leadingIcon="food-apple" />
+                    <Menu.Item onPress={onShowHistory} title="Historia karmienia" leadingIcon="history" />
+                    {onShowQR && (
+                        <>
+                            <Divider />
+                            <Menu.Item onPress={() => { onMenuToggle(false); onShowQR(); }} title="Pokaż kod QR" leadingIcon="qrcode" />
+                        </>
+                    )}
+                    <Divider />
+                    {onMarkDeceased && (
+                        <Menu.Item
+                            onPress={() => { onMenuToggle(false); onMarkDeceased(); }}
+                            title="Oznacz zgon"
+                            leadingIcon="skull"
+                            titleStyle={{ color: '#666' }}
+                        />
+                    )}
                     <Menu.Item
-                        onPress={() => { onMenuToggle(false); onMarkDeceased(); }}
-                        title="Oznacz zgon"
-                        leadingIcon="skull"
-                        titleStyle={{ color: '#666' }}
+                        onPress={onDelete}
+                        title="Usuń zwierzę"
+                        leadingIcon="delete"
+                        titleStyle={{ color: '#d32f2f' }}
                     />
-                )}
-                <Menu.Item
-                    onPress={onDelete}
-                    title="Usuń zwierzę"
-                    leadingIcon="delete"
-                    titleStyle={{ color: '#d32f2f' }}
-                />
-            </Menu>
+                </Menu>
+            )}
         </Appbar.Header>
     );
 };

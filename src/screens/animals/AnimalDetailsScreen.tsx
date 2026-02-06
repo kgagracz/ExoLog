@@ -239,6 +239,8 @@ export default function AnimalDetailsScreen() {
         );
     }
 
+    const isOwner = !!user && animal?.userId === user.uid;
+
     if (!animal) {
         return (
             <View style={[styles.container, styles.centerContent]}>
@@ -268,8 +270,9 @@ export default function AnimalDetailsScreen() {
                 onAddFeeding={handleAddFeeding}
                 onShowHistory={handleFeedingHistory}
                 onDelete={handleDelete}
-                onShowQR={() => setQrModalVisible(true)}
+                onShowQR={isOwner ? () => setQrModalVisible(true) : undefined}
                 onMarkDeceased={handleMarkDeceased}
+                isOwner={isOwner}
             />
 
             <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
@@ -313,10 +316,10 @@ export default function AnimalDetailsScreen() {
                 <SectionCard
                     title="Historia wyliniek"
                     icon="🔄"
-                    rightAction={{
+                    rightAction={isOwner ? {
                         icon: 'plus',
                         onPress: () => navigation.navigate('AddMolting', { animalId })
-                    }}
+                    } : undefined}
                 >
                     {moltingHistory.length > 0 ? (
                         moltingHistory.map((molting) => (
@@ -351,11 +354,11 @@ export default function AnimalDetailsScreen() {
                 {/* Zdjęcia */}
                 {user && (
                     <PhotosSection
-                        userId={user.uid}
+                        userId={animal.userId}
                         animalId={animalId}
-                        editable={true}
+                        editable={isOwner}
                         maxDisplay={4}
-                        onSeeAll={handlePhotos}
+                        onSeeAll={isOwner ? handlePhotos : undefined}
                     />
                 )}
 
@@ -368,10 +371,10 @@ export default function AnimalDetailsScreen() {
                 <View style={styles.fabSpacer} />
             </ScrollView>
 
-            {/* FAB do dodawania wydarzeń */}
+            {/* FAB do dodawania wydarzeń — tylko dla właściciela */}
             <FAB.Group
                 open={fabOpen}
-                visible
+                visible={isOwner}
                 icon={fabOpen ? 'close' : 'plus'}
                 actions={[
                     {

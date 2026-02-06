@@ -59,6 +59,24 @@ export const useAnimals = () => {
         }
     }, [user, isAuthenticated]);
 
+    const verifyOwnership = async (animalId: string): Promise<{ isOwner: boolean; error?: string }> => {
+        if (!user || !isAuthenticated) {
+            return { isOwner: false, error: 'Użytkownik niezalogowany' };
+        }
+        try {
+            const result = await animalsService.getById(animalId);
+            if (!result.success || !result.data) {
+                return { isOwner: false, error: 'Nie znaleziono zwierzęcia' };
+            }
+            if (result.data.userId !== user.uid) {
+                return { isOwner: false, error: 'Brak uprawnień do modyfikacji tego zwierzęcia' };
+            }
+            return { isOwner: true };
+        } catch {
+            return { isOwner: false, error: 'Błąd weryfikacji uprawnień' };
+        }
+    };
+
     // Dodaj nowe zwierzę
     const addAnimal = async (animalData: Omit<Animal, 'id' | 'createdAt' | 'updatedAt'>) => {
         if (!user || !isAuthenticated) {
@@ -382,6 +400,11 @@ export const useAnimals = () => {
     // Oznacz zwierzę jako martwe
     const markAsDeceased = async (animalId: string, deathDate?: string, deathReason?: string) => {
         try {
+            const ownership = await verifyOwnership(animalId);
+            if (!ownership.isOwner) {
+                return { success: false, error: ownership.error };
+            }
+
             const updateData: Partial<Animal> = {
                 healthStatus: 'deceased',
                 isActive: false,
@@ -413,6 +436,11 @@ export const useAnimals = () => {
     // Usuń zwierzę na stałe
     const deleteAnimal = async (animalId: string) => {
         try {
+            const ownership = await verifyOwnership(animalId);
+            if (!ownership.isOwner) {
+                return { success: false, error: ownership.error };
+            }
+
             const result = await animalsService.deleteAnimal(animalId);
 
             if (result.success) {
@@ -429,6 +457,11 @@ export const useAnimals = () => {
     // Usuń zwierzę kompletnie (wraz z historią)
     const deleteAnimalCompletely = async (animalId: string) => {
         try {
+            const ownership = await verifyOwnership(animalId);
+            if (!ownership.isOwner) {
+                return { success: false, error: ownership.error };
+            }
+
             const result = await animalsService.deleteAnimalCompletely(animalId);
 
             if (result.success) {
@@ -453,6 +486,11 @@ export const useAnimals = () => {
     // Aktualizuj zwierzę
     const updateAnimal = async (animalId: string, updates: Partial<Animal>) => {
         try {
+            const ownership = await verifyOwnership(animalId);
+            if (!ownership.isOwner) {
+                return { success: false, error: ownership.error };
+            }
+
             const result = await animalsService.update(animalId, updates);
 
             if (result.success) {
