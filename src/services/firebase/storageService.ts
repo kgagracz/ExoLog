@@ -134,6 +134,39 @@ export const storageService = {
     },
 
     /**
+     * Upload dokumentu CITES (PDF)
+     */
+    uploadCitesDocument: async (
+        userId: string,
+        animalId: string,
+        fileUri: string,
+    ): Promise<UploadResult> => {
+        try {
+            const blob = await uriToBlob(fileUri);
+            const timestamp = Date.now();
+            const path = `users/${userId}/animals/${animalId}/cites/${timestamp}.pdf`;
+            const storageRef = ref(storage, path);
+
+            await uploadBytes(storageRef, blob, {
+                contentType: 'application/pdf',
+                customMetadata: {
+                    uploadedAt: new Date().toISOString(),
+                    documentType: 'cites',
+                },
+            });
+
+            const url = await getDownloadURL(storageRef);
+            return { success: true, url, path };
+        } catch (error: any) {
+            console.error('Error uploading CITES document:', error);
+            return {
+                success: false,
+                error: error.message || 'Nie udało się przesłać dokumentu CITES',
+            };
+        }
+    },
+
+    /**
      * Usuń zdjęcie
      */
     deletePhoto: async (path: string): Promise<{ success: boolean; error?: string }> => {

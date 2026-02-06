@@ -22,14 +22,14 @@
     - [x] Data urodzenia (date picker)
     - [x] Data nabycia (date picker)
     - [x] API do listy pająków podczas wpisywania gatunku
-    - [ ] Dokument CITES (tak/nie + upload pliku)
+    - [X] Dokument CITES (tak/nie + upload pliku)
     - [ ] Częstotliwość karmienia
         - [ ] Własna (pole numeryczne - dni)
         - [x] Na podstawie rozmiaru (automatyczne wyliczenie)
 - [x] Dodaj wiele ptaszników jednocześnie 
 
 #### Edytowanie ptasznika
-- [ ] Ekran edycji ptasznika
+- [X] Ekran edycji ptasznika
     - [x] Gatunek
     - [x] Imię
     - [x] Płeć
@@ -38,16 +38,16 @@
     - [x] Data urodzenia
     - [x] Data nabycia
     - [x] Częstotliwość karmienia (własna/automatyczna)
-    - [ ] Dokument CITES
+    - [X] Dokument CITES
 - [x] Aktualizacja danych w Firestore
-- [ ] Zarządzanie dokumentem CITES (upload/usuwanie)
+- [X] Zarządzanie dokumentem CITES (upload/usuwanie)
 
 #### Usuwanie ptasznika
 - [x] Funkcja usuwania ptasznika
 - [x] Dialog potwierdzenia usunięcia
 - [x] Usuwanie z Firestore
-- [ ] Usuwanie powiązanych zdjęć z Storage
-- [ ] Usuwanie powiązanych dokumentów CITES
+- [x] Usuwanie powiązanych zdjęć z Storage
+- [x] Usuwanie powiązanych dokumentów CITES
 
 #### Wyświetlanie ptaszników
 - [x] Lista wszystkich ptaszników

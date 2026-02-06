@@ -5,8 +5,10 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import {Animal} from "../../types";
 import {useTheme} from "../../context/ThemeContext";
 import {useAnimals} from "../../hooks";
+import {useAuth} from "../../hooks/useAuth";
 import SpiderForm from "../../components/molecules/SpiderForm";
 import {Theme} from "../../styles/theme";
+import {storageService} from "../../services/firebase/storageService";
 
 export default function EditAnimalScreen() {
     const { theme } = useTheme();
@@ -15,6 +17,7 @@ export default function EditAnimalScreen() {
     const route = useRoute<any>();
     const { animalId } = route.params;
     const {getAnimal, updateAnimal} = useAnimals()
+    const { user } = useAuth();
 
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -51,6 +54,9 @@ export default function EditAnimalScreen() {
                 feedingSchedule: animalData.feeding.schedule || 'weekly',
                 notes: animalData.notes || '',
                 quantity: 1,
+                hasCites: animalData.specificData?.hasCites || false,
+                citesDocumentUri: '',
+                citesDocumentName: animalData.specificData?.citesDocumentUrl ? 'CITES.pdf' : '',
             });
         } catch (error) {
             console.error('Error loading animal:', error);
@@ -89,6 +95,20 @@ export default function EditAnimalScreen() {
         try {
             setSaving(true);
 
+            // Upload CITES document if new file selected
+            let citesDocumentUrl = animal?.specificData?.citesDocumentUrl;
+            let citesDocumentPath = animal?.specificData?.citesDocumentPath;
+
+            if (formData.hasCites && formData.citesDocumentUri && user) {
+                const uploadResult = await storageService.uploadCitesDocument(
+                    user.uid, animalId, formData.citesDocumentUri
+                );
+                if (uploadResult.success) {
+                    citesDocumentUrl = uploadResult.url;
+                    citesDocumentPath = uploadResult.path;
+                }
+            }
+
             const updatedAnimal: Partial<Animal> = {
                 name: formData.name.trim() || null,
                 species: formData.species.trim(),
@@ -99,6 +119,12 @@ export default function EditAnimalScreen() {
                 measurements: {length: formData.bodyLength},
                 feeding: {schedule: formData.feedingSchedule},
                 notes: formData.notes.trim() || null,
+                specificData: {
+                    ...animal?.specificData,
+                    hasCites: formData.hasCites,
+                    citesDocumentUrl: formData.hasCites ? citesDocumentUrl : null,
+                    citesDocumentPath: formData.hasCites ? citesDocumentPath : null,
+                },
                 updatedAt: new Date().toISOString(),
             };
 

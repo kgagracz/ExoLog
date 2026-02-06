@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
 import { Appbar, FAB } from 'react-native-paper';
 import { useAnimals } from "../../hooks";
+import { useAuth } from "../../hooks/useAuth";
 import { Theme } from "../../styles/theme";
 import { useTheme } from "../../context/ThemeContext";
 import SpiderForm from "../../components/molecules/SpiderForm";
+import { storageService } from "../../services/firebase/storageService";
 
 interface AddSpiderScreenProps {
   navigation: any;
@@ -15,7 +17,8 @@ export default function AddSpiderScreen({ navigation }: AddSpiderScreenProps) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
 
-  const { addSpider, addMultipleSpiders } = useAnimals();
+  const { addSpider, addMultipleSpiders, updateAnimal } = useAnimals();
+  const { user } = useAuth();
 
   const { theme } = useTheme();
   const styles = createStyles(theme);
@@ -52,6 +55,24 @@ export default function AddSpiderScreen({ navigation }: AddSpiderScreenProps) {
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  const uploadCitesIfNeeded = async (animalId: string) => {
+    if (!formData.hasCites || !formData.citesDocumentUri || !user) return;
+
+    const uploadResult = await storageService.uploadCitesDocument(
+        user.uid, animalId, formData.citesDocumentUri
+    );
+
+    if (uploadResult.success) {
+      await updateAnimal(animalId, {
+        specificData: {
+          hasCites: true,
+          citesDocumentUrl: uploadResult.url,
+          citesDocumentPath: uploadResult.path,
+        },
+      });
+    }
   };
 
   const handleSave = async () => {
@@ -97,6 +118,9 @@ export default function AddSpiderScreen({ navigation }: AddSpiderScreenProps) {
         });
 
         if (result.success) {
+          if (result.id) {
+            await uploadCitesIfNeeded(result.id);
+          }
           Alert.alert(
               'Sukces',
               `Ptasznik "${name}" został dodany!`,

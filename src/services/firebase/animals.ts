@@ -13,7 +13,8 @@ import {
   writeBatch,
   Timestamp
 } from 'firebase/firestore';
-import {db} from "./firebase.config";
+import { ref, listAll, deleteObject } from 'firebase/storage';
+import {db, storage} from "./firebase.config";
 import {Animal} from "../../types";
 
 // Typ dla danych karmienia
@@ -382,30 +383,64 @@ export const animalsService = {
    */
   async deleteAnimalCompletely(animalId: string): Promise<{ success: boolean; deletedRecords?: number; error?: string }> {
     try {
+      // Pobierz dane zwierzęcia przed usunięciem (potrzebne do czyszczenia Storage)
+      const animalRef = doc(db, "animals", animalId);
+      const animalDoc = await getDoc(animalRef);
+      const animalData = animalDoc.exists() ? animalDoc.data() as Animal : null;
+
       const batch = writeBatch(db);
       let deletedRecords = 0;
 
-      // 1. Usuń wszystkie karmienia dla tego zwierzęcia
+      // 1. Usuń wszystkie karmienia
       const feedingsQuery = query(
           collection(db, "feedings"),
           where("animalId", "==", animalId)
       );
       const feedingsSnapshot = await getDocs(feedingsQuery);
-
       feedingsSnapshot.forEach((feedingDoc) => {
         batch.delete(doc(db, "feedings", feedingDoc.id));
         deletedRecords++;
       });
 
-      // 2. Dodaj tutaj inne kolekcje związane ze zwierzęciem w przyszłości
-      // np. zdjęcia, wydarzenia wylinek, notatki weterynaryjne
+      // 2. Usuń wszystkie wydarzenia (wylinki, kopulacje, kokony)
+      const eventsQuery = query(
+          collection(db, "events"),
+          where("animalId", "==", animalId)
+      );
+      const eventsSnapshot = await getDocs(eventsQuery);
+      eventsSnapshot.forEach((eventDoc) => {
+        batch.delete(doc(db, "events", eventDoc.id));
+        deletedRecords++;
+      });
 
       // 3. Usuń główny dokument zwierzęcia
-      const animalRef = doc(db, "animals", animalId);
       batch.delete(animalRef);
       deletedRecords++;
 
       await batch.commit();
+
+      // 4. Usuń pliki ze Storage (zdjęcia + CITES)
+      if (animalData?.userId) {
+        const basePath = `users/${animalData.userId}/animals/${animalId}`;
+        const foldersToClean = ['photos', 'cites'];
+
+        for (const folder of foldersToClean) {
+          try {
+            const folderRef = ref(storage, `${basePath}/${folder}`);
+            const fileList = await listAll(folderRef);
+            await Promise.all(fileList.items.map(item => deleteObject(item)));
+          } catch {
+            // Folder may not exist — ignore
+          }
+        }
+
+        // Usuń main.jpg jeśli istnieje
+        try {
+          await deleteObject(ref(storage, `${basePath}/main.jpg`));
+        } catch {
+          // May not exist
+        }
+      }
 
       return {
         success: true,

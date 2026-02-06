@@ -1,6 +1,7 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {Pressable, ScrollView, StyleSheet, View} from 'react-native';
-import {ActivityIndicator, Card, HelperText, Switch, Text, TextInput} from 'react-native-paper';
+import {ActivityIndicator, Button, Card, Checkbox, HelperText, IconButton, Switch, Text, TextInput} from 'react-native-paper';
+import * as DocumentPicker from 'expo-document-picker';
 import FormInput from '../atoms/FormInput';
 import FormSelect from '../atoms/FormSelect';
 import FormNumberInput from '../atoms/FormNumberInput';
@@ -30,7 +31,10 @@ interface SpiderFormData {
   terrariumHeight: number | null;
   feedingSchedule: string;
   notes: string;
-  quantity: number; // Nowe pole
+  quantity: number;
+  hasCites: boolean;
+  citesDocumentUri: string;
+  citesDocumentName: string;
 }
 
 interface SpiderFormProps {
@@ -110,7 +114,10 @@ export default function SpiderForm({ initialData = {}, onDataChange, errors, edi
     terrariumHeight: null,
     feedingSchedule: 'weekly',
     notes: '',
-    quantity: 1, // Domyślnie 1
+    quantity: 1,
+    hasCites: false,
+    citesDocumentUri: '',
+    citesDocumentName: '',
     ...initialData,
   });
 
@@ -152,6 +159,28 @@ export default function SpiderForm({ initialData = {}, onDataChange, errors, edi
     updateField('species', result.canonical);
     setShowSuggestions(false);
     setSpeciesSuggestions([]);
+  };
+
+  const handlePickCitesDocument = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: 'application/pdf',
+        copyToCacheDirectory: true,
+      });
+
+      if (!result.canceled && result.assets?.[0]) {
+        const file = result.assets[0];
+        updateField('citesDocumentUri', file.uri);
+        updateField('citesDocumentName', file.name);
+      }
+    } catch {
+      // User cancelled
+    }
+  };
+
+  const handleRemoveCitesDocument = () => {
+    updateField('citesDocumentUri', '');
+    updateField('citesDocumentName', '');
   };
 
   useEffect(() => {
@@ -393,6 +422,68 @@ export default function SpiderForm({ initialData = {}, onDataChange, errors, edi
           </Card.Content>
         </Card>
 
+        {/* CITES */}
+        <Card style={styles.section}>
+          <Card.Content>
+            <Text variant="titleMedium" style={styles.sectionTitle}>
+              📜 Dokumenty
+            </Text>
+
+            <Pressable
+                style={styles.checkboxRow}
+                onPress={() => {
+                  const newValue = !formData.hasCites;
+                  updateField('hasCites', newValue);
+                  if (!newValue) {
+                    handleRemoveCitesDocument();
+                  }
+                }}
+            >
+              <Checkbox
+                  status={formData.hasCites ? 'checked' : 'unchecked'}
+                  onPress={() => {
+                    const newValue = !formData.hasCites;
+                    updateField('hasCites', newValue);
+                    if (!newValue) {
+                      handleRemoveCitesDocument();
+                    }
+                  }}
+                  color={theme.colors.primary}
+              />
+              <Text style={styles.checkboxLabel}>Posiada dokument CITES</Text>
+            </Pressable>
+
+            {formData.hasCites && (
+                <View style={styles.citesContainer}>
+                  {formData.citesDocumentUri ? (
+                      <View style={styles.citesFileRow}>
+                        <View style={styles.citesFileInfo}>
+                          <Text style={styles.citesFileName} numberOfLines={1}>
+                            {formData.citesDocumentName || 'dokument.pdf'}
+                          </Text>
+                          <Text style={styles.citesFileHint}>PDF</Text>
+                        </View>
+                        <IconButton
+                            icon="close-circle"
+                            size={20}
+                            onPress={handleRemoveCitesDocument}
+                        />
+                      </View>
+                  ) : (
+                      <Button
+                          mode="outlined"
+                          icon="file-pdf-box"
+                          onPress={handlePickCitesDocument}
+                          style={styles.citesButton}
+                      >
+                        Wybierz plik PDF
+                      </Button>
+                  )}
+                </View>
+            )}
+          </Card.Content>
+        </Card>
+
         {/* Notatki */}
         <Card style={styles.section}>
           <Card.Content>
@@ -459,6 +550,42 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
   },
   input: {
     marginBottom: 8,
+  },
+  checkboxRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  checkboxLabel: {
+    fontSize: 14,
+    color: theme.colors.text,
+  },
+  citesContainer: {
+    marginLeft: 8,
+    marginBottom: 8,
+  },
+  citesButton: {
+    alignSelf: 'flex-start',
+  },
+  citesFileRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: theme.colors.surfaceLight || theme.colors.backgroundSecondary,
+    borderRadius: 8,
+    paddingLeft: 12,
+    paddingVertical: 4,
+  },
+  citesFileInfo: {
+    flex: 1,
+  },
+  citesFileName: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: theme.colors.text,
+  },
+  citesFileHint: {
+    fontSize: 11,
+    color: theme.colors.onSurfaceVariant,
   },
   suggestionsContainer: {
     backgroundColor: theme.colors.backgroundSecondary,
