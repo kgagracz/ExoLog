@@ -21,6 +21,7 @@
     - [x] Rozmiar ciała (pole numeryczne w cm)
     - [x] Data urodzenia (date picker)
     - [x] Data nabycia (date picker)
+    - [x] API do listy pająków podczas wpisywania gatunku
     - [ ] Dokument CITES (tak/nie + upload pliku)
     - [ ] Częstotliwość karmienia
         - [ ] Własna (pole numeryczne - dni)

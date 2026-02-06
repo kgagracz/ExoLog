@@ -1,11 +1,21 @@
-import React, {useEffect, useState} from 'react';
-import {ScrollView, StyleSheet, View} from 'react-native';
-import {Card, HelperText, Switch, Text} from 'react-native-paper';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
+import {Pressable, ScrollView, StyleSheet, View} from 'react-native';
+import {ActivityIndicator, Card, HelperText, Switch, Text, TextInput} from 'react-native-paper';
 import FormInput from '../atoms/FormInput';
 import FormSelect from '../atoms/FormSelect';
 import FormNumberInput from '../atoms/FormNumberInput';
 import {Theme} from "../../styles/theme";
 import {useTheme} from "../../context/ThemeContext";
+
+interface SpiderSpeciesResult {
+  canonical: string;
+  genus: string;
+  species: string;
+  family: string;
+  author: string;
+  year: string;
+  distribution: string;
+}
 
 interface SpiderFormData {
   name: string;
@@ -104,6 +114,46 @@ export default function SpiderForm({ initialData = {}, onDataChange, errors, edi
     ...initialData,
   });
 
+  const [speciesSuggestions, setSpeciesSuggestions] = useState<SpiderSpeciesResult[]>([]);
+  const [speciesLoading, setSpeciesLoading] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const searchSpecies = useCallback(async (query: string) => {
+    if (query.length < 3) {
+      setSpeciesSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    setSpeciesLoading(true);
+    try {
+      const response = await fetch(
+        `https://spiders.invert.info/species/search?q=${encodeURIComponent(query)}`
+      );
+      const data = await response.json();
+      const species = (data.results || []).filter((r: any) => r.rank === 'species');
+      setSpeciesSuggestions(species);
+      setShowSuggestions(species.length > 0);
+    } catch {
+      setSpeciesSuggestions([]);
+    } finally {
+      setSpeciesLoading(false);
+    }
+  }, []);
+
+  const handleSpeciesChange = (value: string) => {
+    updateField('species', value);
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    debounceTimer.current = setTimeout(() => searchSpecies(value), 400);
+  };
+
+  const handleSpeciesSelect = (result: SpiderSpeciesResult) => {
+    updateField('species', result.canonical);
+    setShowSuggestions(false);
+    setSpeciesSuggestions([]);
+  };
+
   useEffect(() => {
     onDataChange(formData);
   }, [formData]);
@@ -132,14 +182,40 @@ export default function SpiderForm({ initialData = {}, onDataChange, errors, edi
               🕷️ Podstawowe informacje
             </Text>
 
-            <FormInput
-                label="Nazwa gatunkowa"
-                value={formData.species}
-                onChangeText={(value) => updateField('species', value)}
-                error={errors.species}
-                placeholder="np. Grammostola rosea"
-                required
-            />
+            <View>
+              <TextInput
+                  label="Nazwa gatunkowa *"
+                  value={formData.species}
+                  onChangeText={handleSpeciesChange}
+                  mode="outlined"
+                  placeholder="np. Grammostola rosea"
+                  error={!!errors.species}
+                  style={styles.input}
+                  right={speciesLoading ? <TextInput.Icon icon={() => <ActivityIndicator size={16} />} /> : undefined}
+              />
+              {errors.species && (
+                  <HelperText type="error" visible={!!errors.species}>
+                    {errors.species}
+                  </HelperText>
+              )}
+              {showSuggestions && (
+                  <View style={styles.suggestionsContainer}>
+                    {speciesSuggestions.map((result, index) => (
+                        <Pressable
+                            key={index}
+                            style={styles.suggestionItem}
+                            onPress={() => handleSpeciesSelect(result)}
+                        >
+                          <Text style={styles.suggestionName}>{result.canonical}</Text>
+                          <Text style={styles.suggestionDetails}>
+                            {result.family}{result.distribution ? ` · ${result.distribution}` : ''}
+                            {result.author ? ` · ${result.author}, ${result.year}` : ''}
+                          </Text>
+                        </Pressable>
+                    ))}
+                  </View>
+              )}
+            </View>
 
             <FormInput
                 label="Nazwa własna/Imię"
@@ -380,5 +456,34 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
   switchHelper: {
     color: theme.colors.onSurfaceVariant,
     fontSize: 12,
+  },
+  input: {
+    marginBottom: 8,
+  },
+  suggestionsContainer: {
+    backgroundColor: theme.colors.backgroundSecondary,
+    borderWidth: 1,
+    borderColor: theme.colors.border || '#ccc',
+    borderRadius: 8,
+    marginTop: -4,
+    marginBottom: 8,
+    overflow: 'hidden',
+  },
+  suggestionItem: {
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: theme.colors.border || '#ccc',
+  },
+  suggestionName: {
+    fontSize: 14,
+    fontWeight: '600',
+    fontStyle: 'italic',
+    color: theme.colors.text,
+  },
+  suggestionDetails: {
+    fontSize: 11,
+    color: theme.colors.onSurfaceVariant,
+    marginTop: 2,
   },
 });
