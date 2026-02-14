@@ -1,7 +1,6 @@
 // ================================
 // src/services/firebase/config.ts
 // ================================
-// @ts-ignore
 
 import { initializeApp, getApps, getApp } from 'firebase/app';
 // @ts-ignore
@@ -11,27 +10,14 @@ import { getStorage } from 'firebase/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
-import {
-    EXPO_PUBLIC_FIREBASE_API_KEY,
-    EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
-    EXPO_PUBLIC_FIREBASE_PROJECT_ID,
-    EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
-    EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-    EXPO_PUBLIC_FIREBASE_APP_ID,
-    EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID,
-    EXPO_PUBLIC_APP_ENV,
-    EXPO_PUBLIC_DEBUG_MODE
-// @ts-ignore
-} from '@env';
-
 // Validate environment variables
 const requiredEnvVars = {
-    EXPO_PUBLIC_FIREBASE_API_KEY,
-    EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
-    EXPO_PUBLIC_FIREBASE_PROJECT_ID,
-    EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
-    EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-    EXPO_PUBLIC_FIREBASE_APP_ID,
+    EXPO_PUBLIC_FIREBASE_API_KEY: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
+    EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
+    EXPO_PUBLIC_FIREBASE_PROJECT_ID: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
+    EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
+    EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+    EXPO_PUBLIC_FIREBASE_APP_ID: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
 };
 
 // Check if all required variables are present
@@ -48,14 +34,14 @@ if (missingVars.length > 0) {
 
 // Firebase configuration
 const firebaseConfig = {
-    apiKey: EXPO_PUBLIC_FIREBASE_API_KEY,
-    authDomain: EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
-    projectId: EXPO_PUBLIC_FIREBASE_PROJECT_ID,
-    storageBucket: EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-    appId: EXPO_PUBLIC_FIREBASE_APP_ID,
-    ...(EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID && {
-        measurementId: EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID
+    apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
+    authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
+    projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
+    storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+    appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
+    ...(process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID && {
+        measurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID
     }),
 };
 
@@ -89,12 +75,12 @@ const storage = getStorage(app);
 export { app, auth, db, storage };
 
 // Development mode configuration
-const isDev = EXPO_PUBLIC_APP_ENV === 'development';
-const isDebug = EXPO_PUBLIC_DEBUG_MODE === 'true';
+const isDev = process.env.EXPO_PUBLIC_APP_ENV === 'development';
+const isDebug = process.env.EXPO_PUBLIC_DEBUG_MODE === 'true';
 
 if (isDev && isDebug) {
     console.log('🔥 Firebase initialized in development mode');
-    console.log('📱 Project ID:', EXPO_PUBLIC_FIREBASE_PROJECT_ID);
+    console.log('📱 Project ID:', process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID);
 
     // Uncomment these if you want to use Firebase Emulator Suite in development
     // Make sure you have the emulators running: firebase emulators:start
@@ -111,31 +97,14 @@ export default app;
 export const getFirebaseConfig = () => {
     if (isDebug) {
         return {
-            projectId: EXPO_PUBLIC_FIREBASE_PROJECT_ID,
-            authDomain: EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
+            projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
+            authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
             isDevelopment: isDev,
-            hasAnalytics: !!EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID,
+            hasAnalytics: !!process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID,
         };
     }
     return { message: 'Config hidden in production' };
 };
-
-// ================================
-// Types for environment variables
-// ================================
-
-//@ts-ignore
-declare module '@env' {
-    export const EXPO_PUBLIC_FIREBASE_API_KEY: string;
-    export const EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN: string;
-    export const EXPO_PUBLIC_FIREBASE_PROJECT_ID: string;
-    export const EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET: string;
-    export const EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: string;
-    export const EXPO_PUBLIC_FIREBASE_APP_ID: string;
-    export const EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID: string;
-    export const EXPO_PUBLIC_APP_ENV: string;
-    export const EXPO_PUBLIC_DEBUG_MODE: string;
-}
 
 // ================================
 // Connection test utility
@@ -193,8 +162,8 @@ export const getFirebaseErrorMessage = (error: any): string => {
 // ================================
 
 export const getEnvironmentInfo = () => ({
-    environment: EXPO_PUBLIC_APP_ENV || 'unknown',
+    environment: process.env.EXPO_PUBLIC_APP_ENV || 'unknown',
     debug: isDebug,
-    projectId: EXPO_PUBLIC_FIREBASE_PROJECT_ID || 'not-set',
+    projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID || 'not-set',
     timestamp: new Date().toISOString(),
 });
