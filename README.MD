@@ -58,14 +58,13 @@
 - [x] Wyszukiwarka ptaszników
   - [x] Po nazwie
   - [x] Po gatunku
-- [ ] Filtrowanie ptaszników
-    - [ ] Po gatunku
-    - [ ] Po płci
-    - [ ] Po stadium
-- [ ] Sortowanie ptaszników
-    - [ ] Po nazwie
-    - [ ] Po dacie dodania
-    - [ ] Po gatunku
+- [x] Filtrowanie ptaszników
+    - [x] Po gatunku
+    - [x] Po płci
+- [x] Sortowanie ptaszników
+    - [x] Po nazwie
+    - [x] Po dacie dodania
+    - [x] Po gatunku
 
 ---
 

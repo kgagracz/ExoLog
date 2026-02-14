@@ -1,15 +1,17 @@
 import {useAnimalsQuery} from "../../api/animals";
 import {useLastMoltDatesQuery, useMatingStatusesQuery, useCocoonStatusesQuery} from "../../api/events";
 import {useTheme} from "../../context/ThemeContext";
-import {useCallback, useMemo, useState} from "react";
+import {useMemo, useState} from "react";
 import {StyleSheet, View} from "react-native";
-import {Appbar, Searchbar} from "react-native-paper";
+import {Appbar, Searchbar, Text} from "react-native-paper";
 import {EmptyState} from "../../components";
 import AnimalsList from "../../components/organisms/AnimalList";
 import AddActionsFAB from "../../components/molecules/AddActionsFAB";
+import AnimalFiltersToolbar from "../../components/molecules/AnimalFiltersToolbar";
 import UserAvatar from "../../components/atoms/UserAvatar";
 import {Theme} from "../../styles/theme";
 import {Animal} from "../../types";
+import {useAnimalFilters} from "../../hooks/useAnimalFilters";
 
 interface MatingStatus {
   hasMating: boolean;
@@ -32,8 +34,9 @@ const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => 
   const { theme } = useTheme();
   const styles = makeStyles(theme);
 
-  const [searchText, setSearchText] = useState<string>('');
   const [fabOpen, setFabOpen] = useState<boolean>(false);
+
+  const filters = useAnimalFilters(animals);
 
   const allIds = useMemo(() => animals.map(a => a.id), [animals]);
   const femaleIds = useMemo(() => animals.filter(a => a.sex === 'female').map(a => a.id), [animals]);
@@ -61,13 +64,8 @@ const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => 
     navigation?.navigate('Profile');
   };
 
-  // Filtrowanie zwierząt
-  const filteredAnimals = animals.filter(animal =>
-      animal.name.toLowerCase().includes(searchText.toLowerCase()) ||
-      (animal.species || '').toLowerCase().includes(searchText.toLowerCase())
-  );
-
   const showEmptyState = animals.length === 0 && !loading;
+  const showNoResults = animals.length > 0 && filters.filteredAndSortedAnimals.length === 0;
 
   const handleQRPrint = (): void => {
     navigation?.navigate('QRPrint');
@@ -86,9 +84,23 @@ const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => 
         <View style={styles.content}>
           <Searchbar
               placeholder="Szukaj zwierząt..."
-              onChangeText={setSearchText}
-              value={searchText}
+              onChangeText={filters.setSearchText}
+              value={filters.searchText}
               style={styles.searchBar}
+          />
+
+          <AnimalFiltersToolbar
+              sexFilter={filters.sexFilter}
+              speciesFilter={filters.speciesFilter}
+              sortOption={filters.sortOption}
+              filtersVisible={filters.filtersVisible}
+              availableSpecies={filters.availableSpecies}
+              hasActiveFilters={filters.hasActiveFilters}
+              toggleFiltersVisible={filters.toggleFiltersVisible}
+              toggleSex={filters.toggleSex}
+              setSpeciesFilter={filters.setSpeciesFilter}
+              setSortOption={filters.setSortOption}
+              clearAllFilters={filters.clearAllFilters}
           />
 
           {showEmptyState ? (
@@ -97,9 +109,15 @@ const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => 
                   description="Dodaj swojego pierwszego ptasznika, aby rozpocząć zarządzanie hodowlą"
                   onButtonPress={handleAddSpider}
               />
+          ) : showNoResults ? (
+              <View style={styles.noResults}>
+                <Text variant="bodyLarge" style={styles.noResultsText}>
+                  Brak wyników dla wybranych filtrów
+                </Text>
+              </View>
           ) : (
               <AnimalsList
-                  animals={filteredAnimals}
+                  animals={filters.filteredAndSortedAnimals}
                   loading={loading}
                   onRefresh={refresh}
                   onAnimalPress={handleAnimalPress}
@@ -130,11 +148,19 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     padding: 16,
   },
   searchBar: {
-    marginBottom: 16,
+    marginBottom: 8,
     backgroundColor: theme.colors.backgroundSecondary,
   },
   avatarContainer: {
     marginRight: 8,
+  },
+  noResults: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  noResultsText: {
+    color: theme.colors.textSecondary,
   },
 });
 
