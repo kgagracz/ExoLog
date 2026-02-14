@@ -108,8 +108,8 @@
     - [x] Notatki
 - [] Przypomnienie o zbliżającej się dacie wyjścia młodych
 - [] Historia kokonów
-- [] Otwieranie kokonu
-  - [] Dodawanie ilości młodych i wprowadzanie ich do systemu
+- [x] Otwieranie kokonu
+  - [x] Dodawanie ilości młodych i wprowadzanie ich do systemu
 
 [//]: # (#### Napełnianie się samca - nie w MVP)
 
