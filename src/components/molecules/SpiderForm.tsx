@@ -26,9 +26,6 @@ interface SpiderFormData {
   dateAcquired: string;
   dateOfBirth: string;
   bodyLength: number | null;
-  terrariumLength: number | null;
-  terrariumWidth: number | null;
-  terrariumHeight: number | null;
   feedingSchedule: string;
   notes: string;
   quantity: number;
@@ -109,9 +106,6 @@ export default function SpiderForm({ initialData = {}, onDataChange, errors, edi
     dateAcquired: new Date().toISOString().split('T')[0],
     dateOfBirth: '',
     bodyLength: null,
-    terrariumLength: null,
-    terrariumWidth: null,
-    terrariumHeight: null,
     feedingSchedule: 'weekly',
     notes: '',
     quantity: 1,
@@ -358,51 +352,6 @@ export default function SpiderForm({ initialData = {}, onDataChange, errors, edi
             />
           </Card.Content>
         </Card>
-
-        {/* Terrarium */}
-        {!editMode && <Card style={styles.section}>
-          <Card.Content>
-            <Text variant="titleMedium" style={styles.sectionTitle}>
-              🏠 Terrarium
-            </Text>
-
-            <View style={styles.row}>
-              <View style={styles.halfWidth}>
-                <FormNumberInput
-                    label="Długość"
-                    value={formData.terrariumLength}
-                    onValueChange={(value) => updateField('terrariumLength', value)}
-                    error={errors.terrariumLength}
-                    unit="cm"
-                    min={10}
-                    max={200}
-                />
-              </View>
-              <View style={styles.halfWidth}>
-                <FormNumberInput
-                    label="Szerokość"
-                    value={formData.terrariumWidth}
-                    onValueChange={(value) => updateField('terrariumWidth', value)}
-                    error={errors.terrariumWidth}
-                    unit="cm"
-                    min={10}
-                    max={200}
-                />
-              </View>
-            </View>
-
-            <FormNumberInput
-                label="Wysokość"
-                value={formData.terrariumHeight}
-                onValueChange={(value) => updateField('terrariumHeight', value)}
-                error={errors.terrariumHeight}
-                unit="cm"
-                min={10}
-                max={200}
-            />
-
-          </Card.Content>
-        </Card>}
 
         {/* Karmienie */}
         <Card style={styles.section}>

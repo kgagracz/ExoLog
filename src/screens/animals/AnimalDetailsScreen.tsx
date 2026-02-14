@@ -229,13 +229,6 @@ export default function AnimalDetailsScreen() {
                     <MeasurementsSection animal={animal} />
                 </SectionCard>
 
-                {/*/!* Terrarium *!/*/}
-                {/*{animal.housing && (*/}
-                {/*    <SectionCard title="Terrarium" icon="🏠">*/}
-                {/*        <TerrariumSection animal={animal} />*/}
-                {/*    </SectionCard>*/}
-                {/*)}*/}
-
                 {/* Karmienie */}
                 <SectionCard
                     title="Karmienie"
