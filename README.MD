@@ -23,9 +23,8 @@
     - [x] Data nabycia (date picker)
     - [x] API do listy pająków podczas wpisywania gatunku
     - [X] Dokument CITES (tak/nie + upload pliku)
-    - [ ] Częstotliwość karmienia
-        - [ ] Własna (pole numeryczne - dni)
-        - [x] Na podstawie rozmiaru (automatyczne wyliczenie)
+    - [x] Częstotliwość karmienia
+        - [x] Własna (pole numeryczne - dni)
 - [x] Dodaj wiele ptaszników jednocześnie 
 
 #### Edytowanie ptasznika
