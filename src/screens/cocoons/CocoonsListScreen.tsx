@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, RefreshControl } from 'react-native';
 import { Text, Appbar, Card, Chip, ActivityIndicator } from 'react-native-paper';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { useTheme } from "../../context/ThemeContext";
-import { useEvents } from "../../hooks/useEvents";
-import { useAnimals } from "../../hooks";
+import { useAnimalsQuery } from "../../api/animals";
+import { useUpcomingHatchesQuery } from "../../api/events";
 import { Theme } from "../../styles/theme";
 import { CocoonEvent } from "../../types/events";
 import { Animal } from "../../types";
@@ -14,37 +14,14 @@ export default function CocoonsListScreen() {
     const styles = makeStyles(theme);
     const navigation = useNavigation<any>();
 
-    const { getUpcomingHatches } = useEvents();
-    const { animals } = useAnimals();
+    const { data: animals = [] } = useAnimalsQuery();
+    const { data: cocoons = [], isLoading: loading, refetch } = useUpcomingHatchesQuery(365);
 
-    const [cocoons, setCocoons] = useState<CocoonEvent[]>([]);
-    const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
-
-    const loadCocoons = async () => {
-        try {
-            // Pobierz wszystkie aktywne kokony (duży zakres dni)
-            const result = await getUpcomingHatches(365);
-            if (result.success && result.data) {
-                setCocoons(result.data);
-            }
-        } catch (error) {
-            console.error('Error loading cocoons:', error);
-        } finally {
-            setLoading(false);
-            setRefreshing(false);
-        }
-    };
-
-    useFocusEffect(
-        useCallback(() => {
-            loadCocoons();
-        }, [])
-    );
-
-    const onRefresh = () => {
+    const onRefresh = async () => {
         setRefreshing(true);
-        loadCocoons();
+        await refetch();
+        setRefreshing(false);
     };
 
     const getAnimalById = (animalId: string): Animal | undefined => {

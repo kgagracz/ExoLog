@@ -14,7 +14,7 @@ import { useNavigation } from '@react-navigation/native';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { useTheme } from "../context/ThemeContext";
-import { useAnimals } from "../hooks";
+import { useAnimalsQuery } from "../api/animals";
 import { Theme } from "../styles/theme";
 import { Animal } from "../types";
 
@@ -22,7 +22,7 @@ export default function QRPrintScreen() {
     const { theme } = useTheme();
     const styles = makeStyles(theme);
     const navigation = useNavigation<any>();
-    const { animals, loading } = useAnimals();
+    const { data: animals = [], isLoading: loading } = useAnimalsQuery();
 
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
     const [generating, setGenerating] = useState(false);

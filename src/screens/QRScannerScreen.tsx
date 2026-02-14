@@ -1,18 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
 import { Text, Button, ActivityIndicator } from 'react-native-paper';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import {Theme} from "../styles/theme";
 import {useNavigation} from "@react-navigation/native";
-import {useAnimals} from "../hooks";
+import { animalsService } from "../services/firebase";
 import {useTheme} from "../context/ThemeContext";
 
 export default function QRScannerScreen() {
     const { theme } = useTheme();
     const styles = makeStyles(theme);
     const navigation = useNavigation<any>();
-    const { getAnimal } = useAnimals();
-
     const [permission, requestPermission] = useCameraPermissions();
     const [scanned, setScanned] = useState(false);
     const [processing, setProcessing] = useState(false);
@@ -29,7 +27,7 @@ export default function QRScannerScreen() {
                 const animalId = data.replace('exolog:animal:', '');
 
                 // Sprawdź czy zwierzę istnieje
-                const result = await getAnimal(animalId);
+                const result = await animalsService.getById(animalId);
 
                 if (result.success && result.data) {
                     // Przenieś do szczegółów zwierzęcia

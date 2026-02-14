@@ -10,6 +10,7 @@ import {
 } from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { auth } from "../services/firebase";
+import { queryClient } from "../api/queryClient";
 
 interface AuthContextType {
     user: User | null;
@@ -217,6 +218,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
             console.log('👋 Wylogowywanie...');
 
             await signOut(auth);
+
+            // Wyczyść cache React Query
+            queryClient.clear();
 
             // Wyczyść wszystkie dane sesji
             await AsyncStorage.multiRemove([

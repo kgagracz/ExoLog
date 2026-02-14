@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native';
 import {
     Text,
@@ -13,7 +13,8 @@ import {
     ActivityIndicator,
     Snackbar
 } from 'react-native-paper';
-import { useAnimals } from "../../hooks";
+import { useAnimalsQuery } from "../../api/animals";
+import { useBulkFeedMutation, useFeedAnimalMutation } from "../../api/feeding";
 import { Theme } from "../../styles/theme";
 import { useTheme } from "../../context/ThemeContext";
 
@@ -24,13 +25,26 @@ interface AddFeedingScreenProps {
 type FeedingMode = 'all' | 'select';
 
 export const AddFeedingScreen: React.FC<AddFeedingScreenProps> = ({ navigation }) => {
-    const {
-        animals,
-        loading,
-        feedMultipleAnimals,
-        quickFeed,
-        stats
-    } = useAnimals();
+    const { data: animals = [], isLoading: loading } = useAnimalsQuery();
+    const feedAnimalMutation = useFeedAnimalMutation();
+    const bulkFeedMutation = useBulkFeedMutation();
+
+    const stats = useMemo(() => ({
+        feeding: {
+            fedToday: animals.filter(animal => {
+                const today = new Date().toISOString().split('T')[0];
+                return animal.feeding?.lastFed === today;
+            }).length,
+            dueForFeeding: animals.filter(animal => {
+                if (!animal.feeding?.lastFed) return true;
+                const lastFed = new Date(animal.feeding.lastFed);
+                const weekAgo = new Date();
+                weekAgo.setDate(weekAgo.getDate() - 7);
+                return lastFed <= weekAgo;
+            }).length
+        }
+    }), [animals]);
+
     const { theme } = useTheme();
     const styles = makeStyles(theme);
 
@@ -96,23 +110,31 @@ export const AddFeedingScreen: React.FC<AddFeedingScreenProps> = ({ navigation }
     const performSave = async () => {
         setIsSubmitting(true);
         try {
-            const result = await quickFeed(
-                Array.from(selectedAnimals),
-                'cricket',
-                1,
-                `Karmienie z dnia ${new Date().toLocaleDateString('pl-PL')}`
-            );
-
-            if (result.success) {
-                setSnackbarMessage(`Pomyślnie nakarmiono ${selectedAnimals.size} zwierząt!`);
-                setSnackbarVisible(true);
-                // Automatyczny powrót po 2 sekundach
-                setTimeout(() => {
-                    navigation?.goBack();
-                }, 2000);
+            const selectedIds = Array.from(selectedAnimals);
+            if (selectedIds.length === 1) {
+                await feedAnimalMutation.mutateAsync({
+                    animalId: selectedIds[0],
+                    foodType: 'cricket',
+                    foodSize: 'medium',
+                    quantity: 1,
+                    date: new Date().toISOString().split('T')[0],
+                    notes: `Karmienie z dnia ${new Date().toLocaleDateString('pl-PL')}`,
+                });
             } else {
-                Alert.alert('Błąd', result.error || 'Nie udało się zapisać karmienia');
+                await bulkFeedMutation.mutateAsync({
+                    animalIds: selectedIds,
+                    foodType: 'cricket',
+                    foodSize: 'medium',
+                    quantity: 1,
+                    date: new Date().toISOString().split('T')[0],
+                    notes: `Karmienie z dnia ${new Date().toLocaleDateString('pl-PL')}`,
+                });
             }
+            setSnackbarMessage(`Pomyślnie nakarmiono ${selectedAnimals.size} zwierząt!`);
+            setSnackbarVisible(true);
+            setTimeout(() => {
+                navigation?.goBack();
+            }, 2000);
         } catch (error: any) {
             Alert.alert('Błąd', error.message || 'Wystąpił nieoczekiwany błąd');
         } finally {

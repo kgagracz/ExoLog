@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
 import { Appbar, Button, ActivityIndicator, Text } from 'react-native-paper';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTheme } from "../../context/ThemeContext";
-import { useEvents } from "../../hooks/useEvents";
-import { useAnimals } from "../../hooks";
+import { useAnimalQuery } from "../../api/animals";
+import { useAddCocoonMutation } from "../../api/events";
 import { Theme } from "../../styles/theme";
 import CocoonForm from "../../components/organisms/CocoonForm";
 import { Animal } from "../../types";
@@ -16,50 +16,14 @@ export default function AddCocoonScreen() {
     const route = useRoute<any>();
     const { animalId } = route.params;
 
-    const { addCocoon, loading: eventLoading } = useEvents();
-    const { getAnimal } = useAnimals();
+    const { data: animalData, isLoading: animalLoading } = useAnimalQuery(animalId);
+    const addCocoonMutation = useAddCocoonMutation();
 
-    const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
-    const [animal, setAnimal] = useState<Animal | null>(null);
     const [formData, setFormData] = useState<any>(null);
     const [errors, setErrors] = useState<Record<string, string>>({});
-
-    useEffect(() => {
-        loadAnimal();
-    }, [animalId]);
-
-    const loadAnimal = async () => {
-        try {
-            setLoading(true);
-            const result = await getAnimal(animalId);
-
-            if (!result.success || !result.data) {
-                Alert.alert('Błąd', 'Nie znaleziono zwierzęcia');
-                navigation.goBack();
-                return;
-            }
-
-            const currentAnimal = result.data;
-            setAnimal(currentAnimal);
-
-            // Sprawdź czy to samica
-            if (currentAnimal.sex !== 'female') {
-                Alert.alert(
-                    'Nieprawidłowa płeć',
-                    'Tylko samice mogą składać kokony.',
-                    [{ text: 'OK', onPress: () => navigation.goBack() }]
-                );
-                return;
-            }
-        } catch (error) {
-            console.error('Error loading animal:', error);
-            Alert.alert('Błąd', 'Nie udało się załadować danych zwierzęcia');
-            navigation.goBack();
-        } finally {
-            setLoading(false);
-        }
-    };
+    const animal = animalData ?? null;
+    const loading = animalLoading;
 
     const validateForm = (): boolean => {
         const newErrors: Record<string, string> = {};
@@ -78,10 +42,9 @@ export default function AddCocoonScreen() {
             return;
         }
 
+        setSaving(true);
         try {
-            setSaving(true);
-
-            const result = await addCocoon({
+            await addCocoonMutation.mutateAsync({
                 animalId,
                 date: formData.date,
                 eventData: {
@@ -92,19 +55,13 @@ export default function AddCocoonScreen() {
                 description: formData.notes?.trim(),
                 setReminder: formData.setReminder,
             });
-
-            if (result.success) {
-                Alert.alert(
-                    'Sukces',
-                    `Kokon został zarejestrowany dla ${animal.name || animal.species}.`,
-                    [{ text: 'OK', onPress: () => navigation.goBack() }]
-                );
-            } else {
-                Alert.alert('Błąd', result.error || 'Nie udało się dodać kokonu');
-            }
+            Alert.alert(
+                'Sukces',
+                `Kokon został zarejestrowany dla ${animal.name || animal.species}.`,
+                [{ text: 'OK', onPress: () => navigation.goBack() }]
+            );
         } catch (error: any) {
-            console.error('Error saving cocoon:', error);
-            Alert.alert('Błąd', 'Nie udało się zapisać kokonu');
+            Alert.alert('Błąd', error.message || 'Nie udało się dodać kokonu');
         } finally {
             setSaving(false);
         }

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
 import { Appbar, FAB } from 'react-native-paper';
-import { useAnimals } from "../../hooks";
+import { useAddSpiderMutation, useAddMultipleSpidersMutation, useUpdateAnimalMutation } from "../../api/animals";
 import { useAuth } from "../../hooks/useAuth";
 import { Theme } from "../../styles/theme";
 import { useTheme } from "../../context/ThemeContext";
@@ -17,7 +17,9 @@ export default function AddSpiderScreen({ navigation }: AddSpiderScreenProps) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
 
-  const { addSpider, addMultipleSpiders, updateAnimal } = useAnimals();
+  const addSpiderMutation = useAddSpiderMutation();
+  const addMultipleSpidersMutation = useAddMultipleSpidersMutation();
+  const updateAnimalMutation = useUpdateAnimalMutation();
   const { user } = useAuth();
 
   const { theme } = useTheme();
@@ -65,13 +67,13 @@ export default function AddSpiderScreen({ navigation }: AddSpiderScreenProps) {
     );
 
     if (uploadResult.success) {
-      await updateAnimal(animalId, {
+      await updateAnimalMutation.mutateAsync({ animalId, updates: {
         specificData: {
           hasCites: true,
           citesDocumentUrl: uploadResult.url,
           citesDocumentPath: uploadResult.path,
         },
-      });
+      }});
     }
   };
 
@@ -112,7 +114,7 @@ export default function AddSpiderScreen({ navigation }: AddSpiderScreenProps) {
       if (quantity === 1) {
         // Pojedynczy pająk
         const name = formData.name?.trim() || speciesLastWord;
-        const result = await addSpider({
+        const result = await addSpiderMutation.mutateAsync({
           ...baseSpiderData,
           name,
         });
@@ -138,31 +140,28 @@ export default function AddSpiderScreen({ navigation }: AddSpiderScreenProps) {
           return `${namePrefix}-${index}`;
         };
 
-        const result = await addMultipleSpiders(baseSpiderData, quantity, nameGenerator);
+        const result = await addMultipleSpidersMutation.mutateAsync({
+            baseData: baseSpiderData,
+            quantity,
+            nameGenerator,
+        });
 
-        if (result.success) {
-          const { added, failed, names } = result;
-          if(!(added && failed && names)) {
-            return
-          }
-          if (failed === 0) {
-            const displayNames = names.slice(0, 5).join(', ');
-            const moreText = names.length > 5 ? `\n... i ${names.length - 5} więcej` : '';
+        const { added, failed, names } = result;
+        if (failed === 0) {
+          const displayNames = names.slice(0, 5).join(', ');
+          const moreText = names.length > 5 ? `\n... i ${names.length - 5} więcej` : '';
 
-            Alert.alert(
-                'Sukces',
-                `Dodano ${added} ptaszników:\n${displayNames}${moreText}`,
-                [{ text: 'OK', onPress: () => navigation.goBack() }]
-            );
-          } else {
-            Alert.alert(
-                'Częściowy sukces',
-                `Dodano ${added} ptaszników, ale ${failed} nie udało się dodać.`,
-                [{ text: 'OK', onPress: () => navigation.goBack() }]
-            );
-          }
+          Alert.alert(
+              'Sukces',
+              `Dodano ${added} ptaszników:\n${displayNames}${moreText}`,
+              [{ text: 'OK', onPress: () => navigation.goBack() }]
+          );
         } else {
-          Alert.alert('Błąd', result.error || 'Nie udało się dodać ptaszników');
+          Alert.alert(
+              'Częściowy sukces',
+              `Dodano ${added} ptaszników, ale ${failed} nie udało się dodać.`,
+              [{ text: 'OK', onPress: () => navigation.goBack() }]
+          );
         }
       }
     } catch (error: any) {

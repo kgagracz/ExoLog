@@ -3,8 +3,8 @@ import { View, StyleSheet, ScrollView, Alert } from 'react-native';
 import { Text, Appbar, Card, Button, TextInput, HelperText, ActivityIndicator } from 'react-native-paper';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTheme } from "../../context/ThemeContext";
-import { useEvents } from "../../hooks/useEvents";
-import { useAnimals } from "../../hooks";
+import { useAddMultipleSpidersMutation } from "../../api/animals";
+import { useUpdateCocoonStatusMutation } from "../../api/events";
 import { Theme } from "../../styles/theme";
 
 export default function OpenCocoonScreen() {
@@ -14,8 +14,8 @@ export default function OpenCocoonScreen() {
     const route = useRoute<any>();
     const { cocoonId, animalId, animalName, species } = route.params;
 
-    const { updateCocoonStatus } = useEvents();
-    const { addMultipleSpiders } = useAnimals();
+    const updateCocoonStatusMutation = useUpdateCocoonStatusMutation();
+    const addMultipleSpidersMutation = useAddMultipleSpidersMutation();
 
     const [spiderCount, setSpiderCount] = useState('');
     const [saving, setSaving] = useState(false);
@@ -72,10 +72,7 @@ export default function OpenCocoonScreen() {
 
         try {
             // 1. Zaktualizuj status kokonu na "hatched"
-            const updateResult = await updateCocoonStatus(cocoonId, 'hatched', count);
-            if (!updateResult.success) {
-                throw new Error('Nie udało się zaktualizować statusu kokonu');
-            }
+            await updateCocoonStatusMutation.mutateAsync({ eventId: cocoonId, newStatus: 'hatched', hatchedCount: count });
 
             // 2. Dodaj młode pająki do systemu
             const nameGenerator = (index: number, total: number): string => {
@@ -84,8 +81,8 @@ export default function OpenCocoonScreen() {
                 return `${species || 'Nieznany'} #${paddedIndex}`;
             };
 
-            const result = await addMultipleSpiders(
-                {
+            const result = await addMultipleSpidersMutation.mutateAsync({
+                baseData: {
                     species: species || 'Nieznany gatunek',
                     sex: 'unknown',
                     currentStage: 1,
@@ -95,9 +92,9 @@ export default function OpenCocoonScreen() {
                     parentFemaleId: animalId,
                     cocoonId: cocoonId,
                 },
-                count,
-                nameGenerator
-            );
+                quantity: count,
+                nameGenerator,
+            });
 
             if (result.added === count) {
                 Alert.alert(

@@ -4,7 +4,7 @@ import { Appbar, Button, ActivityIndicator } from 'react-native-paper';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import {Animal} from "../../types";
 import {useTheme} from "../../context/ThemeContext";
-import {useAnimals} from "../../hooks";
+import { useAnimalQuery, useUpdateAnimalMutation } from "../../api/animals";
 import {useAuth} from "../../hooks/useAuth";
 import SpiderForm from "../../components/molecules/SpiderForm";
 import {Theme} from "../../styles/theme";
@@ -16,33 +16,18 @@ export default function EditAnimalScreen() {
     const navigation = useNavigation<any>();
     const route = useRoute<any>();
     const { animalId } = route.params;
-    const {getAnimal, updateAnimal} = useAnimals()
+    const updateAnimalMutation = useUpdateAnimalMutation();
     const { user } = useAuth();
 
-    const [loading, setLoading] = useState(true);
+    const { data: animalData, isLoading: animalLoading } = useAnimalQuery(animalId);
     const [saving, setSaving] = useState(false);
     const [animal, setAnimal] = useState<Animal | null>(null);
     const [formData, setFormData] = useState<any>(null);
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     useEffect(() => {
-        loadAnimal();
-    }, [animalId]);
-
-    const loadAnimal = async () => {
-        try {
-            setLoading(true);
-            const {data: animalData} = await getAnimal(animalId);
-
-            if (!animalData) {
-                Alert.alert('Błąd', 'Nie znaleziono ptasznika');
-                navigation.goBack();
-                return;
-            }
-
+        if (animalData) {
             setAnimal(animalData);
-
-            // Konwertuj dane zwierzęcia na format formularza
             setFormData({
                 name: animalData.name || '',
                 species: animalData.species || '',
@@ -58,14 +43,8 @@ export default function EditAnimalScreen() {
                 citesDocumentUri: '',
                 citesDocumentName: animalData.specificData?.citesDocumentUrl ? 'CITES.pdf' : '',
             });
-        } catch (error) {
-            console.error('Error loading animal:', error);
-            Alert.alert('Błąd', 'Nie udało się załadować danych ptasznika');
-            navigation.goBack();
-        } finally {
-            setLoading(false);
         }
-    };
+    }, [animalData]);
 
     const validateForm = (): boolean => {
         const newErrors: Record<string, string> = {};
@@ -128,7 +107,7 @@ export default function EditAnimalScreen() {
                 updatedAt: new Date().toISOString(),
             };
 
-            await updateAnimal(animalId, updatedAnimal);
+            await updateAnimalMutation.mutateAsync({ animalId, updates: updatedAnimal });
 
             Alert.alert(
                 'Sukces',
@@ -166,7 +145,7 @@ export default function EditAnimalScreen() {
         );
     };
 
-    if (loading) {
+    if (animalLoading) {
         return (
             <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color={theme.colors.primary} />

@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native';
 import { Text, Appbar, Card, Button, Chip, ActivityIndicator, Divider } from 'react-native-paper';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTheme } from "../../context/ThemeContext";
-import { useEvents } from "../../hooks/useEvents";
-import { useAnimals } from "../../hooks";
+import { useAnimalQuery } from "../../api/animals";
+import { useCocoonHistoryQuery, useUpdateCocoonStatusMutation } from "../../api/events";
 import { Theme } from "../../styles/theme";
 import { CocoonEvent } from "../../types/events";
 import { Animal } from "../../types";
@@ -16,42 +16,11 @@ export default function CocoonDetailsScreen() {
     const route = useRoute<any>();
     const { cocoonId, animalId } = route.params;
 
-    const { getCocoonHistory, updateCocoonStatus } = useEvents();
-    const { getAnimal } = useAnimals();
+    const { data: animal } = useAnimalQuery(animalId);
+    const { data: cocoonHistoryData = [], isLoading: loading } = useCocoonHistoryQuery(animalId, 20);
+    const updateCocoonStatusMutation = useUpdateCocoonStatusMutation();
 
-    const [cocoon, setCocoon] = useState<CocoonEvent | null>(null);
-    const [animal, setAnimal] = useState<Animal | null>(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        loadData();
-    }, [cocoonId, animalId]);
-
-    const loadData = async () => {
-        try {
-            setLoading(true);
-
-            // Pobierz dane zwierzęcia
-            const animalResult = await getAnimal(animalId);
-            if (animalResult.success && animalResult.data) {
-                setAnimal(animalResult.data);
-            }
-
-            // Pobierz dane kokonu
-            const cocoonsResult = await getCocoonHistory(animalId, 20);
-            if (cocoonsResult.success && cocoonsResult.data) {
-                const foundCocoon = cocoonsResult.data.find(c => c.id === cocoonId);
-                if (foundCocoon) {
-                    setCocoon(foundCocoon);
-                }
-            }
-        } catch (error) {
-            console.error('Error loading cocoon data:', error);
-            Alert.alert('Błąd', 'Nie udało się załadować danych kokonu');
-        } finally {
-            setLoading(false);
-        }
-    };
+    const cocoon = cocoonHistoryData.find(c => c.id === cocoonId) ?? null;
 
     const getDaysSinceLaid = (date: string): number => {
         const laid = new Date(date);
@@ -92,11 +61,11 @@ export default function CocoonDetailsScreen() {
                     text: 'Oznacz',
                     style: 'destructive',
                     onPress: async () => {
-                        const result = await updateCocoonStatus(cocoonId, 'failed');
-                        if (result.success) {
+                        try {
+                            await updateCocoonStatusMutation.mutateAsync({ eventId: cocoonId, newStatus: 'failed' });
                             Alert.alert('Sukces', 'Kokon oznaczony jako nieudany.');
                             navigation.goBack();
-                        } else {
+                        } catch {
                             Alert.alert('Błąd', 'Nie udało się zaktualizować statusu kokonu.');
                         }
                     }
@@ -106,10 +75,9 @@ export default function CocoonDetailsScreen() {
     };
 
     const handleChangeToIncubating = async () => {
-        const result = await updateCocoonStatus(cocoonId, 'incubating');
-        if (result.success) {
-            loadData();
-        } else {
+        try {
+            const result = await updateCocoonStatusMutation.mutateAsync({ eventId: cocoonId, newStatus: 'incubating' });
+        } catch {
             Alert.alert('Błąd', 'Nie udało się zaktualizować statusu kokonu.');
         }
     };

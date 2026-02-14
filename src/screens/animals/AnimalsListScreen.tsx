@@ -1,6 +1,7 @@
-import {useAnimals} from "../../hooks";
+import {useAnimalsQuery} from "../../api/animals";
+import {useLastMoltDatesQuery, useMatingStatusesQuery, useCocoonStatusesQuery} from "../../api/events";
 import {useTheme} from "../../context/ThemeContext";
-import {useCallback, useEffect, useState} from "react";
+import {useCallback, useMemo, useState} from "react";
 import {StyleSheet, View} from "react-native";
 import {Appbar, Searchbar} from "react-native-paper";
 import {EmptyState} from "../../components";
@@ -9,7 +10,6 @@ import AddActionsFAB from "../../components/molecules/AddActionsFAB";
 import UserAvatar from "../../components/atoms/UserAvatar";
 import {Theme} from "../../styles/theme";
 import {Animal} from "../../types";
-import {useEvents} from "../../hooks/useEvents";
 
 interface MatingStatus {
   hasMating: boolean;
@@ -28,60 +28,19 @@ interface AnimalsListScreenProps {
 }
 
 const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => {
-  const { animals, loading, refresh } = useAnimals();
-  const { getMatingStatusForAnimals, getCocoonStatusForAnimals, getLastMoltDateForAnimals } = useEvents();
+  const { data: animals = [], isLoading: loading, refetch: refresh } = useAnimalsQuery();
   const { theme } = useTheme();
   const styles = makeStyles(theme);
 
   const [searchText, setSearchText] = useState<string>('');
   const [fabOpen, setFabOpen] = useState<boolean>(false);
-  const [matingStatuses, setMatingStatuses] = useState<Record<string, MatingStatus>>({});
-  const [cocoonStatuses, setCocoonStatuses] = useState<Record<string, CocoonStatus>>({});
-  const [lastMoltDates, setLastMoltDates] = useState<Record<string, string>>({});
 
-  // Pobierz statusy kopulacji, kokonów i wyliniek
-  useEffect(() => {
-    const loadStatuses = async () => {
-      const allIds = animals.map(a => a.id);
-      const femaleIds = animals
-          .filter(a => a.sex === 'female')
-          .map(a => a.id);
+  const allIds = useMemo(() => animals.map(a => a.id), [animals]);
+  const femaleIds = useMemo(() => animals.filter(a => a.sex === 'female').map(a => a.id), [animals]);
 
-      const promises: Promise<any>[] = [
-        getLastMoltDateForAnimals(allIds),
-      ];
-
-      if (femaleIds.length > 0) {
-        promises.push(
-          getMatingStatusForAnimals(femaleIds),
-          getCocoonStatusForAnimals(femaleIds),
-        );
-      }
-
-      const results = await Promise.all(promises);
-
-      const moltResult = results[0];
-      if (moltResult.success && moltResult.data) {
-        setLastMoltDates(moltResult.data);
-      }
-
-      if (femaleIds.length > 0) {
-        const matingResult = results[1];
-        const cocoonResult = results[2];
-
-        if (matingResult.success && matingResult.data) {
-          setMatingStatuses(matingResult.data);
-        }
-        if (cocoonResult.success && cocoonResult.data) {
-          setCocoonStatuses(cocoonResult.data);
-        }
-      }
-    };
-
-    if (animals.length > 0) {
-      loadStatuses();
-    }
-  }, [animals]);
+  const { data: lastMoltDates = {} } = useLastMoltDatesQuery(allIds);
+  const { data: matingStatuses = {} } = useMatingStatusesQuery(femaleIds);
+  const { data: cocoonStatuses = {} } = useCocoonStatusesQuery(femaleIds);
 
   // Obsługa nawigacji
   const handleAddSpider = (): void => {

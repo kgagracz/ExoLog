@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
 import { Appbar, Button, ActivityIndicator, Text } from 'react-native-paper';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTheme } from "../../context/ThemeContext";
-import { useEvents } from "../../hooks/useEvents";
-import { useAnimals } from "../../hooks";
+import { useAnimalQuery, useAnimalsQuery } from "../../api/animals";
+import { useAddMatingMutation } from "../../api/events";
 import { Theme } from "../../styles/theme";
 import MatingForm, { MatingResult } from "../../components/organisms/MatingForm";
 import { Animal } from "../../types";
@@ -16,62 +16,28 @@ export default function AddMatingScreen() {
     const route = useRoute<any>();
     const { animalId } = route.params;
 
-    const { addMating, loading: eventLoading } = useEvents();
-    const { getAnimal, animals } = useAnimals();
+    const { data: animalData, isLoading: animalLoading } = useAnimalQuery(animalId);
+    const { data: animals = [] } = useAnimalsQuery();
+    const addMatingMutation = useAddMatingMutation();
 
-    const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
-    const [animal, setAnimal] = useState<Animal | null>(null);
-    const [availablePartners, setAvailablePartners] = useState<Animal[]>([]);
     const [formData, setFormData] = useState<any>(null);
     const [errors, setErrors] = useState<Record<string, string>>({});
 
-    useEffect(() => {
-        loadAnimalAndPartners();
-    }, [animalId, animals]);
+    const animal = animalData ?? null;
 
-    const loadAnimalAndPartners = async () => {
-        try {
-            setLoading(true);
-            const result = await getAnimal(animalId);
+    const availablePartners = useMemo(() => {
+        if (!animal || animal.sex === 'unknown') return [];
+        const opposingSex = animal.sex === 'male' ? 'female' : 'male';
+        return animals.filter(a =>
+            a.id !== animalId &&
+            a.sex === opposingSex &&
+            a.species === animal.species &&
+            a.isActive
+        );
+    }, [animal, animals, animalId]);
 
-            if (!result.success || !result.data) {
-                Alert.alert('Błąd', 'Nie znaleziono zwierzęcia');
-                navigation.goBack();
-                return;
-            }
-
-            const currentAnimal = result.data;
-            setAnimal(currentAnimal);
-
-            // Sprawdź czy zwierzę ma określoną płeć
-            if (currentAnimal.sex === 'unknown') {
-                Alert.alert(
-                    'Nieznana płeć',
-                    'Aby dodać kopulację, zwierzę musi mieć określoną płeć (samiec lub samica).',
-                    [{ text: 'OK', onPress: () => navigation.goBack() }]
-                );
-                return;
-            }
-
-            // Znajdź partnerów przeciwnej płci tego samego gatunku
-            const opposingSex = currentAnimal.sex === 'male' ? 'female' : 'male';
-            const partners = animals.filter(a =>
-                a.id !== animalId &&
-                a.sex === opposingSex &&
-                a.species === currentAnimal.species &&
-                a.isActive
-            );
-
-            setAvailablePartners(partners);
-        } catch (error) {
-            console.error('Error loading animal:', error);
-            Alert.alert('Błąd', 'Nie udało się załadować danych zwierzęcia');
-            navigation.goBack();
-        } finally {
-            setLoading(false);
-        }
-    };
+    const loading = animalLoading;
 
     const validateForm = (): boolean => {
         const newErrors: Record<string, string> = {};
@@ -94,14 +60,13 @@ export default function AddMatingScreen() {
             return;
         }
 
+        setSaving(true);
         try {
-            setSaving(true);
-
             const isMale = animal.sex === 'male';
             const maleId = isMale ? animal.id : formData.partnerId;
             const femaleId = isMale ? formData.partnerId : animal.id;
 
-            const result = await addMating({
+            await addMatingMutation.mutateAsync({
                 animalId,
                 date: formData.date,
                 eventData: {
@@ -112,21 +77,16 @@ export default function AddMatingScreen() {
                 description: formData.notes?.trim(),
             });
 
-            if (result.success) {
-                const partner = availablePartners.find(p => p.id === formData.partnerId);
-                const partnerName = partner?.name || partner?.species || 'partnerem';
+            const partner = availablePartners.find(p => p.id === formData.partnerId);
+            const partnerName = partner?.name || partner?.species || 'partnerem';
 
-                Alert.alert(
-                    'Sukces',
-                    `Kopulacja z ${partnerName} została zarejestrowana.`,
-                    [{ text: 'OK', onPress: () => navigation.goBack() }]
-                );
-            } else {
-                Alert.alert('Błąd', result.error || 'Nie udało się dodać kopulacji');
-            }
+            Alert.alert(
+                'Sukces',
+                `Kopulacja z ${partnerName} została zarejestrowana.`,
+                [{ text: 'OK', onPress: () => navigation.goBack() }]
+            );
         } catch (error: any) {
-            console.error('Error saving mating:', error);
-            Alert.alert('Błąd', 'Nie udało się zapisać kopulacji');
+            Alert.alert('Błąd', error.message || 'Nie udało się dodać kopulacji');
         } finally {
             setSaving(false);
         }

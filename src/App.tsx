@@ -3,6 +3,8 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import {MD3DarkTheme, PaperProvider} from 'react-native-paper';
 import { NavigationContainer } from '@react-navigation/native';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from './api/queryClient';
 import {AuthProvider} from "./hooks/useAuth";
 import AppNavigator from "./navigation/AppNavigator";
 import {useTheme} from "./context/ThemeContext";
@@ -39,15 +41,17 @@ export default function App() {
     const paperTheme = createPaperTheme(theme)
     console.log(isDark)
     return (
-        <SafeAreaProvider>
-            <PaperProvider theme={paperTheme}>
-                <AuthProvider>
-                    <NavigationContainer>
-                        <AppNavigator />
-                        <StatusBar style="light" backgroundColor={theme.colors.background} />
-                    </NavigationContainer>
-                </AuthProvider>
-            </PaperProvider>
-        </SafeAreaProvider>
+        <QueryClientProvider client={queryClient}>
+            <SafeAreaProvider>
+                <PaperProvider theme={paperTheme}>
+                    <AuthProvider>
+                        <NavigationContainer>
+                            <AppNavigator />
+                            <StatusBar style="light" backgroundColor={theme.colors.background} />
+                        </NavigationContainer>
+                    </AuthProvider>
+                </PaperProvider>
+            </SafeAreaProvider>
+        </QueryClientProvider>
     );
 }

@@ -1,11 +1,9 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {Alert, ScrollView, StyleSheet, View} from 'react-native';
 import {ActivityIndicator, FAB, Text} from 'react-native-paper';
 import {useNavigation, useRoute} from '@react-navigation/native';
-import {useAnimals} from "../../hooks";
 import {useAuth} from "../../hooks/useAuth";
 import {useTheme} from "../../context/ThemeContext";
-import {Animal} from "../../types";
 import AnimalDetailsHeader from "../../components/molecules/AnimalDetailsHeader";
 import SectionCard from "../../components/atoms/SectionCard";
 import AnimalHeader from "../../components/molecules/AnimalHeader";
@@ -14,113 +12,55 @@ import FeedingSection from "../../components/molecules/FeedingSection";
 import PhotosSection from "../../components/molecules/PhotoSection";
 import QRCodeModal from "../../components/organisms/QRCodeModal";
 import {Theme} from "../../styles/theme";
-import {useEvents} from "../../hooks/useEvents";
-import {MoltingEvent} from "../../types/events";
 import MoltingHistoryCard from "./MoltingHistoryScreen";
+import { useAnimalQuery } from "../../api/animals";
+import { useDeleteAnimalMutation, useMarkDeceasedMutation } from "../../api/animals";
+import { useFeedingHistoryQuery } from "../../api/feeding";
+import { useMoltingHistoryQuery, useMatingHistoryQuery, useCocoonHistoryQuery } from "../../api/events";
 
 export default function AnimalDetailsScreen() {
     const navigation = useNavigation<any>();
     const route = useRoute<any>();
     const { animalId } = route.params;
 
-    const { getAnimal, getFeedingHistory, deleteAnimalCompletely, markAsDeceased } = useAnimals();
     const { user } = useAuth();
     const { theme } = useTheme();
     const styles = makeStyles(theme);
 
-    const [animal, setAnimal] = useState<Animal | null>(null);
-    const [feedingHistory, setFeedingHistory] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
+    const { data: animal, isLoading: loading } = useAnimalQuery(animalId);
+    const { data: feedingHistory = [] } = useFeedingHistoryQuery(animalId);
+    const { data: moltingHistory = [] } = useMoltingHistoryQuery(animalId, 5);
+    const { data: matingHistoryData = [] } = useMatingHistoryQuery(animal?.sex === 'female' ? animalId : undefined);
+    const { data: cocoonHistoryData = [] } = useCocoonHistoryQuery(animal?.sex === 'female' ? animalId : undefined);
+    const deleteAnimalMutation = useDeleteAnimalMutation();
+    const markDeceasedMutation = useMarkDeceasedMutation();
+
     const [menuVisible, setMenuVisible] = useState(false);
     const [fabOpen, setFabOpen] = useState(false);
     const [qrModalVisible, setQrModalVisible] = useState(false);
-    const [moltingHistory, setMoltingHistory] = useState<MoltingEvent[]>([]);
-    const [matingStatus, setMatingStatus] = useState<{
-        hasMating: boolean;
-        lastMatingDate?: string;
-        lastMatingResult?: string;
-    } | undefined>(undefined);
-    const [cocoonStatus, setCocoonStatus] = useState<{
-        hasCocoon: boolean;
-        lastCocoonDate?: string;
-        cocoonStatus?: string;
-        estimatedHatchDate?: string;
-    } | undefined>(undefined);
-    const { getMoltingHistory, getMatingHistory, getCocoonHistory } = useEvents();
 
-    useEffect(() => {
-        loadAnimalDetails();
-    }, [animalId]);
-
-    const loadMoltingHistory = async () => {
-        const result = await getMoltingHistory(animalId, 5); // 5 ostatnich
-        if (result.success && result.data) {
-            setMoltingHistory(result.data);
+    const matingStatus = matingHistoryData.length > 0
+        ? {
+            hasMating: true,
+            lastMatingDate: matingHistoryData[0].date,
+            lastMatingResult: matingHistoryData[0].eventData?.result,
         }
-    };
+        : undefined;
 
-    const loadMatingStatus = async () => {
-        if (animal?.sex !== 'female') return;
-
-        const result = await getMatingHistory(animalId, 1);
-        if (result.success && result.data && result.data.length > 0) {
-            const lastMating = result.data[0];
-            setMatingStatus({
-                hasMating: true,
-                lastMatingDate: lastMating.date,
-                lastMatingResult: lastMating.eventData?.result,
-            });
-        }
-    };
-
-    const loadCocoonStatus = async () => {
-        if (animal?.sex !== 'female') return;
-
-        const result = await getCocoonHistory(animalId, 1);
-        if (result.success && result.data && result.data.length > 0) {
-            const lastCocoon = result.data[0];
-            // Tylko aktywne kokony (laid lub incubating)
+    const cocoonStatus = (() => {
+        if (cocoonHistoryData.length > 0) {
+            const lastCocoon = cocoonHistoryData[0];
             if (lastCocoon.eventData?.cocoonStatus === 'laid' || lastCocoon.eventData?.cocoonStatus === 'incubating') {
-                setCocoonStatus({
+                return {
                     hasCocoon: true,
                     lastCocoonDate: lastCocoon.date,
                     cocoonStatus: lastCocoon.eventData?.cocoonStatus,
                     estimatedHatchDate: lastCocoon.eventData?.estimatedHatchDate,
-                });
+                };
             }
         }
-    };
-
-    useEffect(() => {
-        if (animal) {
-            loadMoltingHistory();
-            loadMatingStatus();
-            loadCocoonStatus();
-        }
-    }, [animal]);
-
-    const loadAnimalDetails = async () => {
-        setLoading(true);
-        try {
-            const [animalResult, feedingResult] = await Promise.all([
-                getAnimal(animalId),
-                getFeedingHistory(animalId)
-            ]);
-
-            if (animalResult.success && animalResult.data) {
-                setAnimal(animalResult.data);
-            }
-
-            if (feedingResult.success && feedingResult.data) {
-                setFeedingHistory(feedingResult.data);
-            }
-        } catch (error) {
-            console.error('Błąd ładowania szczegółów:', error);
-            Alert.alert('Błąd', 'Nie udało się załadować szczegółów zwierzęcia');
-        } finally {
-            setLoading(false);
-        }
-    };
+        return undefined;
+    })();
 
     const handleDelete = () => {
         Alert.alert(
@@ -132,7 +72,7 @@ export default function AnimalDetailsScreen() {
                     text: 'Usuń',
                     style: 'destructive',
                     onPress: async () => {
-                        await deleteAnimalCompletely(animalId);
+                        await deleteAnimalMutation.mutateAsync(animalId);
                         navigation.navigate('AnimalsList');
                     }
                 }
@@ -150,15 +90,15 @@ export default function AnimalDetailsScreen() {
                     text: 'Oznacz zgon',
                     style: 'destructive',
                     onPress: async () => {
-                        const result = await markAsDeceased(animalId);
-                        if (result.success) {
+                        try {
+                            await markDeceasedMutation.mutateAsync({ animalId });
                             Alert.alert(
                                 'Zapisano',
                                 `${animal?.name} został oznaczony jako martwy.`,
                                 [{ text: 'OK', onPress: () => navigation.navigate('AnimalsList') }]
                             );
-                        } else {
-                            Alert.alert('Błąd', result.error || 'Nie udało się zapisać zmian.');
+                        } catch (err: any) {
+                            Alert.alert('Błąd', err.message || 'Nie udało się zapisać zmian.');
                         }
                     }
                 }
