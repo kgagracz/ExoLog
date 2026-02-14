@@ -123,7 +123,6 @@ const AnimalFiltersToolbar: React.FC<AnimalFiltersToolbarProps> = ({
                             <Menu
                                 visible={speciesMenuVisible}
                                 onDismiss={() => setSpeciesMenuVisible(false)}
-                                contentStyle={styles.menuContent}
                                 anchor={
                                     <Pressable onPress={() => setSpeciesMenuVisible(true)}>
                                         <Chip
@@ -138,7 +137,7 @@ const AnimalFiltersToolbar: React.FC<AnimalFiltersToolbarProps> = ({
                             >
                                 <Menu.Item
                                     title="Wszystkie gatunki"
-                                    titleStyle={styles.menuItemText}
+
                                     leadingIcon={speciesFilter === null ? 'check' : undefined}
                                     onPress={() => {
                                         setSpeciesFilter(null);
@@ -149,7 +148,7 @@ const AnimalFiltersToolbar: React.FC<AnimalFiltersToolbarProps> = ({
                                     <Menu.Item
                                         key={species}
                                         title={species}
-                                        titleStyle={styles.menuItemText}
+    
                                         leadingIcon={speciesFilter === species ? 'check' : undefined}
                                         onPress={() => {
                                             setSpeciesFilter(species);
@@ -255,12 +254,6 @@ const makeStyles = (theme: Theme) =>
             marginRight: 6,
             height: 32,
             backgroundColor: theme.colors.errorContainer,
-        },
-        menuContent: {
-            backgroundColor: theme.colors.backgroundSecondary,
-        },
-        menuItemText: {
-            color: theme.colors.text,
         },
         clearChipText: {
             color: theme.colors.error,

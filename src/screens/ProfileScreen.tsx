@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
-import { Appbar, Card, Button, Divider } from 'react-native-paper';
+import { Appbar, Card, Button, Divider, Switch } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../hooks/useAuth';
@@ -9,7 +9,7 @@ import Text from '../components/atoms/Text';
 import Avatar from '../components/atoms/Avatar';
 
 export default function ProfileScreen() {
-    const { theme } = useTheme();
+    const { theme, toggleTheme, isDark } = useTheme();
     const styles = makeStyles(theme);
     const navigation = useNavigation();
     const { user, logout } = useAuth();
@@ -89,6 +89,20 @@ export default function ProfileScreen() {
                         <View style={styles.infoRow}>
                             <Text variant="bodySmall">ID użytkownika</Text>
                             <Text variant="caption" numberOfLines={1}>{user?.uid || '—'}</Text>
+                        </View>
+                    </Card.Content>
+                </Card>
+
+                {/* Motyw */}
+                <Card style={styles.card}>
+                    <Card.Content>
+                        <View style={styles.infoRow}>
+                            <Text variant="body">Ciemny motyw</Text>
+                            <Switch
+                                value={isDark}
+                                onValueChange={toggleTheme}
+                                color={theme.colors.primary}
+                            />
                         </View>
                     </Card.Content>
                 </Card>

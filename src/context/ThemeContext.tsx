@@ -15,10 +15,10 @@ const ThemeContext = createContext<ThemeContextType>({
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     const [theme, setTheme] = useState(lightTheme);
-    const isDark = theme === lightTheme
+    const isDark = theme === darkTheme
 
     const toggleTheme = () => {
-        setTheme(theme === lightTheme ? darkTheme : lightTheme);
+        setTheme(prev => prev === lightTheme ? darkTheme : lightTheme);
     };
 
     return (
