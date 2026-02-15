@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Alert } from 'react-native';
+import { View, ScrollView, StyleSheet, Alert } from 'react-native';
 import { Appbar, Card, Button, Divider, Switch } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../context/ThemeContext';
@@ -77,7 +77,7 @@ export default function ProfileScreen() {
                 <Appbar.Content title="Profil" />
             </Appbar.Header>
 
-            <View style={styles.content}>
+            <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
                 {/* Sekcja avatara i nazwy */}
                 <View style={styles.profileHeader}>
                     <View style={styles.avatarContainer}>
@@ -165,7 +165,7 @@ export default function ProfileScreen() {
                         Wyloguj się
                     </Button>
                 </View>
-            </View>
+            </ScrollView>
         </View>
     );
 }
@@ -177,6 +177,9 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     },
     content: {
         flex: 1,
+    },
+    contentContainer: {
+        flexGrow: 1,
         padding: 16,
     },
     profileHeader: {
