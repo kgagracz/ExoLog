@@ -176,3 +176,40 @@
 - [ ] Backup danych
 
 ---
+
+### 👥 SPOŁECZNOŚĆ
+
+#### Profile użytkowników
+- [x] Publiczny profil użytkownika (nazwa, bio, statystyki)
+- [x] Przełącznik widoczności profilu (publiczny/prywatny)
+- [x] Automatyczne tworzenie profilu przy rejestracji
+- [x] Lazy tworzenie profilu dla istniejących użytkowników
+
+#### Wyszukiwanie użytkowników
+- [x] Wyszukiwarka użytkowników (prefix search)
+- [x] Debounce 300ms
+- [x] Wyświetlanie statusu relacji przy wynikach
+
+#### Zaproszenia do znajomych
+- [x] Wysyłanie zaproszeń
+- [x] Lista otrzymanych zaproszeń (akceptuj/odrzuć)
+- [x] Lista wysłanych zaproszeń (status oczekiwania)
+- [x] Badge z liczbą oczekujących zaproszeń
+- [x] Walidacja duplikatów (nie można wysłać ponownie)
+
+#### Lista znajomych
+- [x] Wyświetlanie listy znajomych
+- [x] Usuwanie znajomych (z potwierdzeniem)
+- [x] Przejście na profil znajomego
+
+#### Przeglądanie profili
+- [x] Widok profilu innego użytkownika (avatar, nazwa, bio, statystyki)
+- [x] Lista zwierząt użytkownika (jeśli profil publiczny lub znajomy)
+- [x] Informacja o prywatnym profilu dla niezalogowanych
+- [x] Przycisk relacji (wyślij zaproszenie / oczekuje / usuń znajomego)
+
+#### Nawigacja
+- [x] Zakładka "Społeczność" w bottom tabs (ikona account-group)
+- [x] Stack: Społeczność → Wyszukiwanie → Profil użytkownika → Zaproszenia
+
+---
