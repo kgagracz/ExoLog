@@ -2,6 +2,7 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 // @ts-ignore
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AnimalStackNavigator from "./AnimalStackNavigator";
 import CocoonStackNavigator from "./CocoonStackNavigator";
 import SocialStackNavigator from "./SocialStackNavigator";
@@ -25,6 +26,7 @@ const Tab = createBottomTabNavigator<TabParamList>();
 
 export default function TabNavigator() {
     const {theme} = useTheme()
+    const insets = useSafeAreaInsets()
     return (
         <Tab.Navigator
             screenOptions={({ route }) => ({
@@ -59,8 +61,8 @@ export default function TabNavigator() {
                 tabBarStyle: {
                     backgroundColor: theme.colors.surface,
                     borderTopColor: theme.colors.border,
-                    height: 60,
-                    paddingBottom: 8,
+                    height: 60 + insets.bottom,
+                    paddingBottom: 8 + insets.bottom,
                     paddingTop: 8,
                 },
                 tabBarLabelStyle: {
