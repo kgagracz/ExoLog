@@ -7,12 +7,14 @@ import { Theme } from "../../styles/theme";
 import { useTheme } from "../../context/ThemeContext";
 import SpiderForm from "../../components/molecules/SpiderForm";
 import { storageService } from "../../services/firebase/storageService";
+import { useTranslation } from 'react-i18next';
 
 interface AddSpiderScreenProps {
   navigation: any;
 }
 
 export default function AddSpiderScreen({ navigation }: AddSpiderScreenProps) {
+  const { t } = useTranslation('animals');
   const [formData, setFormData] = useState<any>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
@@ -36,23 +38,23 @@ export default function AddSpiderScreen({ navigation }: AddSpiderScreenProps) {
     const newErrors: Record<string, string> = {};
 
     if (!formData.species?.trim()) {
-      newErrors.species = 'Gatunek jest wymagany';
+      newErrors.species = t('addSpider.validation.speciesRequired');
     }
 
     if (!formData.sex) {
-      newErrors.sex = 'Płeć jest wymagana';
+      newErrors.sex = t('addSpider.validation.sexRequired');
     }
 
     if (!formData.dateAcquired) {
-      newErrors.dateAcquired = 'Data nabycia jest wymagana';
+      newErrors.dateAcquired = t('addSpider.validation.dateRequired');
     }
 
     if (!formData.quantity || formData.quantity < 1) {
-      newErrors.quantity = 'Ilość musi być większa niż 0';
+      newErrors.quantity = t('addSpider.validation.quantityMin');
     }
 
     if (formData.quantity > 999) {
-      newErrors.quantity = 'Maksymalna ilość to 999';
+      newErrors.quantity = t('addSpider.validation.quantityMax');
     }
 
     setErrors(newErrors);
@@ -79,7 +81,7 @@ export default function AddSpiderScreen({ navigation }: AddSpiderScreenProps) {
 
   const handleSave = async () => {
     if (!validateForm()) {
-      Alert.alert('Błąd', 'Wypełnij wszystkie wymagane pola');
+      Alert.alert(t('common:error'), t('common:fillRequiredFields'));
       return;
     }
 
@@ -118,12 +120,12 @@ export default function AddSpiderScreen({ navigation }: AddSpiderScreenProps) {
             await uploadCitesIfNeeded(result.id);
           }
           Alert.alert(
-              'Sukces',
-              `Ptasznik "${name}" został dodany!`,
+              t('common:success'),
+              t('addSpider.successSingle', { name }),
               [{ text: 'OK', onPress: () => navigation.goBack() }]
           );
         } else {
-          Alert.alert('Błąd', result.error || 'Nie udało się dodać ptasznika');
+          Alert.alert(t('common:error'), result.error || t('addSpider.errorAdd'));
         }
       } else {
         // Wiele pająków
@@ -143,23 +145,23 @@ export default function AddSpiderScreen({ navigation }: AddSpiderScreenProps) {
         const { added, failed, names } = result;
         if (failed === 0) {
           const displayNames = names.slice(0, 5).join(', ');
-          const moreText = names.length > 5 ? `\n... i ${names.length - 5} więcej` : '';
+          const moreText = names.length > 5 ? '\n' + t('addSpider.successMultipleMore', { count: names.length - 5 }) : '';
 
           Alert.alert(
-              'Sukces',
-              `Dodano ${added} ptaszników:\n${displayNames}${moreText}`,
+              t('common:success'),
+              t('addSpider.successMultiple', { added, names: displayNames }) + moreText,
               [{ text: 'OK', onPress: () => navigation.goBack() }]
           );
         } else {
           Alert.alert(
-              'Częściowy sukces',
-              `Dodano ${added} ptaszników, ale ${failed} nie udało się dodać.`,
+              t('common:partialSuccess'),
+              t('addSpider.partialSuccessMessage', { added, failed }),
               [{ text: 'OK', onPress: () => navigation.goBack() }]
           );
         }
       }
     } catch (error: any) {
-      Alert.alert('Błąd', error.message || 'Wystąpił nieoczekiwany błąd');
+      Alert.alert(t('common:error'), error.message || t('common:unexpectedError'));
     } finally {
       setSaving(false);
     }
@@ -169,7 +171,7 @@ export default function AddSpiderScreen({ navigation }: AddSpiderScreenProps) {
       <View style={styles.container}>
         <Appbar.Header>
           <Appbar.BackAction onPress={() => navigation.goBack()} />
-          <Appbar.Content title="Dodaj Ptasznika" />
+          <Appbar.Content title={t('addSpider.title')} />
         </Appbar.Header>
 
         <SpiderForm
@@ -183,7 +185,7 @@ export default function AddSpiderScreen({ navigation }: AddSpiderScreenProps) {
             onPress={handleSave}
             loading={saving}
             disabled={saving}
-            label={saving ? "Zapisywanie..." : formData.quantity > 1 ? `Zapisz (${formData.quantity})` : "Zapisz"}
+            label={saving ? t('common:saving') : formData.quantity > 1 ? t('addSpider.saveCount', { count: formData.quantity }) : t('common:save')}
         />
       </View>
   );

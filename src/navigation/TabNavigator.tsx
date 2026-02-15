@@ -3,6 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 // @ts-ignore
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 import AnimalStackNavigator from "./AnimalStackNavigator";
 import CocoonStackNavigator from "./CocoonStackNavigator";
 import SocialStackNavigator from "./SocialStackNavigator";
@@ -27,6 +28,7 @@ const Tab = createBottomTabNavigator<TabParamList>();
 export default function TabNavigator() {
     const {theme} = useTheme()
     const insets = useSafeAreaInsets()
+    const {t} = useTranslation('navigation')
     return (
         <Tab.Navigator
             screenOptions={({ route }) => ({
@@ -90,7 +92,7 @@ export default function TabNavigator() {
                 name="Animals"
                 component={AnimalStackNavigator}
                 options={{
-                    title: 'Zwierzęta',
+                    title: t('tabs.animals'),
                     headerShown: false,
                 }}
             />
@@ -98,7 +100,7 @@ export default function TabNavigator() {
                 name="Cocoons"
                 component={CocoonStackNavigator}
                 options={{
-                    title: 'Kokony',
+                    title: t('tabs.cocoons'),
                     headerShown: false,
                 }}
             />
@@ -106,7 +108,7 @@ export default function TabNavigator() {
                 name="Community"
                 component={SocialStackNavigator}
                 options={{
-                    title: 'Społeczność',
+                    title: t('tabs.community'),
                     headerShown: false,
                 }}
             />
@@ -114,7 +116,7 @@ export default function TabNavigator() {
                 name="QRScanner"
                 component={QRScannerScreen}
                 options={{
-                    title: 'Skanuj',
+                    title: t('tabs.scanner'),
                     headerShown: false,
                 }}
             />

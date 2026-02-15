@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { View, FlatList, StyleSheet } from 'react-native';
 import { Appbar, Divider, Searchbar } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useTheme } from '../../context/ThemeContext';
 import { useSearchUsersQuery, useSendRequestMutation, useFriendshipStatusQuery } from '../../api/social';
@@ -23,19 +24,20 @@ function useDebounce(value: string, delay: number): string {
 
 function UserSearchResultItem({ profile }: { profile: PublicUserProfile }) {
     const navigation = useNavigation<any>();
+    const { t } = useTranslation('social');
     const { data: status } = useFriendshipStatusQuery(profile.uid);
     const sendRequest = useSendRequestMutation();
 
     const getActionProps = (status: FriendshipStatus | undefined) => {
         switch (status) {
             case 'friends':
-                return { label: 'Znajomy', disabled: true, icon: 'check' };
+                return { label: t('userSearch.statusFriend'), disabled: true, icon: 'check' };
             case 'pending_sent':
-                return { label: 'Wysłano', disabled: true, icon: 'clock-outline' };
+                return { label: t('userSearch.statusSent'), disabled: true, icon: 'clock-outline' };
             case 'pending_received':
-                return { label: 'Odpowiedz', disabled: false, icon: 'account-clock' };
+                return { label: t('userSearch.statusRespond'), disabled: false, icon: 'account-clock' };
             case 'none':
-                return { label: 'Zaproś', disabled: false, icon: 'account-plus' };
+                return { label: t('userSearch.statusInvite'), disabled: false, icon: 'account-plus' };
             default:
                 return undefined;
         }
@@ -57,7 +59,7 @@ function UserSearchResultItem({ profile }: { profile: PublicUserProfile }) {
     return (
         <UserListItem
             displayName={profile.displayName}
-            subtitle={`${profile.stats.totalAnimals} zwierząt`}
+            subtitle={t('userSearch.animalsCount', { count: profile.stats.totalAnimals })}
             onPress={() => navigation.navigate('UserProfile', { userId: profile.uid })}
             actionLabel={actionProps?.label}
             actionIcon={actionProps?.icon}
@@ -72,6 +74,7 @@ export default function UserSearchScreen() {
     const { theme } = useTheme();
     const styles = makeStyles(theme);
     const navigation = useNavigation();
+    const { t } = useTranslation('social');
     const tabBarHeight = useBottomTabBarHeight();
 
     const [searchText, setSearchText] = useState('');
@@ -83,12 +86,12 @@ export default function UserSearchScreen() {
         <View style={styles.container}>
             <Appbar.Header style={{ backgroundColor: theme.colors.surface }}>
                 <Appbar.BackAction onPress={() => navigation.goBack()} />
-                <Appbar.Content title="Szukaj użytkowników" />
+                <Appbar.Content title={t('userSearch.title')} />
             </Appbar.Header>
 
             <View style={styles.content}>
                 <Searchbar
-                    placeholder="Wpisz nazwę użytkownika..."
+                    placeholder={t('userSearch.placeholder')}
                     value={searchText}
                     onChangeText={setSearchText}
                     style={styles.searchbar}
@@ -98,7 +101,7 @@ export default function UserSearchScreen() {
                 {debouncedSearch.length < 2 && (
                     <View style={styles.hintContainer}>
                         <Text variant="body" style={styles.hintText}>
-                            Wpisz co najmniej 2 znaki, aby wyszukać
+                            {t('userSearch.minChars')}
                         </Text>
                     </View>
                 )}
@@ -106,7 +109,7 @@ export default function UserSearchScreen() {
                 {debouncedSearch.length >= 2 && results.length === 0 && !isLoading && !isFetching && (
                     <View style={styles.hintContainer}>
                         <Text variant="body" style={styles.hintText}>
-                            Nie znaleziono użytkowników
+                            {t('userSearch.noResults')}
                         </Text>
                     </View>
                 )}

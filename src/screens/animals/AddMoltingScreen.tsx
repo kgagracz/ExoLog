@@ -9,8 +9,10 @@ import { useAnimalQuery } from "../../api/animals";
 import { useAddMoltingMutation } from "../../api/events";
 import {Theme} from "../../styles/theme";
 import MoltingForm from "../../components/organisms/MoltingForm";
+import { useTranslation } from 'react-i18next';
 
 export default function AddMoltingScreen() {
+    const { t } = useTranslation('animals');
     const { theme } = useTheme();
     const styles = makeStyles(theme);
     const navigation = useNavigation<any>();
@@ -30,11 +32,11 @@ export default function AddMoltingScreen() {
         const newErrors: Record<string, string> = {};
 
         if (!formData.date) {
-            newErrors.date = 'Data wylinki jest wymagana';
+            newErrors.date = t('addMolting.validation.dateRequired');
         }
 
         if ((formData.newStage && formData.previousStage) && formData.newStage <= formData.previousStage) {
-            newErrors.newStage = 'Nowe stadium musi być większe od poprzedniego';
+            newErrors.newStage = t('addMolting.validation.stageMustBeHigher');
         }
 
         setErrors(newErrors);
@@ -44,7 +46,7 @@ export default function AddMoltingScreen() {
 
     const handleSave = async () => {
         if (!validateForm()) {
-            Alert.alert('Błąd walidacji', 'Uzupełnij wszystkie wymagane pola');
+            Alert.alert(t('addMolting.validation.title'), t('addMolting.validation.fillRequired'));
             return;
         }
 
@@ -62,12 +64,12 @@ export default function AddMoltingScreen() {
                 description: formData.notes.trim(),
             });
             Alert.alert(
-                'Sukces',
-                `Wylinka została dodana. ${formData.newStage ? `Stadium ptasznika zaktualizowane do L${formData.newStage}.` : ''}`,
+                t('common:success'),
+                t('addMolting.successMessage', { stage: formData.newStage ? t('addMolting.stageUpdated', { stage: formData.newStage }) : '' }),
                 [{ text: 'OK', onPress: () => navigation.goBack() }]
             );
         } catch (error: any) {
-            Alert.alert('Błąd', error.message || 'Nie udało się dodać wylinki');
+            Alert.alert(t('common:error'), error.message || t('addMolting.errorAdd'));
         } finally {
             setSaving(false);
         }
@@ -94,7 +96,7 @@ export default function AddMoltingScreen() {
             <Appbar.Header>
                 <Appbar.BackAction onPress={handleCancel} />
                 <Appbar.Content
-                    title="Dodaj wylinkę"
+                    title={t('addMolting.title')}
                     subtitle={animal.name || animal.species}
                 />
             </Appbar.Header>
@@ -113,7 +115,7 @@ export default function AddMoltingScreen() {
                     style={styles.cancelButton}
                     disabled={saving}
                 >
-                    Anuluj
+                    {t('common:cancel')}
                 </Button>
                 <Button
                     mode="contained"
@@ -122,7 +124,7 @@ export default function AddMoltingScreen() {
                     loading={saving}
                     disabled={saving}
                 >
-                    Zapisz wylinkę
+                    {t('addMolting.saveMolting')}
                 </Button>
             </View>
         </View>

@@ -1,0 +1,34 @@
+{
+  "qrScanner": {
+    "title": "Skanuj kod QR",
+    "subtitle": "Skieruj kamerę na kod QR na terrarium",
+    "permissionTitle": "📷 Wymagany dostęp do kamery",
+    "permissionDescription": "Aby skanować kody QR, aplikacja potrzebuje dostępu do kamery.",
+    "grantAccess": "Udziel dostępu",
+    "processing": "Sprawdzanie...",
+    "rescan": "Skanuj ponownie",
+    "notFoundTitle": "Nie znaleziono",
+    "notFoundMessage": "Zwierzę o tym kodzie nie istnieje w Twojej kolekcji.",
+    "unknownCodeTitle": "Nieznany kod",
+    "unknownCodeMessage": "Ten kod QR nie jest kodem ExoLog.",
+    "errorMessage": "Nie udało się przetworzyć kodu QR."
+  },
+  "qrPrint": {
+    "title": "Drukuj kody QR",
+    "selectAll": "Wszystkie",
+    "selectNone": "Żadne",
+    "noName": "Bez nazwy",
+    "savePdf": "Zapisz PDF",
+    "print": "Drukuj",
+    "noSelection": "Brak wyboru",
+    "noSelectionMessage": "Wybierz przynajmniej jedno zwierzę.",
+    "printError": "Nie udało się wydrukować kodów QR.",
+    "pdfError": "Nie udało się wygenerować PDF.",
+    "shareTitle": "Udostępnij kody QR",
+    "sharingUnavailable": "Niedostępne",
+    "sharingUnavailableMessage": "Udostępnianie plików nie jest dostępne na tym urządzeniu.",
+    "htmlTitle": "🕷️ ExoLog - Kody QR",
+    "htmlSubtitle": "Wytnij i naklej na terraria",
+    "htmlTitleTag": "Kody QR - ExoLog"
+  }
+}

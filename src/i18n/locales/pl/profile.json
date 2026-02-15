@@ -1,0 +1,16 @@
+{
+  "title": "Profil",
+  "accountInfo": "Informacje o koncie",
+  "email": "Email",
+  "displayName": "Nazwa wyświetlana",
+  "userId": "ID użytkownika",
+  "darkTheme": "Ciemny motyw",
+  "privacy": "Prywatność",
+  "publicProfile": "Profil publiczny",
+  "publicProfileDescription": "Inni użytkownicy mogą Cię wyszukać i zobaczyć Twoje zwierzęta",
+  "logout": "Wyloguj się",
+  "logoutTitle": "Wylogowanie",
+  "logoutMessage": "Czy na pewno chcesz się wylogować?",
+  "logoutButton": "Wyloguj",
+  "logoutError": "Nie udało się wylogować"
+}

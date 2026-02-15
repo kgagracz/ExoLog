@@ -1,4 +1,5 @@
 import {useMemo, useState, useCallback} from 'react';
+import {useTranslation} from 'react-i18next';
 import {Animal} from '../types';
 
 export type SortOption =
@@ -9,29 +10,35 @@ export type SortOption =
     | 'species-asc'
     | 'species-desc';
 
-export const SEX_LABELS: Record<Animal['sex'], string> = {
-    male: 'Samiec',
-    female: 'Samica',
-    unknown: 'Nieznana',
-    hermaphrodite: 'Hermafrodyta',
-};
+export function useFilterLabels() {
+    const {t} = useTranslation('filters');
 
-export const STAGE_LABELS: Record<Animal['stage'], string> = {
-    baby: 'Maluch',
-    juvenile: 'Młody',
-    subadult: 'Subadult',
-    adult: 'Dorosły',
-    senior: 'Senior',
-};
+    const SEX_LABELS: Record<Animal['sex'], string> = {
+        male: t('sex.male'),
+        female: t('sex.female'),
+        unknown: t('sex.unknown'),
+        hermaphrodite: t('sex.hermaphrodite'),
+    };
 
-export const SORT_LABELS: Record<SortOption, string> = {
-    'name-asc': 'Nazwa A-Z',
-    'name-desc': 'Nazwa Z-A',
-    'dateAcquired-desc': 'Najnowsze',
-    'dateAcquired-asc': 'Najstarsze',
-    'species-asc': 'Gatunek A-Z',
-    'species-desc': 'Gatunek Z-A',
-};
+    const STAGE_LABELS: Record<Animal['stage'], string> = {
+        baby: t('stage.baby'),
+        juvenile: t('stage.juvenile'),
+        subadult: t('stage.subadult'),
+        adult: t('stage.adult'),
+        senior: t('stage.senior'),
+    };
+
+    const SORT_LABELS: Record<SortOption, string> = {
+        'name-asc': t('sort.name-asc'),
+        'name-desc': t('sort.name-desc'),
+        'dateAcquired-desc': t('sort.dateAcquired-desc'),
+        'dateAcquired-asc': t('sort.dateAcquired-asc'),
+        'species-asc': t('sort.species-asc'),
+        'species-desc': t('sort.species-desc'),
+    };
+
+    return {SEX_LABELS, STAGE_LABELS, SORT_LABELS};
+}
 
 export function useAnimalFilters(animals: Animal[]) {
     const [searchText, setSearchText] = useState('');

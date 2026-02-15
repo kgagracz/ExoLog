@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import { FAB, Portal } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from "../../context/ThemeContext";
 
 interface AddActionsFABProps {
@@ -19,6 +20,7 @@ const AddActionsFAB: React.FC<AddActionsFABProps> = ({
   onAddFeeding
 }) => {
   const { theme } = useTheme();
+  const { t } = useTranslation('navigation');
 
   if (!visible) return null;
 
@@ -30,13 +32,13 @@ const AddActionsFAB: React.FC<AddActionsFABProps> = ({
         actions={[
           {
             icon: 'spider',
-            label: 'Dodaj pająka',
+            label: t('fab.addSpider'),
             onPress: onAddAnimal,
             style: { backgroundColor: theme.colors.primary },
           },
           {
             icon: 'food-apple',
-            label: 'Dodaj karmienie',
+            label: t('fab.addFeeding'),
             onPress: onAddFeeding,
             style: { backgroundColor: theme.colors.secondary },
           },

@@ -2,6 +2,7 @@ import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {Pressable, ScrollView, StyleSheet, View} from 'react-native';
 import {ActivityIndicator, Button, Card, Checkbox, HelperText, IconButton, Switch, Text, TextInput} from 'react-native-paper';
 import * as DocumentPicker from 'expo-document-picker';
+import { useTranslation } from 'react-i18next';
 import FormInput from '../atoms/FormInput';
 import FormSelect from '../atoms/FormSelect';
 import FormNumberInput from '../atoms/FormNumberInput';
@@ -41,61 +42,38 @@ interface SpiderFormProps {
   editMode?: boolean;
 }
 
-const sexOptions = [
-  { label: 'Samiec', value: 'male' },
-  { label: 'Samica', value: 'female' },
-  { label: 'Nieznana', value: 'unknown' },
-];
-
-const webTypeOptions = [
-  { label: 'Brak sieci', value: 'none' },
-  { label: 'Sieć lejkowata', value: 'funnel' },
-  { label: 'Sieć płaska', value: 'sheet' },
-  { label: 'Sieć kołowa', value: 'orb' },
-  { label: 'Minimalna', value: 'minimal' },
-];
-
-const temperamentOptions = [
-  { label: 'Spokojny', value: 'docile' },
-  { label: 'Defensywny', value: 'defensive' },
-  { label: 'Agresywny', value: 'aggressive' },
-  { label: 'Płochliwy', value: 'skittish' },
-  { label: 'Nieznany', value: 'unknown' },
-];
-
-const feedingScheduleOptions = [
-  { label: 'Co tydzień', value: 'weekly' },
-  { label: 'Co 2 tygodnie', value: 'biweekly' },
-  { label: 'Co miesiąc', value: 'monthly' },
-  { label: 'Nieregularnie', value: 'irregular' },
-];
-
-const foodTypeOptions = [
-  { label: 'Świerszcz', value: 'cricket' },
-  { label: 'Karaluch', value: 'roach' },
-  { label: 'Mącznik', value: 'mealworm' },
-  { label: 'Pączki', value: 'superworm' },
-  { label: 'Inne', value: 'other' },
-];
-
-const substrateOptions = [
-  { label: 'Włókno kokosowe', value: 'coconut_fiber' },
-  { label: 'Torf', value: 'peat' },
-  { label: 'Ziemia', value: 'soil' },
-  { label: 'Piasek', value: 'sand' },
-  { label: 'Mieszanka', value: 'mix' },
-];
-
-const getStageCategory = (stage: number | null): string => {
-  if (!stage) return 'Nieznane';
-  if (stage <= 3) return 'Młode (L1-L3)';
-  if (stage <= 6) return 'Juvenile (L4-L6)';
-  if (stage <= 8) return 'Subadult (L7-L8)';
-  return 'Adult (L9+)';
-};
-
 export default function SpiderForm({ initialData = {}, onDataChange, errors, editMode = false }: SpiderFormProps) {
   const {theme} = useTheme()
+  const { t } = useTranslation('forms');
+
+  const sexOptions = [
+    { label: t('spider.sex.male'), value: 'male' },
+    { label: t('spider.sex.female'), value: 'female' },
+    { label: t('spider.sex.unknown'), value: 'unknown' },
+  ];
+
+  const feedingScheduleOptions = [
+    { label: t('spider.feedingSchedule.weekly'), value: 'weekly' },
+    { label: t('spider.feedingSchedule.biweekly'), value: 'biweekly' },
+    { label: t('spider.feedingSchedule.monthly'), value: 'monthly' },
+    { label: t('spider.feedingSchedule.irregular'), value: 'irregular' },
+  ];
+
+  const foodTypeOptions = [
+    { label: t('spider.foodType.cricket'), value: 'cricket' },
+    { label: t('spider.foodType.roach'), value: 'roach' },
+    { label: t('spider.foodType.mealworm'), value: 'mealworm' },
+    { label: t('spider.foodType.superworm'), value: 'superworm' },
+    { label: t('spider.foodType.other'), value: 'other' },
+  ];
+
+  const getStageCategory = (stage: number | null): string => {
+    if (!stage) return t('spider.stageCategories.unknown');
+    if (stage <= 3) return t('spider.stageCategories.young');
+    if (stage <= 6) return t('spider.stageCategories.juvenile');
+    if (stage <= 8) return t('spider.stageCategories.subadult');
+    return t('spider.stageCategories.adult');
+  };
   const styles = makeStyles(theme)
   const [addMultiple, setAddMultiple] = useState(false);
   const [formData, setFormData] = useState<SpiderFormData>({
@@ -202,16 +180,16 @@ export default function SpiderForm({ initialData = {}, onDataChange, errors, edi
         <Card style={styles.section}>
           <Card.Content>
             <Text variant="titleMedium" style={styles.sectionTitle}>
-              🕷️ Podstawowe informacje
+              {t('spider.basicInfo')}
             </Text>
 
             <View>
               <TextInput
-                  label="Nazwa gatunkowa *"
+                  label={t('spider.speciesLabel')}
                   value={formData.species}
                   onChangeText={handleSpeciesChange}
                   mode="outlined"
-                  placeholder="np. Grammostola rosea"
+                  placeholder={t('spider.speciesPlaceholder')}
                   error={!!errors.species}
                   style={styles.input}
                   right={speciesLoading ? <TextInput.Icon icon={() => <ActivityIndicator size={16} />} /> : undefined}
@@ -241,18 +219,18 @@ export default function SpiderForm({ initialData = {}, onDataChange, errors, edi
             </View>
 
             <FormInput
-                label="Nazwa własna/Imię"
+                label={t('spider.nameLabel')}
                 value={formData.name}
                 onChangeText={(value) => updateField('name', value)}
                 error={errors.name}
-                placeholder={addMultiple ? "np. Charlotte (opcjonalne przy ilości > 1)" : "np. Charlotte, Spider-1"}
+                placeholder={addMultiple ? t('spider.namePlaceholderMultiple') : t('spider.namePlaceholderSingle')}
             />
 
             {!editMode && <View style={styles.switchRow}>
               <View style={styles.switchContent}>
-                <Text variant="bodyLarge" style={styles.switchLabel}>Dodaj wiele</Text>
+                <Text variant="bodyLarge" style={styles.switchLabel}>{t('spider.addMultiple')}</Text>
                 <Text variant="bodySmall" style={styles.switchHelper}>
-                  Włącz, aby dodać wiele ptaszników tego samego gatunku jednocześnie
+                  {t('spider.addMultipleHelper')}
                 </Text>
               </View>
               <Switch
@@ -265,7 +243,7 @@ export default function SpiderForm({ initialData = {}, onDataChange, errors, edi
             {addMultiple && (
                 <>
                   <FormNumberInput
-                      label="Ilość ptaszników"
+                      label={t('spider.quantityLabel')}
                       value={formData.quantity}
                       onValueChange={(value) => updateField('quantity', value || 1)}
                       error={errors.quantity}
@@ -276,14 +254,14 @@ export default function SpiderForm({ initialData = {}, onDataChange, errors, edi
                   />
                   <HelperText type="info" visible={formData.quantity > 1}>
                     {formData.quantity > 1
-                        ? `Zostanie utworzonych ${formData.quantity} ptaszników z automatycznymi nazwami (np. ${formData.species.split(' ').pop() || 'Ptasznik'}-1, ${formData.species.split(' ').pop() || 'Ptasznik'}-2...)`
-                        : 'Wprowadź liczbę większą niż 1, aby dodać wiele ptaszników jednocześnie'}
+                        ? t('spider.quantityHelper', { count: formData.quantity, prefix: formData.species.split(' ').pop() || t('animals:addSpider.defaultName') })
+                        : t('spider.quantityHelperSingle')}
                   </HelperText>
                 </>
             )}
 
             <FormSelect
-                label="Płeć"
+                label={t('spider.sexLabel')}
                 value={formData.sex}
                 onValueChange={(value) => updateField('sex', value as any)}
                 options={sexOptions}
@@ -298,22 +276,22 @@ export default function SpiderForm({ initialData = {}, onDataChange, errors, edi
         <Card style={styles.section}>
           <Card.Content>
             <Text variant="titleMedium" style={styles.sectionTitle}>
-              📏 Pomiary
+              {t('spider.measurements')}
             </Text>
 
             <FormNumberInput
-                label="Stadium (numer wylinki)"
+                label={t('spider.stageLabel')}
                 value={formData.stage}
                 onValueChange={(value) => updateField('stage', value)}
                 error={errors.stage}
                 min={1}
                 max={15}
-                placeholder="np. 5"
-                helperText={formData.stage ? `Kategoria: ${getStageCategory(formData.stage)}` : 'Wprowadź numer ostatniej wylinki (L1, L2, L3...)'}
+                placeholder={t('spider.stagePlaceholder')}
+                helperText={formData.stage ? t('spider.stageHelper', { category: getStageCategory(formData.stage) }) : t('spider.stageHelperDefault')}
             />
 
             <FormNumberInput
-                label="Długość ciała"
+                label={t('spider.bodyLengthLabel')}
                 value={formData.bodyLength}
                 onValueChange={(value) => updateField('bodyLength', value)}
                 error={errors.legSpan}
@@ -321,7 +299,7 @@ export default function SpiderForm({ initialData = {}, onDataChange, errors, edi
                 min={0}
                 max={30}
                 decimal
-                placeholder="np. 12.5"
+                placeholder={t('spider.bodyLengthPlaceholder')}
             />
 
           </Card.Content>
@@ -331,11 +309,11 @@ export default function SpiderForm({ initialData = {}, onDataChange, errors, edi
         <Card style={styles.section}>
           <Card.Content>
             <Text variant="titleMedium" style={styles.sectionTitle}>
-              📅 Daty
+              {t('common:dates')}
             </Text>
 
             <FormInput
-                label="Data nabycia"
+                label={t('spider.dateAcquiredLabel')}
                 value={formData.dateAcquired}
                 onChangeText={(value) => updateField('dateAcquired', value)}
                 error={errors.dateAcquired}
@@ -344,7 +322,7 @@ export default function SpiderForm({ initialData = {}, onDataChange, errors, edi
             />
 
             <FormInput
-                label="Data urodzenia (jeśli znana)"
+                label={t('spider.dateOfBirthLabel')}
                 value={formData.dateOfBirth}
                 onChangeText={(value) => updateField('dateOfBirth', value)}
                 error={errors.dateOfBirth}
@@ -357,11 +335,11 @@ export default function SpiderForm({ initialData = {}, onDataChange, errors, edi
         <Card style={styles.section}>
           <Card.Content>
             <Text variant="titleMedium" style={styles.sectionTitle}>
-              🍽️ Karmienie
+              {t('spider.feedingSection')}
             </Text>
 
             <FormSelect
-                label="Harmonogram karmienia"
+                label={t('spider.feedingScheduleLabel')}
                 value={formData.feedingSchedule}
                 onValueChange={(value) => updateField('feedingSchedule', value)}
                 options={feedingScheduleOptions}
@@ -375,7 +353,7 @@ export default function SpiderForm({ initialData = {}, onDataChange, errors, edi
         <Card style={styles.section}>
           <Card.Content>
             <Text variant="titleMedium" style={styles.sectionTitle}>
-              📜 Dokumenty
+              {t('spider.documentsSection')}
             </Text>
 
             <Pressable
@@ -399,7 +377,7 @@ export default function SpiderForm({ initialData = {}, onDataChange, errors, edi
                   }}
                   color={theme.colors.primary}
               />
-              <Text style={styles.checkboxLabel}>Posiada dokument CITES</Text>
+              <Text style={styles.checkboxLabel}>{t('spider.hasCites')}</Text>
             </Pressable>
 
             {formData.hasCites && (
@@ -425,7 +403,7 @@ export default function SpiderForm({ initialData = {}, onDataChange, errors, edi
                           onPress={handlePickCitesDocument}
                           style={styles.citesButton}
                       >
-                        Wybierz plik PDF
+                        {t('spider.selectPdf')}
                       </Button>
                   )}
                 </View>
@@ -437,15 +415,15 @@ export default function SpiderForm({ initialData = {}, onDataChange, errors, edi
         <Card style={styles.section}>
           <Card.Content>
             <Text variant="titleMedium" style={styles.sectionTitle}>
-              📝 Notatki
+              {t('spider.notesSection')}
             </Text>
 
             <FormInput
-                label="Dodatkowe informacje"
+                label={t('spider.notesLabel')}
                 value={formData.notes}
                 onChangeText={(value) => updateField('notes', value)}
                 error={errors.notes}
-                placeholder="Zachowanie, preferencje, obserwacje..."
+                placeholder={t('spider.notesPlaceholder')}
                 multiline
                 numberOfLines={4}
             />

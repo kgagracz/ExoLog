@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {View, StyleSheet, ScrollView} from 'react-native';
 import {Text, Card, Switch, HelperText} from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import {useTheme} from "../../context/ThemeContext";
 import FormInput from "../atoms/FormInput";
 import FormNumberInput from "../atoms/FormNumberInput";
@@ -32,6 +33,7 @@ export default function MoltingForm({
                                         errors,
                                     }: MoltingFormProps) {
     const {theme} = useTheme();
+    const { t } = useTranslation('forms');
     const styles = makeStyles(theme);
 
     const [formData, setFormData] = useState<MoltingFormData>({
@@ -61,11 +63,11 @@ export default function MoltingForm({
             <Card style={styles.section}>
                 <Card.Content>
                     <Text variant="titleMedium" style={styles.sectionTitle}>
-                        🦎 Informacje o wylince
+                        {t('molting.infoSection')}
                     </Text>
 
                     <FormInput
-                        label="Data wylinki"
+                        label={t('molting.dateLabel')}
                         value={formData.date}
                         onChangeText={(value) => updateField('date', value)}
                         error={errors.date}
@@ -79,20 +81,20 @@ export default function MoltingForm({
             <Card style={styles.section}>
                 <Card.Content>
                     <Text variant="titleMedium" style={styles.sectionTitle}>
-                        📊 Stadium rozwoju
+                        {t('molting.stageSection')}
                     </Text>
 
                     <View style={styles.row}>
                         <View style={styles.halfWidth}>
                             <FormValueDisplay
-                                label="Poprzednie stadium"
+                                label={t('molting.previousStage')}
                                 value={formData.previousStage ? `L${formData.previousStage}` : undefined}
                             />
                         </View>
 
                         <View style={styles.halfWidth}>
                             <FormNumberInput
-                                label="Nowe stadium"
+                                label={t('molting.newStage')}
                                 value={formData.newStage ?? null}
                                 onValueChange={(value) => updateField('newStage', value)}
                                 error={errors.newStage}
@@ -109,13 +111,13 @@ export default function MoltingForm({
             <Card style={styles.section}>
                 <Card.Content>
                     <Text variant="titleMedium" style={styles.sectionTitle}>
-                        📏 Długość ciała
+                        {t('molting.bodyLengthSection')}
                     </Text>
 
                     <View style={styles.row}>
                         <View style={styles.halfWidth}>
                             <FormValueDisplay
-                                label="Poprzedni rozmiar"
+                                label={t('molting.previousSize')}
                                 value={formData.previousBodyLength}
                                 unit="cm"
                             />
@@ -123,7 +125,7 @@ export default function MoltingForm({
 
                         <View style={styles.halfWidth}>
                             <FormNumberInput
-                                label="Nowy rozmiar"
+                                label={t('molting.newSize')}
                                 value={formData.newBodyLength}
                                 onValueChange={(value) => updateField('newBodyLength', value)}
                                 error={errors.newBodyLength}
@@ -131,7 +133,7 @@ export default function MoltingForm({
                                 min={0}
                                 max={30}
                                 decimal
-                                placeholder="np. 6.2"
+                                placeholder={t('molting.newSizePlaceholder')}
                             />
                         </View>
                     </View>
@@ -143,15 +145,15 @@ export default function MoltingForm({
             <Card style={styles.section}>
                 <Card.Content>
                     <Text variant="titleMedium" style={styles.sectionTitle}>
-                        📝 Notatki
+                        {t('common:notesIcon')}
                     </Text>
 
                     <FormInput
-                        label="Obserwacje"
+                        label={t('molting.notesLabel')}
                         value={formData.notes}
                         onChangeText={(value) => updateField('notes', value)}
                         error={errors.notes}
-                        placeholder="Przebieg wylinki, problemy, obserwacje behawioralne..."
+                        placeholder={t('molting.notesPlaceholder')}
                         multiline
                         numberOfLines={4}
                     />

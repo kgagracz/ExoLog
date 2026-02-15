@@ -1,0 +1,131 @@
+{
+  "list": {
+    "title": "🕷️ Moje Zwierzęta ({{count}})",
+    "searchPlaceholder": "Szukaj zwierząt...",
+    "emptyTitle": "Brak zwierząt",
+    "emptyDescription": "Dodaj swojego pierwszego ptasznika, aby rozpocząć zarządzanie hodowlą",
+    "userEmptyDescription": "Ten użytkownik nie ma jeszcze żadnych zwierząt",
+    "userTitle": "Zwierzęta {{name}} ({{count}})"
+  },
+  "addSpider": {
+    "title": "Dodaj Ptasznika",
+    "saving": "Zapisywanie...",
+    "saveCount": "Zapisz ({{count}})",
+    "save": "Zapisz",
+    "defaultName": "Ptasznik",
+    "validation": {
+      "speciesRequired": "Gatunek jest wymagany",
+      "sexRequired": "Płeć jest wymagana",
+      "dateRequired": "Data nabycia jest wymagana",
+      "quantityMin": "Ilość musi być większa niż 0",
+      "quantityMax": "Maksymalna ilość to 999"
+    },
+    "successSingle": "Ptasznik \"{{name}}\" został dodany!",
+    "successMultiple": "Dodano {{added}} ptaszników:\n{{names}}",
+    "successMultipleMore": "\n... i {{count}} więcej",
+    "partialSuccess": "Dodano {{added}} ptaszników, ale {{failed}} nie udało się dodać.",
+    "errorAdd": "Nie udało się dodać ptasznika"
+  },
+  "details": {
+    "title": "Szczegóły zwierzęcia",
+    "loading": "Ładowanie szczegółów...",
+    "notFound": "Nie znaleziono zwierzęcia",
+    "measurements": "Pomiary",
+    "measurementsIcon": "📏",
+    "feeding": "Karmienie",
+    "feedingIcon": "🦗",
+    "moltingHistory": "Historia wyliniek",
+    "moltingHistoryIcon": "🔄",
+    "noMoltingHistory": "Brak historii wyliniek",
+    "notesIcon": "📝",
+    "deleteTitle": "Usuń zwierzę",
+    "deleteMessage": "Czy na pewno chcesz trwale usunąć {{name}}?\n\nTa operacja jest nieodwracalna i usunie także całą historię karmienia.",
+    "deceasedTitle": "💀 Oznacz zgon",
+    "deceasedMessage": "Czy na pewno chcesz oznaczyć {{name}} jako martwe?\n\nZwierzę zostanie usunięte z listy, ale jego dane zostaną zachowane w historii.",
+    "deceasedSuccess": "{{name}} został oznaczony jako martwy.",
+    "deceasedSaved": "Zapisano",
+    "deceasedError": "Nie udało się zapisać zmian.",
+    "unknownSexTitle": "Nieznana płeć",
+    "unknownSexMessage": "Aby dodać kopulację, zwierzę musi mieć określoną płeć (samiec lub samica).",
+    "onlyFemalesTitle": "Tylko samice",
+    "onlyFemalesMessage": "Tylko samice mogą składać kokony.",
+    "animalFallback": "Zwierzę",
+    "fabFeeding": "Karmienie",
+    "fabMolting": "Wylinka",
+    "fabMating": "Kopulacja",
+    "fabCocoon": "Kokon",
+    "fabPhoto": "Zdjęcie"
+  },
+  "edit": {
+    "title": "Edytuj ptasznika",
+    "saveChanges": "Zapisz zmiany",
+    "successMessage": "Dane ptasznika zostały zaktualizowane",
+    "errorMessage": "Nie udało się zaktualizować danych ptasznika",
+    "validation": {
+      "speciesRequired": "Nazwa gatunkowa jest wymagana",
+      "sexRequired": "Płeć jest wymagana",
+      "dateRequired": "Data nabycia jest wymagana"
+    }
+  },
+  "addMolting": {
+    "title": "Dodaj wylinkę",
+    "saveMolting": "Zapisz wylinkę",
+    "validation": {
+      "dateRequired": "Data wylinki jest wymagana",
+      "stageOrder": "Nowe stadium musi być większe od poprzedniego"
+    },
+    "successMessage": "Wylinka została dodana. {{stageUpdate}}",
+    "stageUpdated": "Stadium ptasznika zaktualizowane do L{{stage}}.",
+    "errorMessage": "Nie udało się dodać wylinki"
+  },
+  "addMating": {
+    "title": "Dodaj kopulację",
+    "saveMating": "Zapisz kopulację",
+    "unknownSexWarning": "⚠️ Aby dodać kopulację, zwierzę musi mieć określoną płeć.",
+    "validation": {
+      "dateRequired": "Data kopulacji jest wymagana",
+      "partnerRequired": "Wybierz partnera"
+    },
+    "successMessage": "Kopulacja z {{partner}} została zarejestrowana.",
+    "errorMessage": "Nie udało się dodać kopulacji",
+    "partnerFallback": "partnerem"
+  },
+  "addCocoon": {
+    "title": "Dodaj kokon",
+    "saveCocoon": "Zapisz kokon",
+    "onlyFemalesWarning": "⚠️ Tylko samice mogą składać kokony.",
+    "validation": {
+      "dateRequired": "Data złożenia kokonu jest wymagana"
+    },
+    "successMessage": "Kokon został zarejestrowany dla {{name}}.",
+    "errorMessage": "Nie udało się dodać kokonu"
+  },
+  "addFeeding": {
+    "title": "🍽️ Dodaj karmienie",
+    "loadingAnimals": "Ładowanie zwierząt...",
+    "feedingStatus": "📊 Status karmienia",
+    "fedToday": "Nakarmione dzisiaj: {{count}}",
+    "dueForFeeding": "Wymagają karmienia: {{count}}",
+    "feedingMode": "Tryb karmienia",
+    "feedingModeDescription": "Wybierz czy chcesz nakarmić wszystkie zwierzęta, czy tylko wybrane",
+    "modeAll": "Wszystkie",
+    "modeSelect": "Wybierz",
+    "animalsCount": "Zwierzęta ({{selected}}/{{total}})",
+    "deselectAll": "Odznacz wszystkie",
+    "selectAll": "Zaznacz wszystkie",
+    "noAnimals": "Brak zwierząt do nakarmienia",
+    "unknownSpecies": "Nieznany gatunek",
+    "lastFeeding": "Ostatnie karmienie:",
+    "neverFed": "Nigdy nie karmione",
+    "saveFeeding": "Zapisz karmienie",
+    "savingFeeding": "Zapisywanie karmienia...",
+    "selectAtLeastOne": "Wybierz przynajmniej jedno zwierzę do nakarmienia",
+    "confirmTitle": "Potwierdź karmienie",
+    "confirmMessage": "Nakarm {{count}} zwierząt?\n\nPokarm: Świerszcz (średni)\nIlość: 1 szt.",
+    "successMessage": "Pomyślnie nakarmiono {{count}} zwierząt!",
+    "feedingNote": "Karmienie z dnia {{date}}"
+  },
+  "moltingHistory": {
+    "moltLabel": "Wylinka {{stageLabel}} {{bodyLengthLabel}}"
+  }
+}

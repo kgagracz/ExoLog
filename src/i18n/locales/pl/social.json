@@ -1,0 +1,45 @@
+{
+  "community": {
+    "title": "Społeczność",
+    "searchPlaceholder": "Szukaj użytkowników...",
+    "friendRequests": "Zaproszenia do znajomych",
+    "friendsCount": "Znajomi ({{count}})",
+    "noFriends": "Nie masz jeszcze znajomych",
+    "noFriendsHint": "Wyszukaj użytkowników i wyślij zaproszenie"
+  },
+  "userSearch": {
+    "title": "Szukaj użytkowników",
+    "placeholder": "Wpisz nazwę użytkownika...",
+    "minChars": "Wpisz co najmniej 2 znaki, aby wyszukać",
+    "noResults": "Nie znaleziono użytkowników",
+    "animalsCount": "{{count}} zwierząt",
+    "statusFriend": "Znajomy",
+    "statusSent": "Wysłano",
+    "statusRespond": "Odpowiedz",
+    "statusInvite": "Zaproś"
+  },
+  "userProfile": {
+    "title": "Profil",
+    "loading": "Ładowanie...",
+    "notFound": "Nie znaleziono profilu",
+    "statsAnimals": "Zwierzęta",
+    "statsJoined": "Dołączył(a)",
+    "sendRequest": "Wyślij zaproszenie",
+    "requestSent": "Zaproszenie wysłane",
+    "awaitingResponse": "Oczekuje na odpowiedź",
+    "removeFriend": "Usuń znajomego",
+    "removeFriendTitle": "Usuń znajomego",
+    "removeFriendMessage": "Czy na pewno chcesz usunąć {{name}} ze znajomych?",
+    "animalsSection": "Zwierzęta ({{count}})",
+    "noAnimals": "Brak zwierząt do wyświetlenia",
+    "showBreeding": "Pokaż hodowle ({{count}})",
+    "privateProfile": "Profil prywatny — dodaj do znajomych, aby zobaczyć zwierzęta"
+  },
+  "friendRequests": {
+    "title": "Zaproszenia",
+    "incoming": "Otrzymane",
+    "outgoing": "Wysłane",
+    "noRequests": "Brak zaproszeń",
+    "awaitingAcceptance": "Oczekuje na akceptację"
+  }
+}

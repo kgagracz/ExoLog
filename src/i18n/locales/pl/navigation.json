@@ -1,0 +1,17 @@
+{
+  "tabs": {
+    "animals": "Zwierzęta",
+    "cocoons": "Kokony",
+    "community": "Społeczność",
+    "scanner": "Skanuj",
+    "dashboard": "Pulpit",
+    "events": "Wydarzenia",
+    "stats": "Statystyki",
+    "settings": "Ustawienia"
+  },
+  "loading": "Ładowanie ExoLog...",
+  "fab": {
+    "addSpider": "Dodaj pająka",
+    "addFeeding": "Dodaj karmienie"
+  }
+}

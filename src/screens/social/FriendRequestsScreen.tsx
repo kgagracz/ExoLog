@@ -4,6 +4,7 @@ import { Appbar, Divider } from 'react-native-paper';
 // @ts-ignore
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../hooks/useAuth';
@@ -24,6 +25,7 @@ export default function FriendRequestsScreen() {
     const styles = makeStyles(theme);
     const navigation = useNavigation();
     const { user } = useAuth();
+    const { t } = useTranslation('social');
     const tabBarHeight = useBottomTabBarHeight();
 
     const { data: incoming = [], isLoading: incomingLoading } = useIncomingRequestsQuery();
@@ -35,17 +37,17 @@ export default function FriendRequestsScreen() {
     const getDisplayName = (): string => {
         if (user?.displayName) return user.displayName;
         if (user?.email) return user.email.split('@')[0];
-        return 'Użytkownik';
+        return t('common:user');
     };
 
     const sections = [
         {
-            title: 'Otrzymane',
+            title: t('friendRequests.incoming'),
             data: incoming,
             type: 'incoming' as const,
         },
         {
-            title: 'Wysłane',
+            title: t('friendRequests.outgoing'),
             data: outgoing,
             type: 'outgoing' as const,
         },
@@ -74,7 +76,7 @@ export default function FriendRequestsScreen() {
         return (
             <UserListItem
                 displayName={item.toDisplayName}
-                subtitle="Oczekuje na akceptację"
+                subtitle={t('friendRequests.awaitingAcceptance')}
             />
         );
     };
@@ -94,13 +96,13 @@ export default function FriendRequestsScreen() {
         <View style={styles.container}>
             <Appbar.Header style={{ backgroundColor: theme.colors.surface }}>
                 <Appbar.BackAction onPress={() => navigation.goBack()} />
-                <Appbar.Content title="Zaproszenia" />
+                <Appbar.Content title={t('friendRequests.title')} />
             </Appbar.Header>
 
             {isEmpty && !isLoading ? (
                 <View style={styles.emptyState}>
                     <MaterialCommunityIcons name="email-open-outline" size={64} color={theme.colors.textLight} />
-                    <Text variant="body" style={styles.emptyText}>Brak zaproszeń</Text>
+                    <Text variant="body" style={styles.emptyText}>{t('friendRequests.noRequests')}</Text>
                 </View>
             ) : (
                 <SectionList

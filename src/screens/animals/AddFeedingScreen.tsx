@@ -17,6 +17,7 @@ import { useAnimalsQuery } from "../../api/animals";
 import { useBulkFeedMutation, useFeedAnimalMutation } from "../../api/feeding";
 import { Theme } from "../../styles/theme";
 import { useTheme } from "../../context/ThemeContext";
+import { useTranslation } from 'react-i18next';
 
 interface AddFeedingScreenProps {
     navigation?: any;
@@ -25,6 +26,7 @@ interface AddFeedingScreenProps {
 type FeedingMode = 'all' | 'select';
 
 export const AddFeedingScreen: React.FC<AddFeedingScreenProps> = ({ navigation }) => {
+    const { t } = useTranslation('animals');
     const { data: animals = [], isLoading: loading } = useAnimalsQuery();
     const feedAnimalMutation = useFeedAnimalMutation();
     const bulkFeedMutation = useBulkFeedMutation();
@@ -93,16 +95,16 @@ export const AddFeedingScreen: React.FC<AddFeedingScreenProps> = ({ navigation }
     // Główna funkcja zapisywania karmienia
     const handleSave = async () => {
         if (selectedAnimals.size === 0) {
-            Alert.alert('Błąd', 'Wybierz przynajmniej jedno zwierzę do nakarmienia');
+            Alert.alert(t('common:error'), t('addFeeding.selectAtLeastOne'));
             return;
         }
 
         Alert.alert(
-            'Potwierdź karmienie',
-            `Nakarm ${selectedAnimals.size} zwierząt?\n\nPokarm: Świerszcz (średni)\nIlość: 1 szt.`,
+            t('addFeeding.confirmTitle'),
+            t('addFeeding.confirmMessage', { count: selectedAnimals.size }),
             [
-                { text: 'Anuluj', style: 'cancel' },
-                { text: 'Zapisz', onPress: performSave }
+                { text: t('common:cancel'), style: 'cancel' },
+                { text: t('common:save'), onPress: performSave }
             ]
         );
     };
@@ -118,7 +120,7 @@ export const AddFeedingScreen: React.FC<AddFeedingScreenProps> = ({ navigation }
                     foodSize: 'medium',
                     quantity: 1,
                     date: new Date().toISOString().split('T')[0],
-                    notes: `Karmienie z dnia ${new Date().toLocaleDateString('pl-PL')}`,
+                    notes: t('addFeeding.feedingNote', { date: new Date().toLocaleDateString('pl-PL') }),
                 });
             } else {
                 await bulkFeedMutation.mutateAsync({
@@ -127,16 +129,16 @@ export const AddFeedingScreen: React.FC<AddFeedingScreenProps> = ({ navigation }
                     foodSize: 'medium',
                     quantity: 1,
                     date: new Date().toISOString().split('T')[0],
-                    notes: `Karmienie z dnia ${new Date().toLocaleDateString('pl-PL')}`,
+                    notes: t('addFeeding.feedingNote', { date: new Date().toLocaleDateString('pl-PL') }),
                 });
             }
-            setSnackbarMessage(`Pomyślnie nakarmiono ${selectedAnimals.size} zwierząt!`);
+            setSnackbarMessage(t('addFeeding.successMessage', { count: selectedAnimals.size }));
             setSnackbarVisible(true);
             setTimeout(() => {
                 navigation?.goBack();
             }, 2000);
         } catch (error: any) {
-            Alert.alert('Błąd', error.message || 'Wystąpił nieoczekiwany błąd');
+            Alert.alert(t('common:error'), error.message || t('common:unexpectedError'));
         } finally {
             setIsSubmitting(false);
         }
@@ -145,12 +147,12 @@ export const AddFeedingScreen: React.FC<AddFeedingScreenProps> = ({ navigation }
     const segmentedButtonsData = [
         {
             value: 'all',
-            label: 'Wszystkie',
+            label: t('addFeeding.modeAll'),
             icon: 'select-all'
         },
         {
             value: 'select',
-            label: 'Wybierz',
+            label: t('addFeeding.modeSelect'),
             icon: 'checkbox-marked-outline'
         }
     ];
@@ -159,7 +161,7 @@ export const AddFeedingScreen: React.FC<AddFeedingScreenProps> = ({ navigation }
         return (
             <View style={[styles.container, styles.centerContent]}>
                 <ActivityIndicator size="large" />
-                <Text style={styles.loadingText}>Ładowanie zwierząt...</Text>
+                <Text style={styles.loadingText}>{t('addFeeding.loadingAnimals')}</Text>
             </View>
         );
     }
@@ -169,7 +171,7 @@ export const AddFeedingScreen: React.FC<AddFeedingScreenProps> = ({ navigation }
             <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
                 <Appbar.Header>
                     <Appbar.BackAction onPress={() => navigation?.goBack()} />
-                    <Appbar.Content title="🍽️ Dodaj karmienie" />
+                    <Appbar.Content title={t('addFeeding.title')} />
                 </Appbar.Header>
 
                 <View style={styles.content}>
@@ -178,14 +180,14 @@ export const AddFeedingScreen: React.FC<AddFeedingScreenProps> = ({ navigation }
                         <Card style={styles.statsCard}>
                             <Card.Content>
                                 <Text variant="titleSmall" style={styles.statsTitle}>
-                                    📊 Status karmienia
+                                    {t('addFeeding.feedingStatus')}
                                 </Text>
                                 <View style={styles.statsRow}>
                                     <Text variant="bodySmall">
-                                        Nakarmione dzisiaj: {stats.feeding.fedToday}
+                                        {t('addFeeding.fedToday', { count: stats.feeding.fedToday })}
                                     </Text>
                                     <Text variant="bodySmall" style={styles.statsError}>
-                                        Wymagają karmienia: {stats.feeding.dueForFeeding}
+                                        {t('addFeeding.dueForFeeding', { count: stats.feeding.dueForFeeding })}
                                     </Text>
                                 </View>
                             </Card.Content>
@@ -196,10 +198,10 @@ export const AddFeedingScreen: React.FC<AddFeedingScreenProps> = ({ navigation }
                     <Card style={styles.modeCard}>
                         <Card.Content>
                             <Text variant="titleMedium" style={styles.sectionTitle}>
-                                Tryb karmienia
+                                {t('addFeeding.feedingMode')}
                             </Text>
                             <Text variant="bodyMedium" style={styles.sectionDescription}>
-                                Wybierz czy chcesz nakarmić wszystkie zwierzęta, czy tylko wybrane
+                                {t('addFeeding.feedingModeDescription')}
                             </Text>
 
                             <SegmentedButtons
@@ -216,7 +218,7 @@ export const AddFeedingScreen: React.FC<AddFeedingScreenProps> = ({ navigation }
                         <Card.Content>
                             <View style={styles.headerRow}>
                                 <Text variant="titleMedium" style={styles.sectionTitle}>
-                                    Zwierzęta ({selectedAnimals.size}/{animals.length})
+                                    {t('addFeeding.animalsCount', { selected: selectedAnimals.size, total: animals.length })}
                                 </Text>
 
                                 {feedingMode === 'select' && animals.length > 0 && (
@@ -225,14 +227,14 @@ export const AddFeedingScreen: React.FC<AddFeedingScreenProps> = ({ navigation }
                                         onPress={toggleSelectAll}
                                         compact
                                     >
-                                        {allSelected ? 'Odznacz wszystkie' : 'Zaznacz wszystkie'}
+                                        {allSelected ? t('addFeeding.deselectAll') : t('addFeeding.selectAll')}
                                     </Button>
                                 )}
                             </View>
 
                             {animals.length === 0 ? (
                                 <Text variant="bodyMedium" style={styles.emptyText}>
-                                    Brak zwierząt do nakarmienia
+                                    {t('addFeeding.noAnimals')}
                                 </Text>
                             ) : (
                                 <ScrollView style={styles.animalsList} showsVerticalScrollIndicator={false}>
@@ -240,7 +242,7 @@ export const AddFeedingScreen: React.FC<AddFeedingScreenProps> = ({ navigation }
                                         <View key={animal.id}>
                                             <List.Item
                                                 title={animal.name}
-                                                description={`${animal.species || 'Nieznany gatunek'} • L${animal.stage || '?'}`}
+                                                description={`${animal.species || t('addFeeding.unknownSpecies')} • L${animal.stage || '?'}`}
                                                 left={() =>
                                                     <Checkbox
                                                         status={selectedAnimals.has(animal.id) ? 'checked' : 'unchecked'}
@@ -251,7 +253,7 @@ export const AddFeedingScreen: React.FC<AddFeedingScreenProps> = ({ navigation }
                                                 right={() => animal.feeding?.lastFed ? (
                                                     <View style={styles.lastFeedingContainer}>
                                                         <Text variant="bodySmall" style={styles.lastFeedingText}>
-                                                            Ostatnie karmienie:
+                                                            {t('addFeeding.lastFeeding')}
                                                         </Text>
                                                         <Text variant="bodySmall" style={styles.lastFeedingDate}>
                                                             {new Date(animal.feeding.lastFed).toLocaleDateString('pl-PL')}
@@ -259,7 +261,7 @@ export const AddFeedingScreen: React.FC<AddFeedingScreenProps> = ({ navigation }
                                                     </View>
                                                 ) : (
                                                     <Text variant="bodySmall" style={styles.neverFedText}>
-                                                        Nigdy nie karmione
+                                                        {t('addFeeding.neverFed')}
                                                     </Text>
                                                 )}
                                                 onPress={() => feedingMode === 'select' ? toggleAnimalSelection(animal.id) : null}
@@ -287,7 +289,7 @@ export const AddFeedingScreen: React.FC<AddFeedingScreenProps> = ({ navigation }
                     { backgroundColor: selectedAnimals.size > 0 ? theme.colors.primary : theme.colors.disabled }
                 ]}
                 onPress={handleSave}
-                label="Zapisz karmienie"
+                label={t('addFeeding.saveFeeding')}
                 disabled={selectedAnimals.size === 0 || isSubmitting}
             />
 
@@ -295,7 +297,7 @@ export const AddFeedingScreen: React.FC<AddFeedingScreenProps> = ({ navigation }
             {isSubmitting && (
                 <View style={styles.loadingOverlay}>
                     <ActivityIndicator size="large" color={theme.colors.primary} />
-                    <Text style={styles.loadingOverlayText}>Zapisywanie karmienia...</Text>
+                    <Text style={styles.loadingOverlayText}>{t('addFeeding.savingFeeding')}</Text>
                 </View>
             )}
 

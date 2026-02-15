@@ -11,6 +11,7 @@ import {
     Chip, SegmentedButtons
 } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { useTheme } from "../context/ThemeContext";
@@ -19,6 +20,7 @@ import { Theme } from "../styles/theme";
 import { Animal } from "../types";
 
 export default function QRPrintScreen() {
+    const { t } = useTranslation('scanner');
     const { theme } = useTheme();
     const styles = makeStyles(theme);
     const navigation = useNavigation<any>();
@@ -62,7 +64,7 @@ export default function QRPrintScreen() {
             return `
                 <div class="qr-card">
                     <img src="${qrUrl}" alt="QR Code" class="qr-image" />
-                    <div class="animal-name">${animal.name || 'Bez nazwy'}</div>
+                    <div class="animal-name">${animal.name || t('qrPrint.noName')}</div>
                     <div class="animal-species">${animal.species || ''}</div>
                 </div>
             `;
@@ -74,7 +76,7 @@ export default function QRPrintScreen() {
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Kody QR - ExoLog</title>
+                <title>${t('qrPrint.htmlTitleTag')}</title>
                 <style>
                     * {
                         box-sizing: border-box;
@@ -149,8 +151,8 @@ export default function QRPrintScreen() {
             </head>
             <body>
                 <div class="header">
-                    <h1>🕷️ ExoLog - Kody QR</h1>
-                    <p>Wytnij i naklej na terraria</p>
+                    <h1>${t('qrPrint.htmlTitle')}</h1>
+                    <p>${t('qrPrint.htmlSubtitle')}</p>
                 </div>
                 <div class="qr-grid">
                     ${qrCards}
@@ -162,7 +164,7 @@ export default function QRPrintScreen() {
 
     const handlePrint = async () => {
         if (selectedIds.size === 0) {
-            Alert.alert('Brak wyboru', 'Wybierz przynajmniej jedno zwierzę.');
+            Alert.alert(t('qrPrint.noSelection'), t('qrPrint.noSelectionMessage'));
             return;
         }
 
@@ -178,7 +180,7 @@ export default function QRPrintScreen() {
             });
         } catch (error) {
             console.error('Error printing:', error);
-            Alert.alert('Błąd', 'Nie udało się wydrukować kodów QR.');
+            Alert.alert(t('common:error'), t('qrPrint.printError'));
         } finally {
             setGenerating(false);
         }
@@ -186,7 +188,7 @@ export default function QRPrintScreen() {
 
     const handleSharePdf = async () => {
         if (selectedIds.size === 0) {
-            Alert.alert('Brak wyboru', 'Wybierz przynajmniej jedno zwierzę.');
+            Alert.alert(t('qrPrint.noSelection'), t('qrPrint.noSelectionMessage'));
             return;
         }
 
@@ -204,15 +206,15 @@ export default function QRPrintScreen() {
             if (await Sharing.isAvailableAsync()) {
                 await Sharing.shareAsync(uri, {
                     mimeType: 'application/pdf',
-                    dialogTitle: 'Udostępnij kody QR',
+                    dialogTitle: t('qrPrint.shareTitle'),
                     UTI: 'com.adobe.pdf',
                 });
             } else {
-                Alert.alert('Niedostępne', 'Udostępnianie plików nie jest dostępne na tym urządzeniu.');
+                Alert.alert(t('qrPrint.sharingUnavailable'), t('qrPrint.sharingUnavailableMessage'));
             }
         } catch (error) {
             console.error('Error sharing PDF:', error);
-            Alert.alert('Błąd', 'Nie udało się wygenerować PDF.');
+            Alert.alert(t('common:error'), t('qrPrint.pdfError'));
         } finally {
             setGenerating(false);
         }
@@ -223,7 +225,7 @@ export default function QRPrintScreen() {
             <View style={styles.container}>
                 <Appbar.Header>
                     <Appbar.BackAction onPress={() => navigation.goBack()} />
-                    <Appbar.Content title="Drukuj kody QR" />
+                    <Appbar.Content title={t('qrPrint.title')} />
                 </Appbar.Header>
                 <View style={styles.loadingContainer}>
                     <ActivityIndicator size="large" color={theme.colors.primary} />
@@ -236,7 +238,7 @@ export default function QRPrintScreen() {
         <View style={styles.container}>
             <Appbar.Header>
                 <Appbar.BackAction onPress={() => navigation.goBack()} />
-                <Appbar.Content title="Drukuj kody QR" />
+                <Appbar.Content title={t('qrPrint.title')} />
             </Appbar.Header>
 
             <View style={styles.content}>
@@ -257,8 +259,8 @@ export default function QRPrintScreen() {
                             else if (value === 'none') deselectAll();
                         }}
                         buttons={[
-                            { value: 'all', label: 'Wszystkie', icon: 'checkbox-multiple-marked' },
-                            { value: 'none', label: 'Żadne', icon: 'checkbox-multiple-blank-outline' },
+                            { value: 'all', label: t('qrPrint.selectAll'), icon: 'checkbox-multiple-marked' },
+                            { value: 'none', label: t('qrPrint.selectNone'), icon: 'checkbox-multiple-blank-outline' },
                         ]}
                         style={styles.segmentedButtons}
                     />
@@ -271,7 +273,7 @@ export default function QRPrintScreen() {
                     {animals.map(animal => (
                         <List.Item
                             key={animal.id}
-                            title={animal.name || 'Bez nazwy'}
+                            title={animal.name || t('qrPrint.noName')}
                             description={animal.species}
                             titleStyle={styles.listItemTitle}
                             descriptionStyle={styles.listItemDescription}
@@ -301,7 +303,7 @@ export default function QRPrintScreen() {
                         disabled={generating || selectedIds.size === 0}
                         loading={generating}
                     >
-                        Zapisz PDF
+                        {t('qrPrint.savePdf')}
                     </Button>
                     <Button
                         mode="contained"
@@ -311,7 +313,7 @@ export default function QRPrintScreen() {
                         disabled={generating || selectedIds.size === 0}
                         loading={generating}
                     >
-                        Drukuj
+                        {t('qrPrint.print')}
                     </Button>
                 </View>
             </View>

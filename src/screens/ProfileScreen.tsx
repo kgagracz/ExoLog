@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, ScrollView, StyleSheet, Alert } from 'react-native';
 import { Appbar, Card, Button, Divider, Switch } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../hooks/useAuth';
 import { useUserProfileQuery, useToggleVisibilityMutation } from '../api/social';
@@ -10,6 +11,7 @@ import { Theme } from '../styles/theme';
 import Text from '../components/atoms/Text';
 
 export default function ProfileScreen() {
+    const { t } = useTranslation('profile');
     const { theme, toggleTheme, isDark } = useTheme();
     const styles = makeStyles(theme);
     const navigation = useNavigation();
@@ -25,7 +27,7 @@ export default function ProfileScreen() {
         if (user && profile === null) {
             socialService.createOrUpdateProfile({
                 uid: user.uid,
-                displayName: user.displayName || user.email?.split('@')[0] || 'Użytkownik',
+                displayName: user.displayName || user.email?.split('@')[0] || t('common:user'),
                 email: user.email || '',
                 isPublic: true,
             });
@@ -38,12 +40,12 @@ export default function ProfileScreen() {
 
     const handleLogout = () => {
         Alert.alert(
-            'Wylogowanie',
-            'Czy na pewno chcesz się wylogować?',
+            t('logoutTitle'),
+            t('logoutMessage'),
             [
-                { text: 'Anuluj', style: 'cancel' },
+                { text: t('common:cancel'), style: 'cancel' },
                 {
-                    text: 'Wyloguj',
+                    text: t('logoutButton'),
                     style: 'destructive',
                     onPress: async () => {
                         setLoggingOut(true);
@@ -51,7 +53,7 @@ export default function ProfileScreen() {
                         setLoggingOut(false);
 
                         if (!result.success) {
-                            Alert.alert('Błąd', result.error || 'Nie udało się wylogować');
+                            Alert.alert(t('common:error'), result.error || t('logoutError'));
                         }
                     },
                 },
@@ -67,14 +69,14 @@ export default function ProfileScreen() {
     const getDisplayName = (): string => {
         if (user?.displayName) return user.displayName;
         if (user?.email) return user.email.split('@')[0];
-        return 'Użytkownik';
+        return t('common:user');
     };
 
     return (
         <View style={styles.container}>
             <Appbar.Header>
                 <Appbar.BackAction onPress={() => navigation.goBack()} />
-                <Appbar.Content title="Profil" />
+                <Appbar.Content title={t('title')} />
             </Appbar.Header>
 
             <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
@@ -90,24 +92,24 @@ export default function ProfileScreen() {
                 {/* Informacje o koncie */}
                 <Card style={styles.card}>
                     <Card.Content>
-                        <Text variant="h3" style={styles.sectionTitle}>Informacje o koncie</Text>
+                        <Text variant="h3" style={styles.sectionTitle}>{t('accountInfo')}</Text>
 
                         <View style={styles.infoRow}>
-                            <Text variant="bodySmall">Email</Text>
+                            <Text variant="bodySmall">{t('email')}</Text>
                             <Text variant="body">{user?.email || '—'}</Text>
                         </View>
 
                         <Divider style={styles.divider} />
 
                         <View style={styles.infoRow}>
-                            <Text variant="bodySmall">Nazwa wyświetlana</Text>
+                            <Text variant="bodySmall">{t('displayName')}</Text>
                             <Text variant="body">{user?.displayName || '—'}</Text>
                         </View>
 
                         <Divider style={styles.divider} />
 
                         <View style={styles.infoRow}>
-                            <Text variant="bodySmall">ID użytkownika</Text>
+                            <Text variant="bodySmall">{t('userId')}</Text>
                             <Text variant="caption" numberOfLines={1}>{user?.uid || '—'}</Text>
                         </View>
                     </Card.Content>
@@ -117,7 +119,7 @@ export default function ProfileScreen() {
                 <Card style={styles.card}>
                     <Card.Content>
                         <View style={styles.infoRow}>
-                            <Text variant="body">Ciemny motyw</Text>
+                            <Text variant="body">{t('darkTheme')}</Text>
                             <Switch
                                 value={isDark}
                                 onValueChange={toggleTheme}
@@ -131,13 +133,13 @@ export default function ProfileScreen() {
                 {profile && (
                     <Card style={styles.card}>
                         <Card.Content>
-                            <Text variant="h3" style={styles.sectionTitle}>Prywatność</Text>
+                            <Text variant="h3" style={styles.sectionTitle}>{t('privacy')}</Text>
 
                             <View style={styles.infoRow}>
                                 <View style={{ flex: 1 }}>
-                                    <Text variant="body">Profil publiczny</Text>
+                                    <Text variant="body">{t('publicProfile')}</Text>
                                     <Text variant="caption" style={{ color: theme.colors.textSecondary }}>
-                                        Inni użytkownicy mogą Cię wyszukać i zobaczyć Twoje zwierzęta
+                                        {t('publicProfileDescription')}
                                     </Text>
                                 </View>
                                 <Switch
@@ -162,7 +164,7 @@ export default function ProfileScreen() {
                         style={styles.logoutButton}
                         icon="logout"
                     >
-                        Wyloguj się
+                        {t('logout')}
                     </Button>
                 </View>
             </ScrollView>

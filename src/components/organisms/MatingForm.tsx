@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { Text, Card, RadioButton, HelperText } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from "../../context/ThemeContext";
 import FormInput from "../atoms/FormInput";
 import FormSelect from "../atoms/FormSelect";
@@ -30,10 +31,11 @@ export default function MatingForm({
                                        errors,
                                    }: MatingFormProps) {
     const { theme } = useTheme();
+    const { t } = useTranslation('forms');
     const styles = makeStyles(theme);
 
     const isMale = currentAnimal.sex === 'male';
-    const partnerLabel = isMale ? 'Wybierz samicę' : 'Wybierz samca';
+    const partnerLabel = isMale ? t('mating.selectFemale') : t('mating.selectMale');
 
     const [formData, setFormData] = useState<MatingFormData>({
         date: new Date().toISOString().split('T')[0],
@@ -54,15 +56,15 @@ export default function MatingForm({
     };
 
     const partnerOptions = availablePartners.map(animal => ({
-        label: animal.name || animal.species || 'Bez nazwy',
+        label: animal.name || animal.species || t('common:noName'),
         value: animal.id,
     }));
 
     const resultOptions = [
-        { label: 'W trakcie', value: 'in_progress' },
-        { label: 'Sukces', value: 'success' },
-        { label: 'Porażka', value: 'failure' },
-        { label: 'Nieznany', value: 'unknown' },
+        { label: t('mating.resultInProgress'), value: 'in_progress' },
+        { label: t('mating.resultSuccess'), value: 'success' },
+        { label: t('mating.resultFailure'), value: 'failure' },
+        { label: t('mating.resultUnknown'), value: 'unknown' },
     ];
 
     return (
@@ -71,11 +73,11 @@ export default function MatingForm({
             <Card style={styles.section}>
                 <Card.Content>
                     <Text variant="titleMedium" style={styles.sectionTitle}>
-                        💕 Informacje o kopulacji
+                        {t('mating.infoSection')}
                     </Text>
 
                     <FormInput
-                        label="Data kopulacji"
+                        label={t('mating.dateLabel')}
                         value={formData.date}
                         onChangeText={(value) => updateField('date', value)}
                         error={errors.date}
@@ -85,7 +87,7 @@ export default function MatingForm({
 
                     <View style={styles.currentAnimalInfo}>
                         <Text variant="bodySmall" style={styles.label}>
-                            {isMale ? 'Samiec' : 'Samica'} (aktualnie przeglądany)
+                            {isMale ? t('mating.currentMale') : t('mating.currentFemale')}
                         </Text>
                         <Text variant="bodyLarge" style={styles.animalName}>
                             {currentAnimal.name || currentAnimal.species}
@@ -104,10 +106,10 @@ export default function MatingForm({
                     ) : (
                         <View style={styles.noPartnersContainer}>
                             <Text variant="bodyMedium" style={styles.noPartnersText}>
-                                ⚠️ Brak dostępnych {isMale ? 'samic' : 'samców'} w kolekcji
+                                {isMale ? t('mating.noPartnersFemale') : t('mating.noPartnersMale')}
                             </Text>
                             <HelperText type="info">
-                                Dodaj {isMale ? 'samicę' : 'samca'} tego samego gatunku, aby móc zarejestrować kopulację
+                                {isMale ? t('mating.addPartnerFemale') : t('mating.addPartnerMale')}
                             </HelperText>
                         </View>
                     )}
@@ -118,7 +120,7 @@ export default function MatingForm({
             <Card style={styles.section}>
                 <Card.Content>
                     <Text variant="titleMedium" style={styles.sectionTitle}>
-                        📊 Wynik
+                        {t('mating.resultSection')}
                     </Text>
 
                     <RadioButton.Group

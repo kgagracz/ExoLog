@@ -4,6 +4,7 @@ import { Appbar, Badge, Card, Divider } from 'react-native-paper';
 // @ts-ignore
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../hooks/useAuth';
@@ -17,6 +18,7 @@ export default function CommunityScreen() {
     const styles = makeStyles(theme);
     const navigation = useNavigation<any>();
     const { user } = useAuth();
+    const { t } = useTranslation('social');
 
     const tabBarHeight = useBottomTabBarHeight();
     const { data: friends = [], isLoading: friendsLoading } = useFriendsQuery();
@@ -27,7 +29,7 @@ export default function CommunityScreen() {
     return (
         <View style={styles.container}>
             <Appbar.Header style={{ backgroundColor: theme.colors.surface }}>
-                <Appbar.Content title="Społeczność" />
+                <Appbar.Content title={t('community.title')} />
             </Appbar.Header>
 
             <View style={[styles.content, { paddingBottom: tabBarHeight }]}>
@@ -38,7 +40,7 @@ export default function CommunityScreen() {
                     activeOpacity={0.7}
                 >
                     <MaterialCommunityIcons name="magnify" size={20} color={theme.colors.textSecondary} />
-                    <Text variant="body" style={styles.searchPlaceholder}>Szukaj użytkowników...</Text>
+                    <Text variant="body" style={styles.searchPlaceholder}>{t('community.searchPlaceholder')}</Text>
                 </TouchableOpacity>
 
                 {/* Friend requests section */}
@@ -48,7 +50,7 @@ export default function CommunityScreen() {
                     activeOpacity={0.7}
                 >
                     <MaterialCommunityIcons name="account-clock" size={24} color={theme.colors.primary} />
-                    <Text variant="body" style={styles.requestsText}>Zaproszenia do znajomych</Text>
+                    <Text variant="body" style={styles.requestsText}>{t('community.friendRequests')}</Text>
                     {pendingCount > 0 && (
                         <Badge style={styles.badge}>{pendingCount}</Badge>
                     )}
@@ -59,15 +61,15 @@ export default function CommunityScreen() {
 
                 {/* Friends list */}
                 <Text variant="h3" style={styles.sectionTitle}>
-                    Znajomi ({friends.length})
+                    {t('community.friendsCount', { count: friends.length })}
                 </Text>
 
                 {friends.length === 0 && !friendsLoading ? (
                     <View style={styles.emptyState}>
                         <MaterialCommunityIcons name="account-group-outline" size={64} color={theme.colors.textLight} />
-                        <Text variant="body" style={styles.emptyText}>Nie masz jeszcze znajomych</Text>
+                        <Text variant="body" style={styles.emptyText}>{t('community.noFriends')}</Text>
                         <Text variant="caption" style={styles.emptyHint}>
-                            Wyszukaj użytkowników i wyślij zaproszenie
+                            {t('community.noFriendsHint')}
                         </Text>
                     </View>
                 ) : (
@@ -80,7 +82,7 @@ export default function CommunityScreen() {
 
                             return (
                                 <UserListItem
-                                    displayName={friendData?.displayName || 'Użytkownik'}
+                                    displayName={friendData?.displayName || t('common:user')}
                                     onPress={() => navigation.navigate('UserProfile', { userId: friendId })}
                                 />
                             );

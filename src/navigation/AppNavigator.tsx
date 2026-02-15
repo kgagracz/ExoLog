@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { ActivityIndicator, Text } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 
 import AuthNavigator from './AuthNavigator';
 import {useAuth} from "../hooks";
@@ -14,6 +15,7 @@ const Stack = createNativeStackNavigator();
 export default function AppNavigator() {
     const { user, loading } = useAuth();
     const {theme} = useTheme();
+    const {t} = useTranslation('navigation');
     const styles = createStyles(theme)
 
     // Pokaż loading screen podczas sprawdzania stanu uwierzytelnienia
@@ -21,7 +23,7 @@ export default function AppNavigator() {
         return (
             <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color={theme.colors.primary} />
-                <Text style={styles.loadingText}>Ładowanie ExoLog...</Text>
+                <Text style={styles.loadingText}>{t('loading')}</Text>
             </View>
         );
     }

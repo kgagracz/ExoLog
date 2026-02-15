@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, RefreshControl } from 'react-native';
 import { Text, Appbar, Card, Chip, ActivityIndicator } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from "../../context/ThemeContext";
 import { useAnimalsQuery } from "../../api/animals";
 import { useUpcomingHatchesQuery } from "../../api/events";
@@ -11,6 +12,7 @@ import { Animal } from "../../types";
 
 export default function CocoonsListScreen() {
     const { theme } = useTheme();
+    const { t } = useTranslation('cocoons');
     const styles = makeStyles(theme);
     const navigation = useNavigation<any>();
 
@@ -53,7 +55,7 @@ export default function CocoonsListScreen() {
                     style={styles.warningChip}
                     textStyle={styles.warningChipText}
                 >
-                    Termin minął!
+                    {t('list.deadlinePassed')}
                 </Chip>
             );
         }
@@ -65,7 +67,7 @@ export default function CocoonsListScreen() {
                     style={styles.urgentChip}
                     textStyle={styles.urgentChipText}
                 >
-                    {daysUntil} dni do wylęgu
+                    {t('list.daysUntilHatch', { days: daysUntil })}
                 </Chip>
             );
         }
@@ -77,7 +79,7 @@ export default function CocoonsListScreen() {
                     style={styles.incubatingChip}
                     textStyle={styles.incubatingChipText}
                 >
-                    Inkubacja
+                    {t('list.incubating')}
                 </Chip>
             );
         }
@@ -88,7 +90,7 @@ export default function CocoonsListScreen() {
                 style={styles.laidChip}
                 textStyle={styles.laidChipText}
             >
-                Złożony
+                {t('list.laid')}
             </Chip>
         );
     };
@@ -101,11 +103,11 @@ export default function CocoonsListScreen() {
         return (
             <View style={styles.container}>
                 <Appbar.Header>
-                    <Appbar.Content title="🥚 Kokony" />
+                    <Appbar.Content title={t('list.title')} />
                 </Appbar.Header>
                 <View style={styles.loadingContainer}>
                     <ActivityIndicator size="large" color={theme.colors.primary} />
-                    <Text style={styles.loadingText}>Ładowanie kokonów...</Text>
+                    <Text style={styles.loadingText}>{t('list.loading')}</Text>
                 </View>
             </View>
         );
@@ -114,7 +116,7 @@ export default function CocoonsListScreen() {
     return (
         <View style={styles.container}>
             <Appbar.Header>
-                <Appbar.Content title="🥚 Kokony" />
+                <Appbar.Content title={t('list.title')} />
             </Appbar.Header>
 
             <ScrollView
@@ -127,10 +129,10 @@ export default function CocoonsListScreen() {
                     <View style={styles.emptyContainer}>
                         <Text variant="headlineMedium" style={styles.emptyIcon}>🥚</Text>
                         <Text variant="titleMedium" style={styles.emptyTitle}>
-                            Brak aktywnych kokonów
+                            {t('list.emptyTitle')}
                         </Text>
                         <Text variant="bodyMedium" style={styles.emptyDescription}>
-                            Gdy samica złoży kokon, pojawi się tutaj
+                            {t('list.emptyDescription')}
                         </Text>
                     </View>
                 ) : (
@@ -149,7 +151,7 @@ export default function CocoonsListScreen() {
                                     <View style={styles.cardHeader}>
                                         <View style={styles.cardTitleContainer}>
                                             <Text variant="titleMedium" style={styles.animalName}>
-                                                {animal?.name || 'Nieznana samica'}
+                                                {animal?.name || t('list.unknownFemale')}
                                             </Text>
                                             <Text variant="bodySmall" style={styles.speciesName}>
                                                 {animal?.species || ''}
@@ -161,24 +163,24 @@ export default function CocoonsListScreen() {
                                     <View style={styles.cardDetails}>
                                         <View style={styles.detailRow}>
                                             <Text variant="bodySmall" style={styles.detailLabel}>
-                                                📅 Złożony:
+                                                {t('list.laidDate')}
                                             </Text>
                                             <Text variant="bodyMedium" style={styles.detailValue}>
-                                                {new Date(cocoon.date).toLocaleDateString('pl-PL')} ({daysSinceLaid} dni temu)
+                                                {new Date(cocoon.date).toLocaleDateString('pl-PL')} {t('list.daysAgo', { days: daysSinceLaid })}
                                             </Text>
                                         </View>
 
                                         {cocoon.eventData?.estimatedHatchDate && (
                                             <View style={styles.detailRow}>
                                                 <Text variant="bodySmall" style={styles.detailLabel}>
-                                                    🐣 Przewidywany wylęg:
+                                                    {t('list.expectedHatch')}
                                                 </Text>
                                                 <Text variant="bodyMedium" style={[
                                                     styles.detailValue,
                                                     daysUntil !== null && daysUntil <= 7 && styles.urgentText
                                                 ]}>
                                                     {new Date(cocoon.eventData.estimatedHatchDate).toLocaleDateString('pl-PL')}
-                                                    {daysUntil !== null && daysUntil > 0 && ` (za ${daysUntil} dni)`}
+                                                    {daysUntil !== null && daysUntil > 0 && ` ${t('list.inDays', { days: daysUntil })}`}
                                                 </Text>
                                             </View>
                                         )}

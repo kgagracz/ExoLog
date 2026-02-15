@@ -4,6 +4,7 @@ import { Appbar, Card, Button, Divider } from 'react-native-paper';
 // @ts-ignore
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../hooks/useAuth';
@@ -29,6 +30,7 @@ export default function UserProfileScreen() {
     const navigation = useNavigation();
     const route = useRoute<RouteProp<RouteParams, 'UserProfile'>>();
     const { user } = useAuth();
+    const { t } = useTranslation('social');
 
     const tabBarHeight = useBottomTabBarHeight();
     const { userId } = route.params;
@@ -55,12 +57,12 @@ export default function UserProfileScreen() {
             });
         } else if (friendshipStatus === 'friends') {
             Alert.alert(
-                'Usuń znajomego',
-                `Czy na pewno chcesz usunąć ${profile.displayName} ze znajomych?`,
+                t('userProfile.removeFriendTitle'),
+                t('userProfile.removeFriendMessage', { name: profile.displayName }),
                 [
-                    { text: 'Anuluj', style: 'cancel' },
+                    { text: t('common:cancel'), style: 'cancel' },
                     {
-                        text: 'Usuń',
+                        text: t('common:delete'),
                         style: 'destructive',
                         onPress: () => {
                             const friendship = friends.find(
@@ -80,18 +82,18 @@ export default function UserProfileScreen() {
         switch (friendshipStatus) {
             case 'none':
                 return {
-                    label: 'Wyślij zaproszenie',
+                    label: t('userProfile.sendRequest'),
                     icon: 'account-plus',
                     mode: 'contained' as const,
                     loading: sendRequest.isPending,
                 };
             case 'pending_sent':
-                return { label: 'Zaproszenie wysłane', icon: 'clock-outline', mode: 'outlined' as const, disabled: true };
+                return { label: t('userProfile.requestSent'), icon: 'clock-outline', mode: 'outlined' as const, disabled: true };
             case 'pending_received':
-                return { label: 'Oczekuje na odpowiedź', icon: 'account-clock', mode: 'outlined' as const, disabled: true };
+                return { label: t('userProfile.awaitingResponse'), icon: 'account-clock', mode: 'outlined' as const, disabled: true };
             case 'friends':
                 return {
-                    label: 'Usuń znajomego',
+                    label: t('userProfile.removeFriend'),
                     icon: 'account-remove',
                     mode: 'outlined' as const,
                     loading: removeFriend.isPending,
@@ -108,10 +110,10 @@ export default function UserProfileScreen() {
             <View style={styles.container}>
                 <Appbar.Header style={{ backgroundColor: theme.colors.surface }}>
                     <Appbar.BackAction onPress={() => navigation.goBack()} />
-                    <Appbar.Content title="Profil" />
+                    <Appbar.Content title={t('userProfile.title')} />
                 </Appbar.Header>
                 <View style={styles.loading}>
-                    <Text variant="body" style={styles.loadingText}>Ładowanie...</Text>
+                    <Text variant="body" style={styles.loadingText}>{t('userProfile.loading')}</Text>
                 </View>
             </View>
         );
@@ -122,10 +124,10 @@ export default function UserProfileScreen() {
             <View style={styles.container}>
                 <Appbar.Header style={{ backgroundColor: theme.colors.surface }}>
                     <Appbar.BackAction onPress={() => navigation.goBack()} />
-                    <Appbar.Content title="Profil" />
+                    <Appbar.Content title={t('userProfile.title')} />
                 </Appbar.Header>
                 <View style={styles.loading}>
-                    <Text variant="body" style={styles.loadingText}>Nie znaleziono profilu</Text>
+                    <Text variant="body" style={styles.loadingText}>{t('userProfile.notFound')}</Text>
                 </View>
             </View>
         );
@@ -158,7 +160,7 @@ export default function UserProfileScreen() {
                         <Card.Content style={styles.statsContent}>
                             <View style={styles.statItem}>
                                 <Text variant="h3" style={styles.statValue}>{profile.stats.totalAnimals}</Text>
-                                <Text variant="caption" style={styles.statLabel}>Zwierzęta</Text>
+                                <Text variant="caption" style={styles.statLabel}>{t('userProfile.statsAnimals')}</Text>
                             </View>
                             <View style={styles.statItem}>
                                 <Text variant="h3" style={styles.statValue}>
@@ -167,7 +169,7 @@ export default function UserProfileScreen() {
                                         year: 'numeric',
                                     })}
                                 </Text>
-                                <Text variant="caption" style={styles.statLabel}>Dołączył(a)</Text>
+                                <Text variant="caption" style={styles.statLabel}>{t('userProfile.statsJoined')}</Text>
                             </View>
                         </Card.Content>
                     </Card>
@@ -192,11 +194,11 @@ export default function UserProfileScreen() {
                     {canViewAnimals ? (
                         <>
                             <Text variant="h3" style={styles.sectionTitle}>
-                                Zwierzęta ({profile.stats.totalAnimals})
+                                {t('userProfile.animalsSection', { count: profile.stats.totalAnimals })}
                             </Text>
                             {animals.length === 0 ? (
                                 <View style={styles.emptyAnimals}>
-                                    <Text variant="body" style={styles.emptyText}>Brak zwierząt do wyświetlenia</Text>
+                                    <Text variant="body" style={styles.emptyText}>{t('userProfile.noAnimals')}</Text>
                                 </View>
                             ) : (
                                 <>
@@ -217,7 +219,7 @@ export default function UserProfileScreen() {
                                         onPress={() => navigation.navigate('UserAnimals' as any, { userId, displayName: profile.displayName })}
                                         style={styles.showBreedingButton}
                                     >
-                                        Pokaż hodowle ({profile.stats.totalAnimals})
+                                        {t('userProfile.showBreeding', { count: profile.stats.totalAnimals })}
                                     </Button>
                                 </>
                             )}
@@ -226,7 +228,7 @@ export default function UserProfileScreen() {
                         <View style={styles.privateNotice}>
                             <MaterialCommunityIcons name="lock-outline" size={24} color={theme.colors.textSecondary} />
                             <Text variant="body" style={styles.privateText}>
-                                Profil prywatny — dodaj do znajomych, aby zobaczyć zwierzęta
+                                {t('userProfile.privateProfile')}
                             </Text>
                         </View>
                     )}

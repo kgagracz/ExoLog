@@ -17,8 +17,10 @@ import { useAnimalQuery } from "../../api/animals";
 import { useDeleteAnimalMutation, useMarkDeceasedMutation } from "../../api/animals";
 import { useFeedingHistoryQuery } from "../../api/feeding";
 import { useMoltingHistoryQuery, useMatingHistoryQuery, useCocoonHistoryQuery } from "../../api/events";
+import { useTranslation } from 'react-i18next';
 
 export default function AnimalDetailsScreen() {
+    const { t } = useTranslation('animals');
     const navigation = useNavigation<any>();
     const route = useRoute<any>();
     const { animalId } = route.params;
@@ -64,12 +66,12 @@ export default function AnimalDetailsScreen() {
 
     const handleDelete = () => {
         Alert.alert(
-            'Usuń zwierzę',
-            `Czy na pewno chcesz trwale usunąć ${animal?.name}?\n\nTa operacja jest nieodwracalna i usunie także całą historię karmienia.`,
+            t('details.deleteTitle'),
+            t('details.deleteMessage', { name: animal?.name }),
             [
-                { text: 'Anuluj', style: 'cancel' },
+                { text: t('common:cancel'), style: 'cancel' },
                 {
-                    text: 'Usuń',
+                    text: t('common:delete'),
                     style: 'destructive',
                     onPress: async () => {
                         await deleteAnimalMutation.mutateAsync(animalId);
@@ -82,23 +84,23 @@ export default function AnimalDetailsScreen() {
 
     const handleMarkDeceased = () => {
         Alert.alert(
-            '💀 Oznacz zgon',
-            `Czy na pewno chcesz oznaczyć ${animal?.name} jako martwe?\n\nZwierzę zostanie usunięte z listy, ale jego dane zostaną zachowane w historii.`,
+            t('details.deceasedTitle'),
+            t('details.deceasedMessage', { name: animal?.name }),
             [
-                { text: 'Anuluj', style: 'cancel' },
+                { text: t('common:cancel'), style: 'cancel' },
                 {
-                    text: 'Oznacz zgon',
+                    text: t('details.markDeceased'),
                     style: 'destructive',
                     onPress: async () => {
                         try {
                             await markDeceasedMutation.mutateAsync({ animalId });
                             Alert.alert(
-                                'Zapisano',
-                                `${animal?.name} został oznaczony jako martwy.`,
+                                t('details.deceasedSaved'),
+                                t('details.deceasedSavedMessage', { name: animal?.name }),
                                 [{ text: 'OK', onPress: () => navigation.navigate('AnimalsList') }]
                             );
                         } catch (err: any) {
-                            Alert.alert('Błąd', err.message || 'Nie udało się zapisać zmian.');
+                            Alert.alert(t('common:error'), err.message || t('details.deceasedError'));
                         }
                     }
                 }
@@ -126,8 +128,8 @@ export default function AnimalDetailsScreen() {
         setFabOpen(false);
         if (animal?.sex === 'unknown') {
             Alert.alert(
-                'Nieznana płeć',
-                'Aby dodać kopulację, zwierzę musi mieć określoną płeć (samiec lub samica).'
+                t('details.unknownSexTitle'),
+                t('details.unknownSexMessage')
             );
             return;
         }
@@ -138,8 +140,8 @@ export default function AnimalDetailsScreen() {
         setFabOpen(false);
         if (animal?.sex !== 'female') {
             Alert.alert(
-                'Tylko samice',
-                'Tylko samice mogą składać kokony.'
+                t('details.onlyFemalesTitle'),
+                t('details.onlyFemalesMessage')
             );
             return;
         }
@@ -150,7 +152,7 @@ export default function AnimalDetailsScreen() {
         setFabOpen(false);
         navigation.navigate('AnimalPhotos', {
             animalId,
-            animalName: animal?.name || 'Zwierzę'
+            animalName: animal?.name || t('details.animalFallback')
         });
     };
 
@@ -163,7 +165,7 @@ export default function AnimalDetailsScreen() {
         return (
             <View style={[styles.container, styles.centerContent]}>
                 <AnimalDetailsHeader
-                    animalName="Szczegóły zwierzęcia"
+                    animalName={t('details.title')}
                     menuVisible={false}
                     onMenuToggle={() => {}}
                     onGoBack={() => navigation.goBack()}
@@ -174,7 +176,7 @@ export default function AnimalDetailsScreen() {
 
                 />
                 <ActivityIndicator size="large" />
-                <Text style={styles.loadingText}>Ładowanie szczegółów...</Text>
+                <Text style={styles.loadingText}>{t('details.loading')}</Text>
             </View>
         );
     }
@@ -185,7 +187,7 @@ export default function AnimalDetailsScreen() {
         return (
             <View style={[styles.container, styles.centerContent]}>
                 <AnimalDetailsHeader
-                    animalName="Szczegóły zwierzęcia"
+                    animalName={t('details.title')}
                     menuVisible={false}
                     onMenuToggle={() => {}}
                     onGoBack={() => navigation.goBack()}
@@ -194,7 +196,7 @@ export default function AnimalDetailsScreen() {
                     onShowHistory={() => {}}
                     onDelete={() => {}}
                 />
-                <Text>Nie znaleziono zwierzęcia</Text>
+                <Text>{t('details.notFound')}</Text>
             </View>
         );
     }
@@ -225,13 +227,13 @@ export default function AnimalDetailsScreen() {
                 />
 
                 {/* Pomiary i wiek */}
-                <SectionCard title="Pomiary" icon="📏">
+                <SectionCard title={t('details.measurements')} icon="📏">
                     <MeasurementsSection animal={animal} />
                 </SectionCard>
 
                 {/* Karmienie */}
                 <SectionCard
-                    title="Karmienie"
+                    title={t('details.feeding')}
                     icon="🦗"
                     rightAction={{
                         icon: 'history',
@@ -247,7 +249,7 @@ export default function AnimalDetailsScreen() {
 
                 {/* Historia wyliniek */}
                 <SectionCard
-                    title="Historia wyliniek"
+                    title={t('details.moltingHistory')}
                     icon="🔄"
                     rightAction={isOwner ? {
                         icon: 'plus',
@@ -263,7 +265,7 @@ export default function AnimalDetailsScreen() {
                         ))
                     ) : (
                         <Text variant="bodyMedium" style={styles.emptyText}>
-                            Brak historii wyliniek
+                            {t('details.noMoltingHistory')}
                         </Text>
                     )}
                 </SectionCard>
@@ -277,7 +279,7 @@ export default function AnimalDetailsScreen() {
 
                 {/* Notatki */}
                 {animal.notes && (
-                    <SectionCard title="Notatki" icon="📝">
+                    <SectionCard title={t('common:notes')} icon="📝">
                         <Text variant="bodyMedium" style={styles.notesText}>
                             {animal.notes}
                         </Text>
@@ -312,35 +314,35 @@ export default function AnimalDetailsScreen() {
                 actions={[
                     {
                         icon: 'food-apple',
-                        label: 'Karmienie',
+                        label: t('details.fabFeeding'),
                         onPress: handleAddFeeding,
                         color: theme.colors.events.feeding.color,
                         style: { backgroundColor: theme.colors.events.feeding.background },
                     },
                     {
                         icon: 'sync',
-                        label: 'Wylinka',
+                        label: t('details.fabMolting'),
                         onPress: handleAddMolting,
                         color: theme.colors.events.molting.color,
                         style: { backgroundColor: theme.colors.events.molting.background },
                     },
                     {
                         icon: 'heart',
-                        label: 'Kopulacja',
+                        label: t('details.fabMating'),
                         onPress: handleAddMating,
                         color: theme.colors.events.mating.color,
                         style: { backgroundColor: theme.colors.events.mating.background },
                     },
                     {
                         icon: 'egg',
-                        label: 'Kokon',
+                        label: t('details.fabCocoon'),
                         onPress: handleAddCocoon,
                         color: theme.colors.events.cocoon.color,
                         style: { backgroundColor: theme.colors.events.cocoon.background },
                     },
                     {
                         icon: 'camera',
-                        label: 'Zdjęcie',
+                        label: t('details.fabPhoto'),
                         onPress: handlePhotos,
                         color: theme.colors.events.photo.color,
                         style: { backgroundColor: theme.colors.events.photo.background },

@@ -4,6 +4,7 @@ import { Text, TextInput, Button, Card, Checkbox } from 'react-native-paper';
 import {useAuth} from "../../hooks";
 import {useTheme} from "../../context/ThemeContext";
 import {Theme} from "../../styles/theme";
+import { useTranslation } from 'react-i18next';
 
 interface RegisterScreenProps {
     navigation: any;
@@ -19,31 +20,32 @@ export default function RegisterScreen({ navigation }: RegisterScreenProps) {
     const [loading, setLoading] = useState(false);
     const { signUp } = useAuth();
     const {theme} = useTheme();
+    const { t } = useTranslation('auth');
     const styles = createStyles(theme)
 
     const validateForm = () => {
         if (!email || !password || !confirmPassword || !displayName) {
-            Alert.alert('Błąd', 'Wypełnij wszystkie pola');
+            Alert.alert(t('common:error'), t('common:fillAllFields'));
             return false;
         }
 
         if (!email.includes('@')) {
-            Alert.alert('Błąd', 'Podaj prawidłowy adres email');
+            Alert.alert(t('common:error'), t('common:invalidEmail'));
             return false;
         }
 
         if (password.length < 6) {
-            Alert.alert('Błąd', 'Hasło musi mieć co najmniej 6 znaków');
+            Alert.alert(t('common:error'), t('register.passwordTooShort'));
             return false;
         }
 
         if (password !== confirmPassword) {
-            Alert.alert('Błąd', 'Hasła nie są identyczne');
+            Alert.alert(t('common:error'), t('register.passwordsNotMatch'));
             return false;
         }
 
         if (!acceptTerms) {
-            Alert.alert('Błąd', 'Musisz zaakceptować regulamin');
+            Alert.alert(t('common:error'), t('register.mustAcceptTerms'));
             return false;
         }
 
@@ -59,12 +61,12 @@ export default function RegisterScreen({ navigation }: RegisterScreenProps) {
 
             if (result.success) {
                 Alert.alert(
-                    'Sukces',
-                    'Konto zostało utworzone! Możesz się teraz zalogować.',
+                    t('register.successTitle'),
+                    t('register.successMessage'),
                     [{ text: 'OK', onPress: () => navigation.navigate('Login') }]
                 );
             } else {
-                Alert.alert('Błąd rejestracji', result.error || 'Nieznany błąd');
+                Alert.alert(t('register.errorTitle'), result.error || t('common:unknownError'));
             }
         } finally {
             setLoading(false);
@@ -86,17 +88,17 @@ export default function RegisterScreen({ navigation }: RegisterScreenProps) {
             >
                 <View style={styles.header}>
                     <Text variant="displaySmall" style={styles.title}>
-                        Rejestracja
+                        {t('register.title')}
                     </Text>
                     <Text variant="bodyLarge" style={styles.subtitle}>
-                        Stwórz swoje konto w ExoLog
+                        {t('register.subtitle')}
                     </Text>
                 </View>
 
                 <Card style={styles.card}>
                     <Card.Content>
                         <TextInput
-                            label="Nazwa użytkownika"
+                            label={t('register.displayNameLabel')}
                             value={displayName}
                             onChangeText={setDisplayName}
                             mode="outlined"
@@ -118,7 +120,7 @@ export default function RegisterScreen({ navigation }: RegisterScreenProps) {
                         />
 
                         <TextInput
-                            label="Hasło"
+                            label={t('register.passwordLabel')}
                             value={password}
                             onChangeText={setPassword}
                             mode="outlined"
@@ -134,7 +136,7 @@ export default function RegisterScreen({ navigation }: RegisterScreenProps) {
                         />
 
                         <TextInput
-                            label="Powtórz hasło"
+                            label={t('register.confirmPasswordLabel')}
                             value={confirmPassword}
                             onChangeText={setConfirmPassword}
                             mode="outlined"
@@ -150,7 +152,7 @@ export default function RegisterScreen({ navigation }: RegisterScreenProps) {
                                 disabled={loading}
                             />
                             <Text variant="bodyMedium" style={styles.checkboxText}>
-                                Akceptuję regulamin i politykę prywatności
+                                {t('register.acceptTerms')}
                             </Text>
                         </View>
 
@@ -161,21 +163,21 @@ export default function RegisterScreen({ navigation }: RegisterScreenProps) {
                             disabled={loading}
                             style={styles.registerButton}
                         >
-                            {loading ? 'Tworzenie konta...' : 'Zarejestruj się'}
+                            {loading ? t('register.registering') : t('register.registerButton')}
                         </Button>
                     </Card.Content>
                 </Card>
 
                 <View style={styles.footer}>
                     <Text variant="bodyMedium" style={styles.footerText}>
-                        Masz już konto?
+                        {t('register.hasAccount')}
                     </Text>
                     <Button
                         mode="text"
                         onPress={handleBackToLogin}
                         disabled={loading}
                     >
-                        Zaloguj się
+                        {t('register.loginLink')}
                     </Button>
                 </View>
             </ScrollView>

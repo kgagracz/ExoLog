@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
 import { Text, Button, ActivityIndicator } from 'react-native-paper';
 import { CameraView, useCameraPermissions } from 'expo-camera';
+import { useTranslation } from 'react-i18next';
 import {Theme} from "../styles/theme";
 import {useNavigation} from "@react-navigation/native";
 import { animalsService } from "../services/firebase";
 import {useTheme} from "../context/ThemeContext";
 
 export default function QRScannerScreen() {
+    const { t } = useTranslation('scanner');
     const { theme } = useTheme();
     const styles = makeStyles(theme);
     const navigation = useNavigation<any>();
@@ -37,24 +39,24 @@ export default function QRScannerScreen() {
                     });
                 } else {
                     Alert.alert(
-                        'Nie znaleziono',
-                        'Zwierzę o tym kodzie nie istnieje w Twojej kolekcji.',
-                        [{ text: 'OK', onPress: () => setScanned(false) }]
+                        t('qrScanner.notFoundTitle'),
+                        t('qrScanner.notFoundMessage'),
+                        [{ text: t('common:ok'), onPress: () => setScanned(false) }]
                     );
                 }
             } else {
                 Alert.alert(
-                    'Nieznany kod',
-                    'Ten kod QR nie jest kodem ExoLog.',
-                    [{ text: 'OK', onPress: () => setScanned(false) }]
+                    t('qrScanner.unknownCodeTitle'),
+                    t('qrScanner.unknownCodeMessage'),
+                    [{ text: t('common:ok'), onPress: () => setScanned(false) }]
                 );
             }
         } catch (error) {
             console.error('Error processing QR code:', error);
             Alert.alert(
-                'Błąd',
-                'Nie udało się przetworzyć kodu QR.',
-                [{ text: 'OK', onPress: () => setScanned(false) }]
+                t('common:error'),
+                t('qrScanner.errorMessage'),
+                [{ text: t('common:ok'), onPress: () => setScanned(false) }]
             );
         } finally {
             setProcessing(false);
@@ -74,17 +76,17 @@ export default function QRScannerScreen() {
             <View style={styles.container}>
                 <View style={styles.permissionContainer}>
                     <Text variant="headlineSmall" style={styles.title}>
-                        📷 Wymagany dostęp do kamery
+                        {t('qrScanner.permissionTitle')}
                     </Text>
                     <Text variant="bodyMedium" style={styles.description}>
-                        Aby skanować kody QR, aplikacja potrzebuje dostępu do kamery.
+                        {t('qrScanner.permissionDescription')}
                     </Text>
                     <Button
                         mode="contained"
                         onPress={requestPermission}
                         style={styles.button}
                     >
-                        Udziel dostępu
+                        {t('qrScanner.grantAccess')}
                     </Button>
                 </View>
             </View>
@@ -104,10 +106,10 @@ export default function QRScannerScreen() {
                 <View style={styles.overlay}>
                     <View style={styles.header}>
                         <Text variant="titleLarge" style={styles.headerText}>
-                            Skanuj kod QR
+                            {t('qrScanner.title')}
                         </Text>
                         <Text variant="bodyMedium" style={styles.headerSubtext}>
-                            Skieruj kamerę na kod QR na terrarium
+                            {t('qrScanner.subtitle')}
                         </Text>
                     </View>
 
@@ -121,7 +123,7 @@ export default function QRScannerScreen() {
                     {processing && (
                         <View style={styles.processingContainer}>
                             <ActivityIndicator size="large" color="#fff" />
-                            <Text style={styles.processingText}>Sprawdzanie...</Text>
+                            <Text style={styles.processingText}>{t('qrScanner.processing')}</Text>
                         </View>
                     )}
 
@@ -131,7 +133,7 @@ export default function QRScannerScreen() {
                             onPress={() => setScanned(false)}
                             style={styles.rescanButton}
                         >
-                            Skanuj ponownie
+                            {t('qrScanner.rescan')}
                         </Button>
                     )}
                 </View>

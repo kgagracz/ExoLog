@@ -1,0 +1,29 @@
+{
+  "sex": {
+    "male": "Samiec",
+    "female": "Samica",
+    "unknown": "Nieznana",
+    "hermaphrodite": "Hermafrodyta"
+  },
+  "stage": {
+    "baby": "Maluch",
+    "juvenile": "Młody",
+    "subadult": "Subadult",
+    "adult": "Dorosły",
+    "senior": "Senior"
+  },
+  "sort": {
+    "name-asc": "Nazwa A-Z",
+    "name-desc": "Nazwa Z-A",
+    "dateAcquired-desc": "Najnowsze",
+    "dateAcquired-asc": "Najstarsze",
+    "species-asc": "Gatunek A-Z",
+    "species-desc": "Gatunek Z-A"
+  },
+  "labels": {
+    "sex": "Płeć",
+    "species": "Gatunek",
+    "allSpecies": "Wszystkie gatunki",
+    "clear": "Wyczyść"
+  }
+}

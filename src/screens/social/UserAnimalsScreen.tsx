@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Appbar, Searchbar, Text } from 'react-native-paper';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import { usePublicAnimalsQuery } from '../../api/social';
 import { useTheme } from '../../context/ThemeContext';
 import { useAnimalFilters } from '../../hooks/useAnimalFilters';
@@ -20,6 +21,7 @@ export default function UserAnimalsScreen() {
     const styles = makeStyles(theme);
     const navigation = useNavigation<any>();
     const route = useRoute<RouteProp<RouteParams, 'UserAnimals'>>();
+    const { t } = useTranslation('animals');
 
     const { userId, displayName } = route.params;
 
@@ -38,12 +40,12 @@ export default function UserAnimalsScreen() {
         <View style={styles.container}>
             <Appbar.Header>
                 <Appbar.BackAction onPress={() => navigation.goBack()} />
-                <Appbar.Content title={`Zwierzęta ${displayName} (${animals.length})`} />
+                <Appbar.Content title={t('list.userTitle', { name: displayName, count: animals.length })} />
             </Appbar.Header>
 
             <View style={styles.content}>
                 <Searchbar
-                    placeholder="Szukaj zwierząt..."
+                    placeholder={t('list.searchPlaceholder')}
                     onChangeText={filters.setSearchText}
                     value={filters.searchText}
                     style={styles.searchBar}
@@ -65,13 +67,13 @@ export default function UserAnimalsScreen() {
 
                 {showEmptyState ? (
                     <EmptyState
-                        title="Brak zwierząt"
-                        description="Ten użytkownik nie ma jeszcze żadnych zwierząt"
+                        title={t('list.emptyTitle')}
+                        description={t('list.userEmptyDescription')}
                     />
                 ) : showNoResults ? (
                     <View style={styles.noResults}>
                         <Text variant="bodyLarge" style={styles.noResultsText}>
-                            Brak wyników dla wybranych filtrów
+                            {t('common:noResults')}
                         </Text>
                     </View>
                 ) : (

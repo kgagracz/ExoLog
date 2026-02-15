@@ -4,6 +4,7 @@ import {Text, TextInput, Button, Card, Checkbox} from 'react-native-paper';
 import {useAuth} from "../../hooks";
 import {Theme} from "../../styles/theme";
 import {useTheme} from "../../context/ThemeContext";
+import { useTranslation } from 'react-i18next';
 
 interface LoginScreenProps {
     navigation: any;
@@ -17,16 +18,17 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
     const [loading, setLoading] = useState(false);
     const { signIn } = useAuth();
     const {theme} = useTheme();
+    const { t } = useTranslation('auth');
     const styles = createStyles(theme)
 
     const handleLogin = async () => {
         if (!email || !password) {
-            Alert.alert('Błąd', 'Wypełnij wszystkie pola');
+            Alert.alert(t('common:error'), t('common:fillAllFields'));
             return;
         }
 
         if (!email.includes('@')) {
-            Alert.alert('Błąd', 'Podaj prawidłowy adres email');
+            Alert.alert(t('common:error'), t('common:invalidEmail'));
             return;
         }
 
@@ -35,7 +37,7 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
             const result = await signIn(email, password, rememberMe);
 
             if (!result.success) {
-                Alert.alert('Błąd logowania', result.error || 'Nieznany błąd');
+                Alert.alert(t('login.errorTitle'), result.error || t('common:unknownError'));
             }
             // Jeśli success = true, AuthProvider automatycznie przekieruje
         } finally {
@@ -65,7 +67,7 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
                         ExoLog
                     </Text>
                     <Text variant="bodyLarge" style={styles.subtitle}>
-                        Zaloguj się do swojego konta
+                        {t('login.subtitle')}
                     </Text>
                 </View>
 
@@ -84,7 +86,7 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
                         />
 
                         <TextInput
-                            label="Hasło"
+                            label={t('login.passwordLabel')}
                             value={password}
                             onChangeText={setPassword}
                             mode="outlined"
@@ -107,12 +109,12 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
                             disabled={loading}
                             style={styles.loginButton}
                         >
-                            {loading ? 'Logowanie...' : 'Zaloguj się'}
+                            {loading ? t('login.loggingIn') : t('login.loginButton')}
                         </Button>
 
                         <View style={styles.rememberMeContainer}>
                             <Checkbox.Item
-                                label="Zapamiętaj mnie"
+                                label={t('login.rememberMe')}
                                 status={rememberMe ? 'checked' : 'unchecked'}
                                 onPress={() => setRememberMe(!rememberMe)}
                                 disabled={loading}
@@ -128,21 +130,21 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
                             disabled={loading}
                             style={styles.forgotButton}
                         >
-                            Zapomniałeś hasła?
+                            {t('login.forgotPassword')}
                         </Button>
                     </Card.Content>
                 </Card>
 
                 <View style={styles.footer}>
                     <Text variant="bodyMedium" style={styles.footerText}>
-                        Nie masz konta?
+                        {t('login.noAccount')}
                     </Text>
                     <Button
                         mode="text"
                         onPress={handleSignUp}
                         disabled={loading}
                     >
-                        Zarejestruj się
+                        {t('login.signUp')}
                     </Button>
                 </View>
             </ScrollView>

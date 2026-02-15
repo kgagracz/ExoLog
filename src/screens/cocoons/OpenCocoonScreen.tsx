@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native';
 import { Text, Appbar, Card, Button, TextInput, HelperText, ActivityIndicator } from 'react-native-paper';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from "../../context/ThemeContext";
 import { useAddMultipleSpidersMutation } from "../../api/animals";
 import { useUpdateCocoonStatusMutation } from "../../api/events";
@@ -9,6 +10,7 @@ import { Theme } from "../../styles/theme";
 
 export default function OpenCocoonScreen() {
     const { theme } = useTheme();
+    const { t } = useTranslation('cocoons');
     const styles = makeStyles(theme);
     const navigation = useNavigation<any>();
     const route = useRoute<any>();
@@ -24,11 +26,11 @@ export default function OpenCocoonScreen() {
     const validateCount = (value: string): boolean => {
         const num = parseInt(value, 10);
         if (isNaN(num) || num < 1) {
-            setError('Wprowadź prawidłową liczbę (minimum 1)');
+            setError(t('open.validationMin'));
             return false;
         }
         if (num > 2000) {
-            setError('Maksymalna liczba młodych to 2000');
+            setError(t('open.validationMax'));
             return false;
         }
         setError('');
@@ -54,12 +56,12 @@ export default function OpenCocoonScreen() {
         const count = parseInt(spiderCount, 10);
 
         Alert.alert(
-            'Potwierdź otwarcie kokonu',
-            `Czy na pewno chcesz otworzyć kokon i dodać ${count} młodych pająków?\n\nZostaną dodane jako "${species || 'Nieznany'} L1 #001" itd.`,
+            t('open.confirmTitle'),
+            t('open.confirmMessage', { count, species: species || t('common:unknownSpecies') }),
             [
-                { text: 'Anuluj', style: 'cancel' },
+                { text: t('common:cancel'), style: 'cancel' },
                 {
-                    text: 'Otwórz i dodaj',
+                    text: t('open.confirmButton'),
                     onPress: handleConfirmOpen,
                 }
             ]
@@ -78,17 +80,17 @@ export default function OpenCocoonScreen() {
             const nameGenerator = (index: number, total: number): string => {
                 const padLength = total >= 100 ? 3 : total >= 10 ? 2 : 1;
                 const paddedIndex = String(index).padStart(padLength, '0');
-                return `${species || 'Nieznany'} #${paddedIndex}`;
+                return `${species || t('common:unknownSpecies')} #${paddedIndex}`;
             };
 
             const result = await addMultipleSpidersMutation.mutateAsync({
                 baseData: {
-                    species: species || 'Nieznany gatunek',
+                    species: species || t('common:unknownSpecies'),
                     sex: 'unknown',
                     currentStage: 1,
                     //@ts-ignore
                     stage: 1,
-                    notes: `Potomstwo z kokonu. Matka: ${animalName || 'Nieznana'}`,
+                    notes: t('open.offspringNote', { name: animalName || t('open.unknownMother') }),
                     parentFemaleId: animalId,
                     cocoonId: cocoonId,
                 },
@@ -98,8 +100,8 @@ export default function OpenCocoonScreen() {
 
             if (result.added === count) {
                 Alert.alert(
-                    '🎉 Sukces!',
-                    `Kokon został otwarty.\nDodano ${result.added} młodych pająków do hodowli.`,
+                    t('open.successTitle'),
+                    t('open.successMessage', { count: result.added }),
                     [{
                         text: 'OK',
                         onPress: () => {
@@ -109,16 +111,16 @@ export default function OpenCocoonScreen() {
                 );
             } else if (result.added > 0) {
                 Alert.alert(
-                    'Częściowy sukces',
-                    `Dodano ${result.added} z ${count} pająków.\n\nBłędy: ${result.failed}`,
+                    t('open.partialSuccessTitle'),
+                    t('open.partialSuccessMessage', { added: result.added, total: count, failed: result.failed }),
                     [{ text: 'OK', onPress: () => navigation.navigate('CocoonsList') }]
                 );
             } else {
-                Alert.alert('Błąd', 'Nie udało się dodać żadnego pająka.');
+                Alert.alert(t('common:error'), t('open.addError'));
             }
         } catch (error: any) {
             console.error('Error opening cocoon:', error);
-            Alert.alert('Błąd', error.message || 'Nie udało się otworzyć kokonu');
+            Alert.alert(t('common:error'), error.message || t('open.openError'));
         } finally {
             setSaving(false);
         }
@@ -128,7 +130,7 @@ export default function OpenCocoonScreen() {
         <View style={styles.container}>
             <Appbar.Header>
                 <Appbar.BackAction onPress={() => navigation.goBack()} />
-                <Appbar.Content title="Otwórz kokon" />
+                <Appbar.Content title={t('open.title')} />
             </Appbar.Header>
 
             <ScrollView style={styles.content}>
@@ -136,13 +138,13 @@ export default function OpenCocoonScreen() {
                 <Card style={styles.card}>
                     <Card.Content>
                         <Text variant="titleMedium" style={styles.sectionTitle}>
-                            🥚 Kokon
+                            {t('open.cocoonSection')}
                         </Text>
                         <Text variant="bodyLarge" style={styles.animalName}>
-                            {animalName || 'Nieznana samica'}
+                            {animalName || t('open.unknownFemale')}
                         </Text>
                         <Text variant="bodyMedium" style={styles.speciesName}>
-                            {species || 'Nieznany gatunek'}
+                            {species || t('common:unknownSpecies')}
                         </Text>
                     </Card.Content>
                 </Card>
@@ -151,16 +153,15 @@ export default function OpenCocoonScreen() {
                 <Card style={styles.card}>
                     <Card.Content>
                         <Text variant="titleMedium" style={styles.sectionTitle}>
-                            🐣 Ilość młodych
+                            {t('open.youngCountSection')}
                         </Text>
 
                         <Text variant="bodyMedium" style={styles.description}>
-                            Podaj liczbę młodych pająków, które wykluwają się z kokonu.
-                            Zostaną automatycznie dodane do Twojej hodowli jako L1.
+                            {t('open.youngCountDescription')}
                         </Text>
 
                         <TextInput
-                            label="Liczba młodych"
+                            label={t('open.youngCountLabel')}
                             value={spiderCount}
                             onChangeText={handleCountChange}
                             keyboardType="number-pad"
@@ -168,7 +169,7 @@ export default function OpenCocoonScreen() {
                             style={styles.input}
                             error={!!error}
                             left={<TextInput.Icon icon="spider" />}
-                            placeholder="np. 150"
+                            placeholder={t('open.youngCountPlaceholder')}
                         />
 
                         {error ? (
@@ -177,7 +178,7 @@ export default function OpenCocoonScreen() {
                             </HelperText>
                         ) : (
                             <HelperText type="info" visible={!!spiderCount && !error}>
-                                Zostanie dodanych {spiderCount} pająków o nazwie "{species || 'Nieznany'} L1 #001" itd.
+                                {t('open.helperText', { count: spiderCount, species: species || t('common:unknownSpecies') })}
                             </HelperText>
                         )}
                     </Card.Content>
@@ -188,12 +189,12 @@ export default function OpenCocoonScreen() {
                     <Card style={styles.summaryCard}>
                         <Card.Content>
                             <Text variant="titleMedium" style={styles.sectionTitle}>
-                                📋 Podsumowanie
+                                {t('open.summarySection')}
                             </Text>
 
                             <View style={styles.summaryRow}>
                                 <Text variant="bodyMedium" style={styles.summaryLabel}>
-                                    Liczba młodych:
+                                    {t('open.summaryYoungCount')}
                                 </Text>
                                 <Text variant="titleLarge" style={styles.summaryValue}>
                                     {spiderCount}
@@ -202,19 +203,19 @@ export default function OpenCocoonScreen() {
 
                             <View style={styles.summaryRow}>
                                 <Text variant="bodyMedium" style={styles.summaryLabel}>
-                                    Stadium:
+                                    {t('open.summaryStage')}
                                 </Text>
                                 <Text variant="bodyLarge" style={styles.summaryValue}>
-                                    L1 (baby)
+                                    {t('open.summaryStageValue')}
                                 </Text>
                             </View>
 
                             <View style={styles.summaryRow}>
                                 <Text variant="bodyMedium" style={styles.summaryLabel}>
-                                    Nazwa:
+                                    {t('open.summaryName')}
                                 </Text>
                                 <Text variant="bodyLarge" style={styles.summaryValue}>
-                                    {species || 'Nieznany'} L1 #001...
+                                    {species || t('common:unknownSpecies')} L1 #001...
                                 </Text>
                             </View>
                         </Card.Content>
@@ -232,7 +233,7 @@ export default function OpenCocoonScreen() {
                         style={styles.openButton}
                         contentStyle={styles.openButtonContent}
                     >
-                        {saving ? 'Dodawanie pająków...' : 'Otwórz kokon i dodaj młode'}
+                        {saving ? t('open.addingSpiders') : t('open.openAndAdd')}
                     </Button>
 
                     <Button
@@ -241,7 +242,7 @@ export default function OpenCocoonScreen() {
                         disabled={saving}
                         style={styles.cancelButton}
                     >
-                        Anuluj
+                        {t('common:cancel')}
                     </Button>
                 </View>
 
@@ -254,10 +255,10 @@ export default function OpenCocoonScreen() {
                         <Card.Content style={styles.savingContent}>
                             <ActivityIndicator size="large" color={theme.colors.primary} />
                             <Text variant="titleMedium" style={styles.savingText}>
-                                Dodawanie {spiderCount} pająków...
+                                {t('open.savingText', { count: spiderCount })}
                             </Text>
                             <Text variant="bodySmall" style={styles.savingSubtext}>
-                                To może chwilę potrwać
+                                {t('open.savingSubtext')}
                             </Text>
                         </Card.Content>
                     </Card>

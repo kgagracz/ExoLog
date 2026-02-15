@@ -1,13 +1,13 @@
 import React, {useState} from 'react';
 import {View, StyleSheet, ScrollView, Pressable} from 'react-native';
 import {Chip, IconButton, Menu, Text} from 'react-native-paper';
+import {useTranslation} from 'react-i18next';
 import {useTheme} from '../../context/ThemeContext';
 import {Theme} from '../../styles/theme';
 import {Animal} from '../../types';
 import {
     SortOption,
-    SEX_LABELS,
-    SORT_LABELS,
+    useFilterLabels,
 } from '../../hooks/useAnimalFilters';
 
 interface AnimalFiltersToolbarProps {
@@ -46,6 +46,8 @@ const AnimalFiltersToolbar: React.FC<AnimalFiltersToolbarProps> = ({
 }) => {
     const {theme} = useTheme();
     const styles = makeStyles(theme);
+    const {t} = useTranslation('filters');
+    const {SEX_LABELS, SORT_LABELS} = useFilterLabels();
 
     const [sortMenuVisible, setSortMenuVisible] = useState(false);
     const [speciesMenuVisible, setSpeciesMenuVisible] = useState(false);
@@ -93,7 +95,7 @@ const AnimalFiltersToolbar: React.FC<AnimalFiltersToolbarProps> = ({
                 <View style={styles.filtersSection}>
                     {/* Sex filter */}
                     <Text variant="labelMedium" style={styles.filterLabel}>
-                        Płeć
+                        {t('labels.sex')}
                     </Text>
                     <ScrollView
                         horizontal
@@ -118,7 +120,7 @@ const AnimalFiltersToolbar: React.FC<AnimalFiltersToolbarProps> = ({
                     {availableSpecies.length > 0 && (
                         <>
                             <Text variant="labelMedium" style={styles.filterLabel}>
-                                Gatunek
+                                {t('labels.species')}
                             </Text>
                             <Menu
                                 visible={speciesMenuVisible}
@@ -130,13 +132,13 @@ const AnimalFiltersToolbar: React.FC<AnimalFiltersToolbarProps> = ({
                                             compact
                                             style={styles.filterChip}
                                         >
-                                            {speciesFilter || 'Wszystkie gatunki'}
+                                            {speciesFilter || t('labels.allSpecies')}
                                         </Chip>
                                     </Pressable>
                                 }
                             >
                                 <Menu.Item
-                                    title="Wszystkie gatunki"
+                                    title={t('labels.allSpecies')}
 
                                     leadingIcon={speciesFilter === null ? 'check' : undefined}
                                     onPress={() => {
@@ -197,7 +199,7 @@ const AnimalFiltersToolbar: React.FC<AnimalFiltersToolbarProps> = ({
                         style={styles.clearChip}
                         textStyle={styles.clearChipText}
                     >
-                        Wyczyść
+                        {t('labels.clear')}
                     </Chip>
                 </ScrollView>
             )}

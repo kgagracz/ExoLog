@@ -12,6 +12,7 @@ import UserAvatar from "../../components/atoms/UserAvatar";
 import {Theme} from "../../styles/theme";
 import {Animal} from "../../types";
 import {useAnimalFilters} from "../../hooks/useAnimalFilters";
+import { useTranslation } from 'react-i18next';
 
 interface MatingStatus {
   hasMating: boolean;
@@ -30,6 +31,7 @@ interface AnimalsListScreenProps {
 }
 
 const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => {
+  const { t } = useTranslation('animals');
   const { data: animals = [], isLoading: loading, refetch: refresh } = useAnimalsQuery();
   const { theme } = useTheme();
   const styles = makeStyles(theme);
@@ -74,7 +76,7 @@ const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => 
   return (
       <View style={styles.container}>
         <Appbar.Header>
-          <Appbar.Content title={`🕷️ Moje Zwierzęta (${animals.length})`} />
+          <Appbar.Content title={t('list.title', { count: animals.length })} />
           <Appbar.Action icon="qrcode" onPress={handleQRPrint} />
           <View style={styles.avatarContainer}>
             <UserAvatar onPress={handleProfilePress} size={36} />
@@ -83,7 +85,7 @@ const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => 
 
         <View style={styles.content}>
           <Searchbar
-              placeholder="Szukaj zwierząt..."
+              placeholder={t('list.searchPlaceholder')}
               onChangeText={filters.setSearchText}
               value={filters.searchText}
               style={styles.searchBar}
@@ -105,14 +107,14 @@ const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => 
 
           {showEmptyState ? (
               <EmptyState
-                  title="Brak zwierząt"
-                  description="Dodaj swojego pierwszego ptasznika, aby rozpocząć zarządzanie hodowlą"
+                  title={t('list.emptyTitle')}
+                  description={t('list.emptyDescription')}
                   onButtonPress={handleAddSpider}
               />
           ) : showNoResults ? (
               <View style={styles.noResults}>
                 <Text variant="bodyLarge" style={styles.noResultsText}>
-                  Brak wyników dla wybranych filtrów
+                  {t('common:noResults')}
                 </Text>
               </View>
           ) : (

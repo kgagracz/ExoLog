@@ -2,6 +2,7 @@ import React from 'react';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native';
 import { Text, Appbar, Card, Button, Chip, ActivityIndicator, Divider } from 'react-native-paper';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from "../../context/ThemeContext";
 import { useAnimalQuery } from "../../api/animals";
 import { useCocoonHistoryQuery, useUpdateCocoonStatusMutation } from "../../api/events";
@@ -11,6 +12,7 @@ import { Animal } from "../../types";
 
 export default function CocoonDetailsScreen() {
     const { theme } = useTheme();
+    const { t } = useTranslation('cocoons');
     const styles = makeStyles(theme);
     const navigation = useNavigation<any>();
     const route = useRoute<any>();
@@ -53,20 +55,20 @@ export default function CocoonDetailsScreen() {
 
     const handleMarkAsFailed = () => {
         Alert.alert(
-            'Oznacz jako nieudany',
-            'Czy na pewno chcesz oznaczyć ten kokon jako nieudany? Ta operacja jest nieodwracalna.',
+            t('details.markAsFailedTitle'),
+            t('details.markAsFailedMessage'),
             [
-                { text: 'Anuluj', style: 'cancel' },
+                { text: t('common:cancel'), style: 'cancel' },
                 {
-                    text: 'Oznacz',
+                    text: t('details.markAsFailedConfirm'),
                     style: 'destructive',
                     onPress: async () => {
                         try {
                             await updateCocoonStatusMutation.mutateAsync({ eventId: cocoonId, newStatus: 'failed' });
-                            Alert.alert('Sukces', 'Kokon oznaczony jako nieudany.');
+                            Alert.alert('OK', t('details.markAsFailedSuccess'));
                             navigation.goBack();
                         } catch {
-                            Alert.alert('Błąd', 'Nie udało się zaktualizować statusu kokonu.');
+                            Alert.alert(t('common:error'), t('details.statusUpdateError'));
                         }
                     }
                 }
@@ -78,7 +80,7 @@ export default function CocoonDetailsScreen() {
         try {
             const result = await updateCocoonStatusMutation.mutateAsync({ eventId: cocoonId, newStatus: 'incubating' });
         } catch {
-            Alert.alert('Błąd', 'Nie udało się zaktualizować statusu kokonu.');
+            Alert.alert(t('common:error'), t('details.statusUpdateError'));
         }
     };
 
@@ -87,7 +89,7 @@ export default function CocoonDetailsScreen() {
             <View style={styles.container}>
                 <Appbar.Header>
                     <Appbar.BackAction onPress={() => navigation.goBack()} />
-                    <Appbar.Content title="Szczegóły kokonu" />
+                    <Appbar.Content title={t('details.title')} />
                 </Appbar.Header>
                 <View style={styles.loadingContainer}>
                     <ActivityIndicator size="large" color={theme.colors.primary} />
@@ -101,10 +103,10 @@ export default function CocoonDetailsScreen() {
             <View style={styles.container}>
                 <Appbar.Header>
                     <Appbar.BackAction onPress={() => navigation.goBack()} />
-                    <Appbar.Content title="Szczegóły kokonu" />
+                    <Appbar.Content title={t('details.title')} />
                 </Appbar.Header>
                 <View style={styles.loadingContainer}>
-                    <Text>Nie znaleziono kokonu</Text>
+                    <Text>{t('details.notFound')}</Text>
                 </View>
             </View>
         );
@@ -118,7 +120,7 @@ export default function CocoonDetailsScreen() {
         <View style={styles.container}>
             <Appbar.Header>
                 <Appbar.BackAction onPress={() => navigation.goBack()} />
-                <Appbar.Content title="Szczegóły kokonu" />
+                <Appbar.Content title={t('details.title')} />
             </Appbar.Header>
 
             <ScrollView style={styles.content}>
@@ -126,10 +128,10 @@ export default function CocoonDetailsScreen() {
                 <Card style={styles.card}>
                     <Card.Content>
                         <Text variant="titleMedium" style={styles.sectionTitle}>
-                            🕷️ Samica
+                            {t('details.femaleSection')}
                         </Text>
                         <Text variant="headlineSmall" style={styles.animalName}>
-                            {animal?.name || 'Nieznana'}
+                            {animal?.name || t('details.unknownFemale')}
                         </Text>
                         <Text variant="bodyLarge" style={styles.speciesName}>
                             {animal?.species || ''}
@@ -141,18 +143,18 @@ export default function CocoonDetailsScreen() {
                 <Card style={styles.card}>
                     <Card.Content>
                         <Text variant="titleMedium" style={styles.sectionTitle}>
-                            📊 Status
+                            {t('details.statusSection')}
                         </Text>
 
                         <View style={styles.statusContainer}>
                             {cocoon.eventData?.cocoonStatus === 'laid' && (
                                 <Chip icon="egg" style={styles.statusChip} textStyle={styles.statusChipText}>
-                                    Złożony
+                                    {t('details.statusLaid')}
                                 </Chip>
                             )}
                             {cocoon.eventData?.cocoonStatus === 'incubating' && (
                                 <Chip icon="thermometer" style={styles.incubatingChip} textStyle={styles.incubatingChipText}>
-                                    W inkubacji
+                                    {t('details.statusIncubating')}
                                 </Chip>
                             )}
                         </View>
@@ -164,7 +166,7 @@ export default function CocoonDetailsScreen() {
                                 style={styles.statusButton}
                                 icon="thermometer"
                             >
-                                Zmień na inkubację
+                                {t('details.changeToIncubating')}
                             </Button>
                         )}
                     </Card.Content>
@@ -174,12 +176,12 @@ export default function CocoonDetailsScreen() {
                 <Card style={styles.card}>
                     <Card.Content>
                         <Text variant="titleMedium" style={styles.sectionTitle}>
-                            📅 Harmonogram
+                            {t('details.scheduleSection')}
                         </Text>
 
                         <View style={styles.infoRow}>
                             <Text variant="bodyMedium" style={styles.infoLabel}>
-                                Data złożenia:
+                                {t('details.layDate')}
                             </Text>
                             <Text variant="bodyLarge" style={styles.infoValue}>
                                 {new Date(cocoon.date).toLocaleDateString('pl-PL')}
@@ -190,7 +192,7 @@ export default function CocoonDetailsScreen() {
 
                         <View style={styles.infoRow}>
                             <Text variant="bodyMedium" style={styles.infoLabel}>
-                                Dni od złożenia:
+                                {t('details.daysSinceLaid')}
                             </Text>
                             <Text variant="headlineMedium" style={styles.daysValue}>
                                 {daysSinceLaid}
@@ -199,7 +201,7 @@ export default function CocoonDetailsScreen() {
 
                         <View style={styles.infoRow}>
                             <Text variant="bodyMedium" style={styles.infoLabel}>
-                                Tygodnie od złożenia:
+                                {t('details.weeksSinceLaid')}
                             </Text>
                             <Text variant="titleLarge" style={styles.weeksValue}>
                                 {weeksSinceLaid}
@@ -212,7 +214,7 @@ export default function CocoonDetailsScreen() {
 
                                 <View style={styles.infoRow}>
                                     <Text variant="bodyMedium" style={styles.infoLabel}>
-                                        Przewidywany wylęg:
+                                        {t('details.expectedHatch')}
                                     </Text>
                                     <Text variant="bodyLarge" style={styles.infoValue}>
                                         {new Date(cocoon.eventData.estimatedHatchDate).toLocaleDateString('pl-PL')}
@@ -222,14 +224,14 @@ export default function CocoonDetailsScreen() {
                                 {daysUntilHatch !== null && (
                                     <View style={styles.infoRow}>
                                         <Text variant="bodyMedium" style={styles.infoLabel}>
-                                            Pozostało dni:
+                                            {t('details.daysRemaining')}
                                         </Text>
                                         <Text variant="headlineMedium" style={[
                                             styles.daysValue,
                                             daysUntilHatch <= 0 && styles.overdueValue,
                                             daysUntilHatch > 0 && daysUntilHatch <= 7 && styles.urgentValue,
                                         ]}>
-                                            {daysUntilHatch <= 0 ? 'Termin minął!' : daysUntilHatch}
+                                            {daysUntilHatch <= 0 ? t('details.deadlinePassed') : daysUntilHatch}
                                         </Text>
                                     </View>
                                 )}
@@ -243,7 +245,7 @@ export default function CocoonDetailsScreen() {
                     <Card style={styles.card}>
                         <Card.Content>
                             <Text variant="titleMedium" style={styles.sectionTitle}>
-                                📝 Notatki
+                                {t('details.notesSection')}
                             </Text>
                             <Text variant="bodyMedium" style={styles.notesText}>
                                 {cocoon.description}
@@ -261,7 +263,7 @@ export default function CocoonDetailsScreen() {
                         style={styles.openButton}
                         contentStyle={styles.openButtonContent}
                     >
-                        Otwórz kokon
+                        {t('details.openCocoon')}
                     </Button>
 
                     <Button
@@ -271,7 +273,7 @@ export default function CocoonDetailsScreen() {
                         textColor={theme.colors.error}
                         style={styles.failButton}
                     >
-                        Oznacz jako nieudany
+                        {t('details.markAsFailed')}
                     </Button>
                 </View>
 

@@ -4,6 +4,7 @@ import { Text, TextInput, Button, Card } from 'react-native-paper';
 import {useAuth} from "../../hooks";
 import {useTheme} from "../../context/ThemeContext";
 import {Theme} from "../../styles/theme";
+import { useTranslation } from 'react-i18next';
 
 interface ForgotPasswordScreenProps {
     navigation: any;
@@ -14,16 +15,17 @@ export default function ForgotPasswordScreen({ navigation }: ForgotPasswordScree
     const [loading, setLoading] = useState(false);
     const { resetPassword } = useAuth();
     const {theme} = useTheme();
+    const { t } = useTranslation('auth');
     const styles = createStyles(theme)
 
     const handleResetPassword = async () => {
         if (!email) {
-            Alert.alert('Błąd', 'Podaj adres email');
+            Alert.alert(t('common:error'), t('forgotPassword.enterEmail'));
             return;
         }
 
         if (!email.includes('@')) {
-            Alert.alert('Błąd', 'Podaj prawidłowy adres email');
+            Alert.alert(t('common:error'), t('common:invalidEmail'));
             return;
         }
 
@@ -33,12 +35,12 @@ export default function ForgotPasswordScreen({ navigation }: ForgotPasswordScree
 
             if (result.success) {
                 Alert.alert(
-                    'Email wysłany',
-                    'Sprawdź swoją skrzynkę pocztową i kliknij link resetowania hasła.',
+                    t('forgotPassword.successTitle'),
+                    t('forgotPassword.successMessage'),
                     [{ text: 'OK', onPress: () => navigation.navigate('Login') }]
                 );
             } else {
-                Alert.alert('Błąd', result.error || 'Nieznany błąd');
+                Alert.alert(t('common:error'), result.error || t('common:unknownError'));
             }
         } finally {
             setLoading(false);
@@ -53,10 +55,10 @@ export default function ForgotPasswordScreen({ navigation }: ForgotPasswordScree
             <View style={styles.content}>
                 <View style={styles.header}>
                     <Text variant="headlineLarge" style={styles.title}>
-                        Resetowanie hasła
+                        {t('forgotPassword.title')}
                     </Text>
                     <Text variant="bodyLarge" style={styles.subtitle}>
-                        Podaj adres email, a wyślemy Ci link do resetowania hasła
+                        {t('forgotPassword.subtitle')}
                     </Text>
                 </View>
 
@@ -81,7 +83,7 @@ export default function ForgotPasswordScreen({ navigation }: ForgotPasswordScree
                             disabled={loading}
                             style={styles.resetButton}
                         >
-                            {loading ? 'Wysyłanie...' : 'Wyślij link resetowania'}
+                            {loading ? t('forgotPassword.sending') : t('forgotPassword.sendButton')}
                         </Button>
 
                         <Button
@@ -90,7 +92,7 @@ export default function ForgotPasswordScreen({ navigation }: ForgotPasswordScree
                             disabled={loading}
                             style={styles.backButton}
                         >
-                            Powrót do logowania
+                            {t('forgotPassword.backToLogin')}
                         </Button>
                     </Card.Content>
                 </Card>
