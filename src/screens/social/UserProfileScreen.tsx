@@ -192,7 +192,7 @@ export default function UserProfileScreen() {
                     {canViewAnimals ? (
                         <>
                             <Text variant="h3" style={styles.sectionTitle}>
-                                Zwierzęta ({animals.length})
+                                Zwierzęta ({profile.stats.totalAnimals})
                             </Text>
                             {animals.length === 0 ? (
                                 <View style={styles.emptyAnimals}>
@@ -217,7 +217,7 @@ export default function UserProfileScreen() {
                                         onPress={() => navigation.navigate('UserAnimals' as any, { userId, displayName: profile.displayName })}
                                         style={styles.showBreedingButton}
                                     >
-                                        Pokaż hodowle ({animals.length})
+                                        Pokaż hodowle ({profile.stats.totalAnimals})
                                     </Button>
                                 </>
                             )}
