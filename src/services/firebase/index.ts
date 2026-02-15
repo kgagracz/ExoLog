@@ -5,5 +5,7 @@ export { eventTypesService } from './eventTypes';
 export { animalsService } from './animals';
 export { seedDatabase, initializeAppData } from './seedDatabase';
 
+export { socialService } from './socialService';
+
 // Export Firebase config
 export { auth, db, storage } from './firebase.config';

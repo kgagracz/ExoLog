@@ -1,0 +1,30 @@
+import React from 'react';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import CommunityScreen from '../screens/social/CommunityScreen';
+import UserSearchScreen from '../screens/social/UserSearchScreen';
+import UserProfileScreen from '../screens/social/UserProfileScreen';
+import FriendRequestsScreen from '../screens/social/FriendRequestsScreen';
+
+type SocialStackParamList = {
+    Community: undefined;
+    UserSearch: undefined;
+    UserProfile: { userId: string };
+    FriendRequests: undefined;
+};
+
+const Stack = createNativeStackNavigator<SocialStackParamList>();
+
+export default function SocialStackNavigator() {
+    return (
+        <Stack.Navigator
+            screenOptions={{
+                headerShown: false,
+            }}
+        >
+            <Stack.Screen name="Community" component={CommunityScreen} />
+            <Stack.Screen name="UserSearch" component={UserSearchScreen} />
+            <Stack.Screen name="UserProfile" component={UserProfileScreen} />
+            <Stack.Screen name="FriendRequests" component={FriendRequestsScreen} />
+        </Stack.Navigator>
+    );
+}

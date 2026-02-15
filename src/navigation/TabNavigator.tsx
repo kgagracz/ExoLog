@@ -4,6 +4,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AnimalStackNavigator from "./AnimalStackNavigator";
 import CocoonStackNavigator from "./CocoonStackNavigator";
+import SocialStackNavigator from "./SocialStackNavigator";
 import QRScannerScreen from "../screens/QRScannerScreen";
 import {useTheme} from "../context/ThemeContext";
 import Text from "../components/atoms/Text";
@@ -13,6 +14,7 @@ export type TabParamList = {
     Dashboard: undefined;
     Animals: undefined;
     Cocoons: undefined;
+    Community: undefined;
     QRScanner: undefined;
     Events: undefined;
     Stats: undefined;
@@ -36,6 +38,8 @@ export default function TabNavigator() {
                         iconName = focused ? 'spider' : 'spider-outline';
                     } else if (route.name === 'Cocoons') {
                         iconName = focused ? 'egg' : 'egg-outline';
+                    } else if (route.name === 'Community') {
+                        iconName = focused ? 'account-group' : 'account-group-outline';
                     } else if (route.name === 'QRScanner') {
                         iconName = focused ? 'qrcode-scan' : 'qrcode-scan';
                     } else if (route.name === 'Events') {
@@ -93,6 +97,14 @@ export default function TabNavigator() {
                 component={CocoonStackNavigator}
                 options={{
                     title: 'Kokony',
+                    headerShown: false,
+                }}
+            />
+            <Tab.Screen
+                name="Community"
+                component={SocialStackNavigator}
+                options={{
+                    title: 'Społeczność',
                     headerShown: false,
                 }}
             />

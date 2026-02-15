@@ -315,3 +315,5 @@ export type TabParamList = {
   Stats: undefined;
   Settings: undefined;
 };
+
+export type { PublicUserProfile, FriendRequest, Friendship, FriendRequestStatus, FriendshipStatus } from './social';

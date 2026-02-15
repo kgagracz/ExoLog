@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
 import { Appbar, Card, Button, Divider, Switch } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../hooks/useAuth';
+import { useUserProfileQuery, useToggleVisibilityMutation } from '../api/social';
+import { socialService } from '../services/firebase';
 import { Theme } from '../styles/theme';
 import Text from '../components/atoms/Text';
-import Avatar from '../components/atoms/Avatar';
 
 export default function ProfileScreen() {
     const { theme, toggleTheme, isDark } = useTheme();
@@ -15,6 +16,25 @@ export default function ProfileScreen() {
     const { user, logout } = useAuth();
 
     const [loggingOut, setLoggingOut] = useState(false);
+
+    const { data: profile } = useUserProfileQuery(user?.uid);
+    const toggleVisibility = useToggleVisibilityMutation();
+
+    // Ensure profile exists on first visit
+    useEffect(() => {
+        if (user && profile === null) {
+            socialService.createOrUpdateProfile({
+                uid: user.uid,
+                displayName: user.displayName || user.email?.split('@')[0] || 'Użytkownik',
+                email: user.email || '',
+                isPublic: true,
+            });
+        }
+    }, [user, profile]);
+
+    const handleTogglePublic = (value: boolean) => {
+        toggleVisibility.mutate(value);
+    };
 
     const handleLogout = () => {
         Alert.alert(
@@ -106,6 +126,30 @@ export default function ProfileScreen() {
                         </View>
                     </Card.Content>
                 </Card>
+
+                {/* Prywatność */}
+                {profile && (
+                    <Card style={styles.card}>
+                        <Card.Content>
+                            <Text variant="h3" style={styles.sectionTitle}>Prywatność</Text>
+
+                            <View style={styles.infoRow}>
+                                <View style={{ flex: 1 }}>
+                                    <Text variant="body">Profil publiczny</Text>
+                                    <Text variant="caption" style={{ color: theme.colors.textSecondary }}>
+                                        Inni użytkownicy mogą Cię wyszukać i zobaczyć Twoje zwierzęta
+                                    </Text>
+                                </View>
+                                <Switch
+                                    value={profile.isPublic}
+                                    onValueChange={handleTogglePublic}
+                                    color={theme.colors.primary}
+                                    disabled={toggleVisibility.isPending}
+                                />
+                            </View>
+                        </Card.Content>
+                    </Card>
+                )}
 
                 {/* Przycisk wylogowania */}
                 <View style={styles.logoutSection}>

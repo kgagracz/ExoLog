@@ -9,7 +9,7 @@ import {
     updateProfile,
 } from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { auth } from "../services/firebase";
+import { auth, socialService } from "../services/firebase";
 import { queryClient } from "../api/queryClient";
 
 interface AuthContextType {
@@ -197,6 +197,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
             if (displayName && result.user) {
                 await updateProfile(result.user, { displayName });
             }
+
+            // Create social profile
+            await socialService.createOrUpdateProfile({
+                uid: result.user.uid,
+                displayName: displayName || email.split('@')[0],
+                email,
+                isPublic: true,
+            });
 
             // Domyślnie włącz "Zapamiętaj mnie" dla nowych użytkowników
             await AsyncStorage.setItem(STORAGE_KEYS.REMEMBER_ME, 'true');

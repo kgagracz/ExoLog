@@ -3,3 +3,5 @@ export { default as StatCard } from './StatCard';
 export { default as EmptyStateContent } from './EmptyStateContent';
 export { default as LoadingContent } from './LoadingContent';
 export { default as AnimalInfo } from './AnimalInfo';
+export { default as UserListItem } from './UserListItem';
+export { default as FriendRequestCard } from './FriendRequestCard';

@@ -48,3 +48,20 @@ export {
     useEventTypesQuery,
     useAppDataQueries,
 } from './lookup';
+
+// Social
+export {
+    useUserProfileQuery,
+    useUpdateProfileMutation,
+    useToggleVisibilityMutation,
+    useSearchUsersQuery,
+    useIncomingRequestsQuery,
+    useOutgoingRequestsQuery,
+    useSendRequestMutation,
+    useAcceptRequestMutation,
+    useRejectRequestMutation,
+    useFriendsQuery,
+    useRemoveFriendMutation,
+    useFriendshipStatusQuery,
+    usePublicAnimalsQuery,
+} from './social';

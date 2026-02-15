@@ -48,4 +48,17 @@ export const queryKeys = {
             byAnimalType: (animalTypeId: string) => [...queryKeys.lookup.eventTypes.all(), animalTypeId] as const,
         },
     },
+    social: {
+        all: ['social'] as const,
+        profile: (userId: string) => [...queryKeys.social.all, 'profile', userId] as const,
+        search: (term: string) => [...queryKeys.social.all, 'search', term] as const,
+        requests: {
+            all: ['social', 'requests'] as const,
+            incoming: (userId: string) => [...queryKeys.social.requests.all, 'incoming', userId] as const,
+            outgoing: (userId: string) => [...queryKeys.social.requests.all, 'outgoing', userId] as const,
+        },
+        friends: (userId: string) => [...queryKeys.social.all, 'friends', userId] as const,
+        friendshipStatus: (userId: string, otherId: string) => [...queryKeys.social.all, 'status', userId, otherId] as const,
+        publicAnimals: (userId: string) => [...queryKeys.social.all, 'publicAnimals', userId] as const,
+    },
 } as const;
