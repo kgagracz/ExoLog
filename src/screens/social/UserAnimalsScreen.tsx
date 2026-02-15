@@ -38,7 +38,7 @@ export default function UserAnimalsScreen() {
         <View style={styles.container}>
             <Appbar.Header>
                 <Appbar.BackAction onPress={() => navigation.goBack()} />
-                <Appbar.Content title={`Zwierzęta ${displayName}`} />
+                <Appbar.Content title={`Zwierzęta ${displayName} (${animals.length})`} />
             </Appbar.Header>
 
             <View style={styles.content}>

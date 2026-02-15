@@ -217,7 +217,7 @@ export default function UserProfileScreen() {
                                         onPress={() => navigation.navigate('UserAnimals' as any, { userId, displayName: profile.displayName })}
                                         style={styles.showBreedingButton}
                                     >
-                                        Pokaż hodowle
+                                        Pokaż hodowle ({animals.length})
                                     </Button>
                                 </>
                             )}

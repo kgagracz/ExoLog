@@ -74,7 +74,7 @@ const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => 
   return (
       <View style={styles.container}>
         <Appbar.Header>
-          <Appbar.Content title="🕷️ Moje Zwierzęta" />
+          <Appbar.Content title={`🕷️ Moje Zwierzęta (${animals.length})`} />
           <Appbar.Action icon="qrcode" onPress={handleQRPrint} />
           <View style={styles.avatarContainer}>
             <UserAvatar onPress={handleProfilePress} size={36} />
