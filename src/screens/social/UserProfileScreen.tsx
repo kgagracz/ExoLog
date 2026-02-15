@@ -199,17 +199,27 @@ export default function UserProfileScreen() {
                                     <Text variant="body" style={styles.emptyText}>Brak zwierząt do wyświetlenia</Text>
                                 </View>
                             ) : (
-                                animals.map((animal) => (
-                                    <Card key={animal.id} style={styles.animalCard}>
-                                        <Card.Content style={styles.animalContent}>
-                                            <MaterialCommunityIcons name="spider" size={24} color={theme.colors.primary} />
-                                            <View style={styles.animalInfo}>
-                                                <Text variant="body" style={styles.animalName}>{animal.name}</Text>
-                                                <Text variant="caption" style={styles.animalSpecies}>{animal.species || animal.breed || ''}</Text>
-                                            </View>
-                                        </Card.Content>
-                                    </Card>
-                                ))
+                                <>
+                                    {animals.slice(0, 3).map((animal) => (
+                                        <Card key={animal.id} style={styles.animalCard}>
+                                            <Card.Content style={styles.animalContent}>
+                                                <MaterialCommunityIcons name="spider" size={24} color={theme.colors.primary} />
+                                                <View style={styles.animalInfo}>
+                                                    <Text variant="body" style={styles.animalName}>{animal.name}</Text>
+                                                    <Text variant="caption" style={styles.animalSpecies}>{animal.species || animal.breed || ''}</Text>
+                                                </View>
+                                            </Card.Content>
+                                        </Card>
+                                    ))}
+                                    <Button
+                                        mode="outlined"
+                                        icon="view-list"
+                                        onPress={() => navigation.navigate('UserAnimals' as any, { userId, displayName: profile.displayName })}
+                                        style={styles.showBreedingButton}
+                                    >
+                                        Pokaż hodowle
+                                    </Button>
+                                </>
                             )}
                         </>
                     ) : (
@@ -326,6 +336,9 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     animalSpecies: {
         color: theme.colors.textSecondary,
         marginTop: 2,
+    },
+    showBreedingButton: {
+        marginTop: 8,
     },
     emptyAnimals: {
         alignItems: 'center',
