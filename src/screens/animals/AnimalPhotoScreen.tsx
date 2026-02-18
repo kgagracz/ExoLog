@@ -2,13 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Alert, RefreshControl, ScrollView } from 'react-native';
 import { Appbar, FAB, Text, ActivityIndicator } from 'react-native-paper';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { useQueryClient } from '@tanstack/react-query';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../hooks/useAuth';
 import { useAnimalPhotos } from '../../hooks/useAnimalPhotos';
 import { useImagePicker } from '../../hooks/useImagePicker';
+import { useAnimalQuery } from '../../api/animals/useAnimalQuery';
+import { queryKeys } from '../../api/queryKeys';
 import { Theme } from '../../styles/theme';
 import PhotoGallery from '../../components/molecules/PhotoGallery';
 import PhotoViewerModal from "../../components/organisms/PhotoVievewModal";
+import PhotoUploadModal, { PhotoUploadData } from "../../components/organisms/PhotoUploadModal";
 
 type RouteParams = {
     AnimalPhotos: {
@@ -24,6 +28,8 @@ export default function AnimalPhotosScreen() {
     const route = useRoute<RouteProp<RouteParams, 'AnimalPhotos'>>();
     const { animalId, animalName } = route.params;
     const { user } = useAuth();
+    const queryClient = useQueryClient();
+    const { data: animal } = useAnimalQuery(animalId);
 
     const {
         photos,
@@ -42,6 +48,8 @@ export default function AnimalPhotosScreen() {
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [refreshing, setRefreshing] = useState(false);
     const [fabOpen, setFabOpen] = useState(false);
+    const [uploadModalVisible, setUploadModalVisible] = useState(false);
+    const [pendingImages, setPendingImages] = useState<string[]>([]);
 
     useEffect(() => {
         loadPhotos();
@@ -57,21 +65,35 @@ export default function AnimalPhotosScreen() {
         const selected = await pickFromGallery({ maxSelection: 10 });
         if (selected.length > 0) {
             const uris = selected.map(img => img.uri);
-            const success = await uploadPhotos(uris);
-            if (!success && error) {
-                Alert.alert('Błąd', error);
-            }
+            setPendingImages(uris);
+            setUploadModalVisible(true);
         }
     };
 
     const handleAddFromCamera = async () => {
         const photo = await pickFromCamera();
         if (photo) {
-            const success = await uploadPhotos([photo.uri]);
-            if (!success && error) {
-                Alert.alert('Błąd', error);
-            }
+            setPendingImages([photo.uri]);
+            setUploadModalVisible(true);
         }
+    };
+
+    const handleUploadConfirm = async (data: PhotoUploadData) => {
+        setUploadModalVisible(false);
+        const hasUpdates = data.bodyLength != null || data.stage != null;
+        const success = await uploadPhotos(pendingImages, {
+            description: data.description || undefined,
+            bodyLength: data.bodyLength,
+            stage: data.stage,
+            currentMeasurements: animal?.measurements,
+        });
+        if (hasUpdates && success) {
+            queryClient.invalidateQueries({ queryKey: queryKeys.animals.detail(animalId) });
+        }
+        if (!success && error) {
+            Alert.alert('Błąd', error);
+        }
+        setPendingImages([]);
     };
 
     const handlePhotoPress = (photo: any, index: number) => {
@@ -118,6 +140,7 @@ export default function AnimalPhotosScreen() {
         url: p.url,
         isMain: p.isMain,
         path: p.path,
+        description: p.description,
     }));
 
     return (
@@ -203,6 +226,18 @@ export default function AnimalPhotosScreen() {
                 onClose={() => setViewerVisible(false)}
                 onDelete={handleDeleteFromViewer}
                 onSetMain={handleSetMainPhoto}
+            />
+
+            <PhotoUploadModal
+                visible={uploadModalVisible}
+                imageUris={pendingImages}
+                initialBodyLength={animal?.measurements?.length ?? null}
+                initialStage={animal?.specificData?.currentStage as number ?? null}
+                onConfirm={handleUploadConfirm}
+                onDismiss={() => {
+                    setUploadModalVisible(false);
+                    setPendingImages([]);
+                }}
             />
         </View>
     );

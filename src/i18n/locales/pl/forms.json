@@ -89,6 +89,17 @@
     "notesLabel": "Obserwacje",
     "notesPlaceholder": "Zachowanie podczas kopulacji, czas trwania, agresja..."
   },
+  "photoUpload": {
+    "title": "Przesyłanie zdjęć",
+    "descriptionLabel": "Opis",
+    "descriptionPlaceholder": "Dodaj opis do zdjęć...",
+    "measurementsSection": "📏 Pomiary",
+    "bodyLengthLabel": "Długość ciała",
+    "bodyLengthPlaceholder": "np. 5.5",
+    "stageLabel": "Obecna wylinka",
+    "stagePlaceholder": "np. 5",
+    "submit": "Prześlij"
+  },
   "cocoon": {
     "femaleSection": "🕷️ Samica",
     "femaleLabel": "Samica składająca kokon",

@@ -1,7 +1,15 @@
 import { useState, useCallback } from 'react';
 import { storageService } from '../services/firebase/storageService';
 import { animalsService } from "../services/firebase";
-import { Photo } from "../types";
+import { Animal, Photo } from "../types";
+
+interface UploadPhotosOptions {
+    mainIndex?: number;
+    description?: string;
+    bodyLength?: number | null;
+    stage?: number | null;
+    currentMeasurements?: Animal['measurements'];
+}
 
 interface UseAnimalPhotosReturn {
     photos: Photo[];
@@ -9,7 +17,7 @@ interface UseAnimalPhotosReturn {
     uploading: boolean;
     error: string | null;
     loadPhotos: () => Promise<void>;
-    uploadPhotos: (imageUris: string[], mainIndex?: number) => Promise<boolean>;
+    uploadPhotos: (imageUris: string[], options?: UploadPhotosOptions) => Promise<boolean>;
     uploadMainPhoto: (imageUri: string) => Promise<string | null>;
     deletePhoto: (photoId: string, photoPath: string) => Promise<boolean>;
     setMainPhoto: (photoId: string) => Promise<boolean>;
@@ -48,8 +56,9 @@ export const useAnimalPhotos = (
     // Upload wielu zdjęć
     const uploadPhotos = useCallback(async (
         imageUris: string[],
-        mainIndex: number = 0
+        options: UploadPhotosOptions = {}
     ): Promise<boolean> => {
+        const { mainIndex = 0, description, bodyLength, stage, currentMeasurements } = options;
         if (!userId || !animalId || imageUris.length === 0) return false;
 
         setUploading(true);
@@ -64,17 +73,37 @@ export const useAnimalPhotos = (
             );
 
             if (uploadResult.photos.length > 0) {
+                // Dodaj opis do zdjęć jeśli podano
+                const photosWithDescription = description
+                    ? uploadResult.photos.map(p => ({ ...p, description }))
+                    : uploadResult.photos;
+
                 // Zaktualizuj dokument zwierzęcia w Firestore
                 const currentPhotos = [...photos];
-                const newPhotos = [...currentPhotos, ...uploadResult.photos];
+                const newPhotos = [...currentPhotos, ...photosWithDescription];
 
-                await animalsService.update(animalId, {
+                const updateData: Record<string, any> = {
                     photos: newPhotos,
                     // Jeśli to pierwsze zdjęcie główne, ustaw mainPhotoUrl
-                    ...(uploadResult.photos.some(p => p.isMain) && {
-                        mainPhotoUrl: uploadResult.photos.find(p => p.isMain)?.url,
+                    ...(photosWithDescription.some(p => p.isMain) && {
+                        mainPhotoUrl: photosWithDescription.find(p => p.isMain)?.url,
                     }),
-                });
+                };
+
+                // Zaktualizuj pomiary jeśli podano długość ciała
+                if (bodyLength != null) {
+                    const mergedMeasurements = { ...(currentMeasurements || {}) };
+                    mergedMeasurements.length = bodyLength;
+                    mergedMeasurements.lastMeasured = new Date().toISOString().split('T')[0];
+                    updateData.measurements = mergedMeasurements;
+                }
+
+                // Zaktualizuj numer wylinki jeśli podano
+                if (stage != null) {
+                    updateData['specificData.currentStage'] = stage;
+                }
+
+                await animalsService.update(animalId, updateData);
 
                 setPhotos(newPhotos);
 

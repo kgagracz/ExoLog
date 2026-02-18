@@ -18,6 +18,7 @@ interface Photo {
     uri?: string;
     url?: string;
     isMain?: boolean;
+    description?: string;
 }
 
 interface PhotoViewerModalProps {
@@ -131,6 +132,15 @@ const PhotoViewerModal: React.FC<PhotoViewerModalProps> = ({
                     viewabilityConfig={viewabilityConfig}
                 />
 
+                {/* Description */}
+                {currentPhoto?.description ? (
+                    <View style={styles.descriptionContainer}>
+                        <Text style={styles.descriptionText}>
+                            {currentPhoto.description}
+                        </Text>
+                    </View>
+                ) : null}
+
                 {/* Indicators */}
                 {photos.length > 1 && (
                     <View style={styles.indicators}>
@@ -210,6 +220,20 @@ const makeStyles = (theme: Theme) =>
         indicatorActive: {
             backgroundColor: '#fff',
             width: 24,
+        },
+        descriptionContainer: {
+            position: 'absolute',
+            bottom: 120,
+            left: 16,
+            right: 16,
+            backgroundColor: 'rgba(0,0,0,0.6)',
+            borderRadius: 8,
+            padding: 12,
+        },
+        descriptionText: {
+            color: '#fff',
+            fontSize: 14,
+            textAlign: 'center',
         },
         mainBadge: {
             position: 'absolute',

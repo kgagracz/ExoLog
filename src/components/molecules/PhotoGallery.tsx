@@ -11,6 +11,7 @@ interface Photo {
     uri?: string;
     url?: string;
     isMain?: boolean;
+    description?: string;
 }
 
 interface PhotoGalleryProps {

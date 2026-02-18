@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
 import { Text, Button, ActivityIndicator } from 'react-native-paper';
+import { useQueryClient } from '@tanstack/react-query';
 import {useAnimalPhotos} from "../../hooks/useAnimalPhotos";
 import {useTheme} from "../../context/ThemeContext";
 import {useImagePicker} from "../../hooks/useImagePicker";
+import { useAnimalQuery } from '../../api/animals/useAnimalQuery';
+import { queryKeys } from '../../api/queryKeys';
 import SectionCard from "../atoms/SectionCard";
 import PhotoGallery from "./PhotoGallery";
 import PhotoViewerModal from "../organisms/PhotoVievewModal";
+import PhotoUploadModal, { PhotoUploadData } from "../organisms/PhotoUploadModal";
 import {Theme} from "../../styles/theme";
 
 interface PhotosSectionProps {
@@ -26,6 +30,8 @@ const PhotosSection: React.FC<PhotosSectionProps> = ({
                                                      }) => {
     const { theme } = useTheme();
     const styles = makeStyles(theme);
+    const queryClient = useQueryClient();
+    const { data: animal } = useAnimalQuery(animalId);
 
     const {
         photos,
@@ -42,6 +48,8 @@ const PhotosSection: React.FC<PhotosSectionProps> = ({
 
     const [viewerVisible, setViewerVisible] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(0);
+    const [uploadModalVisible, setUploadModalVisible] = useState(false);
+    const [pendingImages, setPendingImages] = useState<string[]>([]);
 
     useEffect(() => {
         loadPhotos();
@@ -51,21 +59,35 @@ const PhotosSection: React.FC<PhotosSectionProps> = ({
         const selected = await pickFromGallery({ maxSelection: 5 });
         if (selected.length > 0) {
             const uris = selected.map(img => img.uri);
-            const success = await uploadPhotos(uris);
-            if (!success && error) {
-                Alert.alert('Błąd', error);
-            }
+            setPendingImages(uris);
+            setUploadModalVisible(true);
         }
     };
 
     const handleAddFromCamera = async () => {
         const photo = await pickFromCamera();
         if (photo) {
-            const success = await uploadPhotos([photo.uri]);
-            if (!success && error) {
-                Alert.alert('Błąd', error);
-            }
+            setPendingImages([photo.uri]);
+            setUploadModalVisible(true);
         }
+    };
+
+    const handleUploadConfirm = async (data: PhotoUploadData) => {
+        setUploadModalVisible(false);
+        const hasUpdates = data.bodyLength != null || data.stage != null;
+        const success = await uploadPhotos(pendingImages, {
+            description: data.description || undefined,
+            bodyLength: data.bodyLength,
+            stage: data.stage,
+            currentMeasurements: animal?.measurements,
+        });
+        if (hasUpdates && success) {
+            queryClient.invalidateQueries({ queryKey: queryKeys.animals.detail(animalId) });
+        }
+        if (!success && error) {
+            Alert.alert('Błąd', error);
+        }
+        setPendingImages([]);
     };
 
     const handlePhotoPress = (photo: any, index: number) => {
@@ -115,6 +137,7 @@ const PhotosSection: React.FC<PhotosSectionProps> = ({
         url: p.url,
         isMain: p.isMain,
         path: p.path,
+        description: p.description,
     }));
 
     return (
@@ -164,6 +187,18 @@ const PhotosSection: React.FC<PhotosSectionProps> = ({
                 onClose={() => setViewerVisible(false)}
                 onDelete={editable ? handleDeleteFromViewer : undefined}
                 onSetMain={editable ? handleSetMainFromViewer : undefined}
+            />
+
+            <PhotoUploadModal
+                visible={uploadModalVisible}
+                imageUris={pendingImages}
+                initialBodyLength={animal?.measurements?.length ?? null}
+                initialStage={animal?.specificData?.currentStage as number ?? null}
+                onConfirm={handleUploadConfirm}
+                onDismiss={() => {
+                    setUploadModalVisible(false);
+                    setPendingImages([]);
+                }}
             />
         </SectionCard>
     );
