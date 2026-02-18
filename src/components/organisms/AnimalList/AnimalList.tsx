@@ -42,7 +42,7 @@ const AnimalsList: React.FC<AnimalsListProps> = ({
                 <RefreshControl refreshing={loading} onRefresh={onRefresh} />
             }
         >
-            {animals.map((animal) => (
+            {animals.map((animal, index) => (
                 <AnimalCard
                     key={animal.id}
                     animal={animal}
@@ -50,6 +50,7 @@ const AnimalsList: React.FC<AnimalsListProps> = ({
                     matingStatus={matingStatuses[animal.id]}
                     cocoonStatus={cocoonStatuses[animal.id]}
                     lastMoltDate={lastMoltDates[animal.id]}
+                    index={index}
                 />
             ))}
         </ScrollView>

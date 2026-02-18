@@ -1,15 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, StyleSheet, Alert } from 'react-native';
+import { View, ScrollView, StyleSheet, Alert, Animated } from 'react-native';
 import { Appbar, Card, Button, Divider, Switch } from 'react-native-paper';
+// @ts-ignore
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../hooks/useAuth';
+import { useSlideUp } from '../hooks/useAnimations';
 import { useNotificationPreferences } from '../hooks/useNotificationPreferences';
 import { useUserProfileQuery, useToggleVisibilityMutation } from '../api/social';
 import { socialService } from '../services/firebase';
 import { Theme } from '../styles/theme';
 import Text from '../components/atoms/Text';
+
+function AnimatedCard({ delay, children, style }: { delay: number; children: React.ReactNode; style?: any }) {
+    const { opacity, translateY } = useSlideUp(300, delay);
+    return (
+        <Animated.View style={[{ opacity, transform: [{ translateY }] }, style]}>
+            {children}
+        </Animated.View>
+    );
+}
 
 export default function ProfileScreen() {
     const { t } = useTranslation('profile');
@@ -82,117 +95,141 @@ export default function ProfileScreen() {
             </Appbar.Header>
 
             <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
-                {/* Sekcja avatara i nazwy */}
-                <View style={styles.profileHeader}>
+                {/* Sekcja avatara i nazwy z gradientem */}
+                <LinearGradient
+                    colors={theme.gradients.profileHeader}
+                    style={styles.profileHeader}
+                >
                     <View style={styles.avatarContainer}>
                         <Text style={styles.avatarText}>{getInitials(user?.email)}</Text>
                     </View>
                     <Text variant="h2" style={styles.displayName}>{getDisplayName()}</Text>
                     <Text variant="bodySmall" style={styles.email}>{user?.email}</Text>
-                </View>
+                </LinearGradient>
 
                 {/* Informacje o koncie */}
-                <Card style={styles.card}>
-                    <Card.Content>
-                        <Text variant="h3" style={styles.sectionTitle}>{t('accountInfo')}</Text>
-
-                        <View style={styles.infoRow}>
-                            <Text variant="bodySmall">{t('email')}</Text>
-                            <Text variant="body">{user?.email || '—'}</Text>
-                        </View>
-
-                        <Divider style={styles.divider} />
-
-                        <View style={styles.infoRow}>
-                            <Text variant="bodySmall">{t('displayName')}</Text>
-                            <Text variant="body">{user?.displayName || '—'}</Text>
-                        </View>
-
-                        <Divider style={styles.divider} />
-
-                        <View style={styles.infoRow}>
-                            <Text variant="bodySmall">{t('userId')}</Text>
-                            <Text variant="caption" numberOfLines={1}>{user?.uid || '—'}</Text>
-                        </View>
-                    </Card.Content>
-                </Card>
-
-                {/* Motyw */}
-                <Card style={styles.card}>
-                    <Card.Content>
-                        <View style={styles.infoRow}>
-                            <Text variant="body">{t('darkTheme')}</Text>
-                            <Switch
-                                value={isDark}
-                                onValueChange={toggleTheme}
-                                color={theme.colors.primary}
-                            />
-                        </View>
-                    </Card.Content>
-                </Card>
-
-                {/* Prywatność */}
-                {profile && (
+                <AnimatedCard delay={0}>
                     <Card style={styles.card}>
                         <Card.Content>
-                            <Text variant="h3" style={styles.sectionTitle}>{t('privacy')}</Text>
+                            <Text variant="h3" style={styles.sectionTitle}>{t('accountInfo')}</Text>
 
                             <View style={styles.infoRow}>
-                                <View style={{ flex: 1 }}>
-                                    <Text variant="body">{t('publicProfile')}</Text>
-                                    <Text variant="caption" style={{ color: theme.colors.textSecondary }}>
-                                        {t('publicProfileDescription')}
-                                    </Text>
+                                <MaterialCommunityIcons name="email-outline" size={20} color={theme.colors.primary} style={styles.rowIcon} />
+                                <View style={styles.infoContent}>
+                                    <Text variant="bodySmall">{t('email')}</Text>
+                                    <Text variant="body">{user?.email || '—'}</Text>
                                 </View>
+                            </View>
+
+                            <Divider style={styles.divider} />
+
+                            <View style={styles.infoRow}>
+                                <MaterialCommunityIcons name="account-outline" size={20} color={theme.colors.primary} style={styles.rowIcon} />
+                                <View style={styles.infoContent}>
+                                    <Text variant="bodySmall">{t('displayName')}</Text>
+                                    <Text variant="body">{user?.displayName || '—'}</Text>
+                                </View>
+                            </View>
+
+                            <Divider style={styles.divider} />
+
+                            <View style={styles.infoRow}>
+                                <MaterialCommunityIcons name="identifier" size={20} color={theme.colors.primary} style={styles.rowIcon} />
+                                <View style={styles.infoContent}>
+                                    <Text variant="bodySmall">{t('userId')}</Text>
+                                    <Text variant="caption" numberOfLines={1}>{user?.uid || '—'}</Text>
+                                </View>
+                            </View>
+                        </Card.Content>
+                    </Card>
+                </AnimatedCard>
+
+                {/* Motyw */}
+                <AnimatedCard delay={100}>
+                    <Card style={styles.card}>
+                        <Card.Content>
+                            <View style={styles.infoRow}>
+                                <MaterialCommunityIcons name="theme-light-dark" size={20} color={theme.colors.primary} style={styles.rowIcon} />
+                                <Text variant="body" style={{ flex: 1 }}>{t('darkTheme')}</Text>
                                 <Switch
-                                    value={profile.isPublic}
-                                    onValueChange={handleTogglePublic}
+                                    value={isDark}
+                                    onValueChange={toggleTheme}
                                     color={theme.colors.primary}
-                                    disabled={toggleVisibility.isPending}
                                 />
                             </View>
                         </Card.Content>
                     </Card>
+                </AnimatedCard>
+
+                {/* Prywatność */}
+                {profile && (
+                    <AnimatedCard delay={200}>
+                        <Card style={styles.card}>
+                            <Card.Content>
+                                <Text variant="h3" style={styles.sectionTitle}>{t('privacy')}</Text>
+
+                                <View style={styles.infoRow}>
+                                    <MaterialCommunityIcons name="earth" size={20} color={theme.colors.primary} style={styles.rowIcon} />
+                                    <View style={{ flex: 1 }}>
+                                        <Text variant="body">{t('publicProfile')}</Text>
+                                        <Text variant="caption" style={{ color: theme.colors.textSecondary }}>
+                                            {t('publicProfileDescription')}
+                                        </Text>
+                                    </View>
+                                    <Switch
+                                        value={profile.isPublic}
+                                        onValueChange={handleTogglePublic}
+                                        color={theme.colors.primary}
+                                        disabled={toggleVisibility.isPending}
+                                    />
+                                </View>
+                            </Card.Content>
+                        </Card>
+                    </AnimatedCard>
                 )}
 
                 {/* Powiadomienia */}
-                <Card style={styles.card}>
-                    <Card.Content>
-                        <Text variant="h3" style={styles.sectionTitle}>{t('notifications')}</Text>
+                <AnimatedCard delay={300}>
+                    <Card style={styles.card}>
+                        <Card.Content>
+                            <Text variant="h3" style={styles.sectionTitle}>{t('notifications')}</Text>
 
-                        <View style={styles.infoRow}>
-                            <View style={{ flex: 1 }}>
-                                <Text variant="body">{t('moltReminders')}</Text>
-                                <Text variant="caption" style={{ color: theme.colors.textSecondary }}>
-                                    {t('moltRemindersDescription')}
-                                </Text>
+                            <View style={styles.infoRow}>
+                                <MaterialCommunityIcons name="bell-ring-outline" size={20} color={theme.colors.primary} style={styles.rowIcon} />
+                                <View style={{ flex: 1 }}>
+                                    <Text variant="body">{t('moltReminders')}</Text>
+                                    <Text variant="caption" style={{ color: theme.colors.textSecondary }}>
+                                        {t('moltRemindersDescription')}
+                                    </Text>
+                                </View>
+                                <Switch
+                                    value={preferences.moltReminders}
+                                    onValueChange={toggleMoltReminders}
+                                    color={theme.colors.primary}
+                                    disabled={prefsLoading}
+                                />
                             </View>
-                            <Switch
-                                value={preferences.moltReminders}
-                                onValueChange={toggleMoltReminders}
-                                color={theme.colors.primary}
-                                disabled={prefsLoading}
-                            />
-                        </View>
 
-                        <Divider style={styles.divider} />
+                            <Divider style={styles.divider} />
 
-                        <View style={styles.infoRow}>
-                            <View style={{ flex: 1 }}>
-                                <Text variant="body">{t('cocoonReminders')}</Text>
-                                <Text variant="caption" style={{ color: theme.colors.textSecondary }}>
-                                    {t('cocoonRemindersDescription')}
-                                </Text>
+                            <View style={styles.infoRow}>
+                                <MaterialCommunityIcons name="egg-outline" size={20} color={theme.colors.primary} style={styles.rowIcon} />
+                                <View style={{ flex: 1 }}>
+                                    <Text variant="body">{t('cocoonReminders')}</Text>
+                                    <Text variant="caption" style={{ color: theme.colors.textSecondary }}>
+                                        {t('cocoonRemindersDescription')}
+                                    </Text>
+                                </View>
+                                <Switch
+                                    value={preferences.cocoonReminders}
+                                    onValueChange={toggleCocoonReminders}
+                                    color={theme.colors.primary}
+                                    disabled={prefsLoading}
+                                />
                             </View>
-                            <Switch
-                                value={preferences.cocoonReminders}
-                                onValueChange={toggleCocoonReminders}
-                                color={theme.colors.primary}
-                                disabled={prefsLoading}
-                            />
-                        </View>
-                    </Card.Content>
-                </Card>
+                        </Card.Content>
+                    </Card>
+                </AnimatedCard>
 
                 {/* Przycisk wylogowania */}
                 <View style={styles.logoutSection}>
@@ -223,53 +260,67 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     },
     contentContainer: {
         flexGrow: 1,
-        padding: 16,
     },
     profileHeader: {
         alignItems: 'center',
-        paddingVertical: 24,
+        paddingVertical: theme.spacing.large,
+        paddingTop: theme.spacing.xl,
+        borderBottomLeftRadius: theme.borderRadius.xl,
+        borderBottomRightRadius: theme.borderRadius.xl,
     },
     avatarContainer: {
-        width: 80,
-        height: 80,
-        borderRadius: 40,
-        backgroundColor: theme.colors.primary,
+        width: 88,
+        height: 88,
+        borderRadius: 44,
+        backgroundColor: 'rgba(255,255,255,0.2)',
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 16,
+        marginBottom: theme.spacing.medium,
+        borderWidth: 3,
+        borderColor: 'rgba(255,255,255,0.4)',
     },
     avatarText: {
-        fontSize: 32,
+        fontSize: 34,
         fontWeight: 'bold',
-        color: theme.colors.textInverse,
+        color: '#ffffff',
     },
     displayName: {
-        marginBottom: 4,
-        color: theme.colors.textPrimary,
+        marginBottom: theme.spacing.xs,
+        color: '#ffffff',
     },
     email: {
-        color: theme.colors.textSecondary,
+        color: 'rgba(255,255,255,0.8)',
     },
     card: {
         backgroundColor: theme.colors.surface,
-        marginBottom: 16,
+        marginHorizontal: theme.spacing.medium,
+        marginBottom: theme.spacing.medium,
+        borderRadius: theme.borderRadius.large,
+        ...theme.shadows.small,
     },
     sectionTitle: {
-        marginBottom: 16,
+        marginBottom: theme.spacing.medium,
         color: theme.colors.primary,
     },
     infoRow: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
         alignItems: 'center',
-        paddingVertical: 8,
+        paddingVertical: theme.spacing.small,
+    },
+    rowIcon: {
+        marginRight: theme.spacing.ms,
+        width: 24,
+    },
+    infoContent: {
+        flex: 1,
     },
     divider: {
-        backgroundColor: theme.colors.border,
+        backgroundColor: theme.colors.borderLight,
+        marginVertical: theme.spacing.xs,
     },
     logoutSection: {
         marginTop: 'auto',
-        paddingVertical: 16,
+        padding: theme.spacing.medium,
     },
     logoutButton: {
         borderColor: theme.colors.error,

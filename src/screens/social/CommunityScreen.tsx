@@ -102,42 +102,43 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     },
     content: {
         flex: 1,
-        padding: 16,
+        padding: theme.spacing.medium,
     },
     searchBar: {
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: theme.colors.surfaceLight,
-        borderRadius: 12,
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        marginBottom: 16,
+        borderRadius: theme.spacing.ms,
+        paddingHorizontal: theme.spacing.medium,
+        paddingVertical: theme.spacing.ms,
+        marginBottom: theme.spacing.medium,
+        ...theme.shadows.small,
     },
     searchPlaceholder: {
-        marginLeft: 8,
+        marginLeft: theme.spacing.small,
         color: theme.colors.textSecondary,
     },
     requestsRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 12,
+        paddingVertical: theme.spacing.ms,
     },
     requestsText: {
         flex: 1,
-        marginLeft: 12,
+        marginLeft: theme.spacing.ms,
         color: theme.colors.textPrimary,
     },
     badge: {
         backgroundColor: theme.colors.error,
-        marginRight: 8,
+        marginRight: theme.spacing.small,
     },
     divider: {
         backgroundColor: theme.colors.border,
-        marginVertical: 8,
+        marginVertical: theme.spacing.small,
     },
     sectionTitle: {
         color: theme.colors.textPrimary,
-        marginBottom: 12,
+        marginBottom: theme.spacing.ms,
     },
     emptyState: {
         flex: 1,
@@ -147,11 +148,11 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     },
     emptyText: {
         color: theme.colors.textSecondary,
-        marginTop: 16,
+        marginTop: theme.spacing.medium,
     },
     emptyHint: {
         color: theme.colors.textLight,
-        marginTop: 4,
+        marginTop: theme.spacing.xs,
     },
     itemDivider: {
         backgroundColor: theme.colors.borderLight,

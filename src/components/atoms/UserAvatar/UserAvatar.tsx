@@ -1,5 +1,6 @@
 import React from 'react';
-import { TouchableOpacity, View, StyleSheet } from 'react-native';
+import { TouchableOpacity, StyleSheet } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../../../context/ThemeContext';
 import { useAuth } from '../../../hooks/useAuth';
 import Text from '../Text';
@@ -34,9 +35,12 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
 
     return (
         <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
-            <View style={styles.container}>
+            <LinearGradient
+                colors={theme.gradients.cardAccent}
+                style={styles.container}
+            >
                 <Text style={styles.initials}>{getInitials()}</Text>
-            </View>
+            </LinearGradient>
         </TouchableOpacity>
     );
 };
@@ -46,9 +50,11 @@ const createStyles = (theme: Theme, size: number) => StyleSheet.create({
         width: size,
         height: size,
         borderRadius: size / 2,
-        backgroundColor: theme.colors.primary,
         alignItems: 'center',
         justifyContent: 'center',
+        borderWidth: 2,
+        borderColor: theme.colors.primaryLight,
+        ...theme.shadows.small,
     },
     initials: {
         fontSize: size * 0.4,

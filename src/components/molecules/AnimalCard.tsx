@@ -1,8 +1,10 @@
 import React from 'react';
-import { View, StyleSheet, Image } from 'react-native';
+import { View, StyleSheet, Image, Animated } from 'react-native';
 import { Text, Card, Chip } from 'react-native-paper';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from "../../context/ThemeContext";
+import { useSlideUp } from "../../hooks/useAnimations";
 import { Theme } from "../../styles/theme";
 import { Animal } from "../../types";
 
@@ -24,12 +26,16 @@ interface AnimalCardProps {
   matingStatus?: MatingStatus;
   cocoonStatus?: CocoonStatus;
   lastMoltDate?: string;
+  index?: number;
 }
 
-const AnimalCard: React.FC<AnimalCardProps> = ({ animal, onPress, matingStatus, cocoonStatus, lastMoltDate }) => {
+const AnimalCard: React.FC<AnimalCardProps> = ({ animal, onPress, matingStatus, cocoonStatus, lastMoltDate, index = 0 }) => {
   const { theme } = useTheme();
   const { t } = useTranslation('animals');
   const styles = makeStyles(theme);
+
+  const delay = Math.min(index, 8) * 80;
+  const { opacity, translateY } = useSlideUp(theme.timing.normal, delay);
 
   // Pobierz zdjęcie główne
   const mainPhoto = animal.photos?.find(p => p.isMain) || animal.photos?.[0];
@@ -85,94 +91,103 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal, onPress, matingStatus, 
   const moltLabel = getMoltLabel();
 
   return (
-      <Card style={styles.animalCard} onPress={() => onPress(animal)}>
-        <View style={styles.cardContent}>
-          {/* Miniaturka zdjęcia */}
-          <View style={styles.photoContainer}>
-            {photoUrl ? (
-                <Image
-                    source={{ uri: photoUrl }}
-                    style={styles.photo}
-                    resizeMode="cover"
-                />
-            ) : (
-                <View style={styles.photoPlaceholder}>
-                  <Text style={styles.photoPlaceholderText}>🕷️</Text>
-                </View>
-            )}
-          </View>
-
-          {/* Informacje */}
-          <View style={styles.infoContainer}>
-            <View style={styles.headerRow}>
-              <Text variant="titleMedium" style={styles.animalName} numberOfLines={1}>
-                {animal.name}
-              </Text>
-              <View style={styles.chipsRow}>
-                {cocoonLabel && (
-                    <Chip
-                        style={[styles.statusChip, cocoonLabel.style]}
-                        textStyle={[styles.statusChipText, cocoonLabel.textStyle]}
-                        compact
-                    >
-                      {cocoonLabel.label}
-                    </Chip>
-                )}
-                {matingLabel && !cocoonLabel && (
-                    <Chip
-                        style={[styles.statusChip, matingLabel.style]}
-                        textStyle={[styles.statusChipText, matingLabel.textStyle]}
-                        compact
-                    >
-                      {matingLabel.label}
-                    </Chip>
-                )}
-                {moltLabel && (
-                    <Chip
-                        style={[styles.statusChip, moltLabel.style]}
-                        textStyle={[styles.statusChipText, moltLabel.textStyle]}
-                        compact
-                    >
-                      {moltLabel.label}
-                    </Chip>
-                )}
-              </View>
+      <Animated.View style={{ opacity, transform: [{ translateY }] }}>
+        <Card style={styles.animalCard} onPress={() => onPress(animal)}>
+          <View style={styles.cardContent}>
+            {/* Miniaturka zdjęcia */}
+            <View style={styles.photoContainer}>
+              {photoUrl ? (
+                  <Image
+                      source={{ uri: photoUrl }}
+                      style={styles.photo}
+                      resizeMode="cover"
+                  />
+              ) : (
+                  <LinearGradient
+                      colors={[theme.colors.primaryContainer, theme.colors.primaryLight + '40']}
+                      style={styles.photoPlaceholder}
+                  >
+                    <Text style={styles.photoPlaceholderText}>🕷️</Text>
+                  </LinearGradient>
+              )}
             </View>
-            <Text variant="bodyMedium" style={styles.animalSpecies} numberOfLines={1}>
-              {animal.species || t('common:unknownSpecies')}
-            </Text>
-            <Text variant="bodySmall" style={styles.animalInfo}>
-              {animal.sex === 'male' ? `♂ ${t('filters:sex.male')}` :
-                  animal.sex === 'female' ? `♀ ${t('filters:sex.female')}` :
-                      t('common:unknownSex')} • L{animal.specificData?.currentStage || '?'}
-            </Text>
-            {animal.feeding?.lastFed && (
-                <Text variant="bodySmall" style={styles.animalDate}>
-                  {t('addFeeding.lastFeeding')} {new Date(animal.feeding.lastFed).toLocaleDateString('pl-PL')}
+
+            {/* Informacje */}
+            <View style={styles.infoContainer}>
+              <View style={styles.headerRow}>
+                <Text variant="titleMedium" style={styles.animalName} numberOfLines={1}>
+                  {animal.name}
                 </Text>
-            )}
+                <View style={styles.chipsRow}>
+                  {cocoonLabel && (
+                      <Chip
+                          style={[styles.statusChip, cocoonLabel.style]}
+                          textStyle={[styles.statusChipText, cocoonLabel.textStyle]}
+                          compact
+                      >
+                        {cocoonLabel.label}
+                      </Chip>
+                  )}
+                  {matingLabel && !cocoonLabel && (
+                      <Chip
+                          style={[styles.statusChip, matingLabel.style]}
+                          textStyle={[styles.statusChipText, matingLabel.textStyle]}
+                          compact
+                      >
+                        {matingLabel.label}
+                      </Chip>
+                  )}
+                  {moltLabel && (
+                      <Chip
+                          style={[styles.statusChip, moltLabel.style]}
+                          textStyle={[styles.statusChipText, moltLabel.textStyle]}
+                          compact
+                      >
+                        {moltLabel.label}
+                      </Chip>
+                  )}
+                </View>
+              </View>
+              <Text variant="bodyMedium" style={styles.animalSpecies} numberOfLines={1}>
+                {animal.species || t('common:unknownSpecies')}
+              </Text>
+              <Text variant="bodySmall" style={styles.animalInfo}>
+                {animal.sex === 'male' ? `♂ ${t('filters:sex.male')}` :
+                    animal.sex === 'female' ? `♀ ${t('filters:sex.female')}` :
+                        t('common:unknownSex')} • L{animal.specificData?.currentStage || '?'}
+              </Text>
+              {animal.feeding?.lastFed && (
+                  <Text variant="bodySmall" style={styles.animalDate}>
+                    {t('addFeeding.lastFeeding')} {new Date(animal.feeding.lastFed).toLocaleDateString('pl-PL')}
+                  </Text>
+              )}
+            </View>
           </View>
-        </View>
-      </Card>
+        </Card>
+      </Animated.View>
   );
 };
 
 const makeStyles = (theme: Theme) => StyleSheet.create({
   animalCard: {
-    marginBottom: 12,
+    marginBottom: theme.spacing.ms,
     backgroundColor: theme.colors.backgroundSecondary,
     overflow: 'hidden',
+    borderRadius: theme.borderRadius.large,
+    borderLeftWidth: 3,
+    borderLeftColor: theme.colors.primaryLight,
+    ...theme.shadows.small,
   },
   cardContent: {
     flexDirection: 'row',
-    padding: 12,
+    padding: theme.spacing.ms,
   },
   photoContainer: {
     width: 70,
     height: 70,
     borderRadius: theme.borderRadius.medium,
     overflow: 'hidden',
-    marginRight: 12,
+    marginRight: theme.spacing.ms,
     backgroundColor: theme.colors.surfaceLight,
   },
   photo: {
@@ -184,7 +199,6 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: theme.colors.primaryContainer,
   },
   photoPlaceholderText: {
     fontSize: 32,
@@ -201,18 +215,18 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
   },
   chipsRow: {
     flexDirection: 'row',
-    gap: 4,
+    gap: theme.spacing.xs,
   },
   animalName: {
     fontWeight: 'bold',
     color: theme.colors.text,
     flex: 1,
-    marginRight: 8,
+    marginRight: theme.spacing.small,
   },
   animalSpecies: {
     color: theme.colors.primary,
     fontStyle: 'italic',
-    marginBottom: 4,
+    marginBottom: theme.spacing.xs,
   },
   animalInfo: {
     color: theme.colors.textSecondary,

@@ -1,6 +1,8 @@
 import React, { ReactNode } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Card, Text, IconButton } from 'react-native-paper';
+// @ts-ignore
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from "../../context/ThemeContext";
 import { Theme } from "../../styles/theme";
 
@@ -30,7 +32,14 @@ const SectionCard: React.FC<SectionCardProps> = ({
         {title && (
             <View style={styles.header}>
               <View style={styles.titleContainer}>
-                {icon && <Text style={styles.icon}>{icon}</Text>}
+                {icon && (
+                    <MaterialCommunityIcons
+                        name={icon}
+                        size={20}
+                        color={theme.colors.primary}
+                        style={styles.icon}
+                    />
+                )}
                 <Text variant="titleMedium" style={styles.title}>{title}</Text>
               </View>
               {rightAction && (
@@ -52,17 +61,19 @@ const SectionCard: React.FC<SectionCardProps> = ({
 
 const makeStyles = (theme: Theme) => StyleSheet.create({
   card: {
-    margin: 16,
-    marginBottom: 8,
+    margin: theme.spacing.medium,
+    marginBottom: theme.spacing.small,
     backgroundColor: theme.colors.surface,
+    borderRadius: theme.borderRadius.large,
+    ...theme.shadows.small,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 4,
+    paddingHorizontal: theme.spacing.medium,
+    paddingTop: theme.spacing.ms,
+    paddingBottom: theme.spacing.xs,
   },
   titleContainer: {
     flexDirection: 'row',
@@ -70,8 +81,7 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     flex: 1,
   },
   icon: {
-    fontSize: 18,
-    marginRight: 8,
+    marginRight: theme.spacing.small,
   },
   title: {
     fontWeight: '600',
@@ -81,7 +91,7 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     margin: 0,
   },
   contentWithHeader: {
-    paddingTop: 8,
+    paddingTop: theme.spacing.small,
   },
 });
 

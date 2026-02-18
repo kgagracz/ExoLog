@@ -208,12 +208,12 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         alignItems: 'center',
     },
     loadingText: {
-        marginTop: 16,
+        marginTop: theme.spacing.medium,
         color: theme.colors.onSurfaceVariant,
     },
     content: {
         flex: 1,
-        padding: 16,
+        padding: theme.spacing.medium,
     },
     emptyContainer: {
         flex: 1,
@@ -222,29 +222,31 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         paddingVertical: 64,
     },
     emptyIcon: {
-        marginBottom: 16,
+        marginBottom: theme.spacing.medium,
     },
     emptyTitle: {
         color: theme.colors.onSurface,
-        marginBottom: 8,
+        marginBottom: theme.spacing.small,
     },
     emptyDescription: {
         color: theme.colors.onSurfaceVariant,
         textAlign: 'center',
     },
     cocoonCard: {
-        marginBottom: 12,
+        marginBottom: theme.spacing.ms,
         backgroundColor: theme.colors.surface,
+        borderRadius: theme.borderRadius.large,
+        ...theme.shadows.small,
     },
     cardHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'flex-start',
-        marginBottom: 12,
+        marginBottom: theme.spacing.ms,
     },
     cardTitleContainer: {
         flex: 1,
-        marginRight: 8,
+        marginRight: theme.spacing.small,
     },
     animalName: {
         fontWeight: 'bold',
@@ -256,7 +258,7 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         marginTop: 2,
     },
     cardDetails: {
-        gap: 8,
+        gap: theme.spacing.small,
     },
     detailRow: {
         flexDirection: 'row',
@@ -264,7 +266,7 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     },
     detailLabel: {
         color: theme.colors.onSurfaceVariant,
-        marginRight: 8,
+        marginRight: theme.spacing.small,
         minWidth: 120,
     },
     detailValue: {
@@ -300,6 +302,6 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         color: theme.colors.error,
     },
     bottomSpacer: {
-        height: 24,
+        height: theme.spacing.large,
     },
 });

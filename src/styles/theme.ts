@@ -75,6 +75,7 @@ export const lightTheme = {
     spacing: {
         xs: 4,
         small: 8,
+        ms: 12,
         medium: 16,
         large: 24,
         xl: 32,
@@ -182,6 +183,20 @@ export const lightTheme = {
         },
     },
 
+    // Gradienty
+    gradients: {
+        profileHeader: ['#6366f1', '#8b5cf6'] as readonly [string, string],
+        heroOverlay: ['transparent', 'rgba(0,0,0,0.7)'] as readonly [string, string],
+        cardAccent: ['#6366f1', '#818cf8'] as readonly [string, string],
+    },
+
+    // Animacje
+    timing: {
+        fast: 200,
+        normal: 300,
+        slow: 500,
+    },
+
     // Layout
     layout: {
         window: { width, height },
@@ -287,6 +302,12 @@ export const darkTheme = {
             elevation: 8,
         },
     },
+    gradients: {
+        profileHeader: ['#818cf8', '#a78bfa'] as readonly [string, string],
+        heroOverlay: ['transparent', 'rgba(0,0,0,0.85)'] as readonly [string, string],
+        cardAccent: ['#818cf8', '#a5b4fc'] as readonly [string, string],
+    },
+    timing: lightTheme.timing,
     layout: lightTheme.layout,
 };
 

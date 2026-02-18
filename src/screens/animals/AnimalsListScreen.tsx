@@ -147,14 +147,16 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: 16,
+    padding: theme.spacing.medium,
   },
   searchBar: {
-    marginBottom: 8,
+    marginBottom: theme.spacing.small,
     backgroundColor: theme.colors.backgroundSecondary,
+    borderRadius: theme.borderRadius.large,
+    ...theme.shadows.small,
   },
   avatarContainer: {
-    marginRight: 8,
+    marginRight: theme.spacing.small,
   },
   noResults: {
     flex: 1,

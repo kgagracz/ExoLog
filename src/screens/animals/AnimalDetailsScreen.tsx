@@ -227,14 +227,14 @@ export default function AnimalDetailsScreen() {
                 />
 
                 {/* Pomiary i wiek */}
-                <SectionCard title={t('details.measurements')} icon="📏">
+                <SectionCard title={t('details.measurements')} icon="ruler">
                     <MeasurementsSection animal={animal} />
                 </SectionCard>
 
                 {/* Karmienie */}
                 <SectionCard
                     title={t('details.feeding')}
-                    icon="🦗"
+                    icon="bug"
                     rightAction={{
                         icon: 'history',
                         onPress: handleFeedingHistory
@@ -250,7 +250,7 @@ export default function AnimalDetailsScreen() {
                 {/* Historia wyliniek */}
                 <SectionCard
                     title={t('details.moltingHistory')}
-                    icon="🔄"
+                    icon="sync"
                     rightAction={isOwner ? {
                         icon: 'plus',
                         onPress: () => navigation.navigate('AddMolting', { animalId })
@@ -279,7 +279,7 @@ export default function AnimalDetailsScreen() {
 
                 {/* Notatki */}
                 {animal.notes && (
-                    <SectionCard title={t('common:notes')} icon="📝">
+                    <SectionCard title={t('common:notes')} icon="note-text-outline">
                         <Text variant="bodyMedium" style={styles.notesText}>
                             {animal.notes}
                         </Text>
@@ -376,7 +376,7 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         flex: 1,
     },
     loadingText: {
-        marginTop: 16,
+        marginTop: theme.spacing.medium,
         color: theme.colors.onSurfaceVariant,
     },
     notesText: {

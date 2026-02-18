@@ -38,6 +38,7 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     borderRadius: theme.borderRadius.medium,
     alignItems: 'center',
     minHeight: 50,
+    ...theme.shadows.small,
   },
 
   value: {

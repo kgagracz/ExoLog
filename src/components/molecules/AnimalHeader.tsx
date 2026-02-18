@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, ImageBackground, Dimensions } from 'react-native';
 import { Text, Chip } from 'react-native-paper';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from "../../context/ThemeContext";
 import { Theme } from "../../styles/theme";
@@ -151,10 +152,10 @@ const AnimalHeader: React.FC<AnimalHeroHeaderProps> = ({ animal, matingStatus, c
 
   const renderContent = () => (
       <View style={styles.gradientContainer}>
-        {/* Wielowarstwowy gradient */}
-        <View style={styles.gradientLayer1} />
-        <View style={styles.gradientLayer2} />
-        <View style={styles.gradientLayer3} />
+        <LinearGradient
+            colors={theme.gradients.heroOverlay}
+            style={StyleSheet.absoluteFill}
+        />
 
         <View style={styles.content}>
           <Text style={styles.animalName}>{animal.name}</Text>
@@ -238,31 +239,6 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-end',
   },
-  // Wielowarstwowy gradient - od góry do dołu coraz ciemniejszy
-  gradientLayer1: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: '70%',
-    backgroundColor: 'rgba(0,0,0,0.15)',
-  },
-  gradientLayer2: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: '50%',
-    backgroundColor: 'rgba(0,0,0,0.25)',
-  },
-  gradientLayer3: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: '30%',
-    backgroundColor: 'rgba(0,0,0,0.35)',
-  },
   content: {
     padding: theme.spacing.medium,
     paddingBottom: theme.spacing.large,
@@ -271,7 +247,7 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     color: '#ffffff',
-    marginBottom: 4,
+    marginBottom: theme.spacing.xs,
     textShadowColor: 'rgba(0,0,0,0.75)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 4,
@@ -280,7 +256,7 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     fontSize: 16,
     color: 'rgba(255,255,255,0.95)',
     fontStyle: 'italic',
-    marginBottom: 12,
+    marginBottom: theme.spacing.ms,
     textShadowColor: 'rgba(0,0,0,0.5)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
@@ -288,7 +264,7 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
   chipContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
+    gap: theme.spacing.small,
   },
   chip: {
     height: 28,
