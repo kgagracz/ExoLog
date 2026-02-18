@@ -48,6 +48,7 @@ export async function scheduleMoltReminder(
             title: i18n.t('notifications:moltReminder.title'),
             body: i18n.t('notifications:moltReminder.body', { name: animalName }),
             sound: 'default',
+            data: { type: 'molt' },
         },
         trigger: {
             type: Notifications.SchedulableTriggerInputTypes.DATE,
@@ -75,6 +76,7 @@ export async function scheduleCocoonHatchReminder(
             title: i18n.t('notifications:cocoonReminder.title'),
             body: i18n.t('notifications:cocoonReminder.body', { name: animalName }),
             sound: 'default',
+            data: { type: 'cocoon' },
         },
         trigger: {
             type: Notifications.SchedulableTriggerInputTypes.DATE,
@@ -88,4 +90,12 @@ export async function scheduleCocoonHatchReminder(
 
 export async function cancelNotification(notificationId: string): Promise<void> {
     await Notifications.cancelScheduledNotificationAsync(notificationId);
+}
+
+export async function cancelNotificationsByType(type: 'molt' | 'cocoon'): Promise<void> {
+    const scheduled = await Notifications.getAllScheduledNotificationsAsync();
+    const toCancel = scheduled.filter(n => n.content.data?.type === type);
+    await Promise.all(
+        toCancel.map(n => Notifications.cancelScheduledNotificationAsync(n.identifier)),
+    );
 }

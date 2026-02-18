@@ -5,6 +5,7 @@ import { unwrapServiceWithMeta } from '../serviceAdapter';
 import { queryKeys } from '../queryKeys';
 import { useAuth } from '../../hooks/useAuth';
 import { scheduleMoltReminder } from '../../services/notificationService';
+import { getNotificationPreferences } from '../../services/notificationPreferences';
 
 interface AddMoltingData {
     animalId: string;
@@ -32,7 +33,13 @@ export function useAddMoltingMutation() {
             queryClient.invalidateQueries({ queryKey: queryKeys.animals.lists() });
 
             if (animalName) {
-                scheduleMoltReminder(animalName, date).catch(() => {});
+                getNotificationPreferences()
+                    .then(prefs => {
+                        if (prefs.moltReminders) {
+                            return scheduleMoltReminder(animalName, date);
+                        }
+                    })
+                    .catch(() => {});
             }
         },
     });

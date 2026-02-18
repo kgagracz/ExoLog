@@ -4,6 +4,7 @@ import { unwrapServiceWithMeta } from '../serviceAdapter';
 import { queryKeys } from '../queryKeys';
 import { useAuth } from '../../hooks/useAuth';
 import { scheduleCocoonHatchReminder } from '../../services/notificationService';
+import { getNotificationPreferences } from '../../services/notificationPreferences';
 
 interface AddCocoonData {
     animalId: string;
@@ -36,7 +37,13 @@ export function useAddCocoonMutation() {
             queryClient.invalidateQueries({ queryKey: queryKeys.animals.detail(animalId) });
 
             if (setReminder && eventData.estimatedHatchDate && animalName) {
-                scheduleCocoonHatchReminder(animalName, eventData.estimatedHatchDate).catch(() => {});
+                getNotificationPreferences()
+                    .then(prefs => {
+                        if (prefs.cocoonReminders) {
+                            return scheduleCocoonHatchReminder(animalName, eventData.estimatedHatchDate!);
+                        }
+                    })
+                    .catch(() => {});
             }
         },
     });

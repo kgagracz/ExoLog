@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../hooks/useAuth';
+import { useNotificationPreferences } from '../hooks/useNotificationPreferences';
 import { useUserProfileQuery, useToggleVisibilityMutation } from '../api/social';
 import { socialService } from '../services/firebase';
 import { Theme } from '../styles/theme';
@@ -21,6 +22,7 @@ export default function ProfileScreen() {
 
     const { data: profile } = useUserProfileQuery(user?.uid);
     const toggleVisibility = useToggleVisibilityMutation();
+    const { preferences, loading: prefsLoading, toggleMoltReminders, toggleCocoonReminders } = useNotificationPreferences();
 
     // Ensure profile exists on first visit
     useEffect(() => {
@@ -152,6 +154,45 @@ export default function ProfileScreen() {
                         </Card.Content>
                     </Card>
                 )}
+
+                {/* Powiadomienia */}
+                <Card style={styles.card}>
+                    <Card.Content>
+                        <Text variant="h3" style={styles.sectionTitle}>{t('notifications')}</Text>
+
+                        <View style={styles.infoRow}>
+                            <View style={{ flex: 1 }}>
+                                <Text variant="body">{t('moltReminders')}</Text>
+                                <Text variant="caption" style={{ color: theme.colors.textSecondary }}>
+                                    {t('moltRemindersDescription')}
+                                </Text>
+                            </View>
+                            <Switch
+                                value={preferences.moltReminders}
+                                onValueChange={toggleMoltReminders}
+                                color={theme.colors.primary}
+                                disabled={prefsLoading}
+                            />
+                        </View>
+
+                        <Divider style={styles.divider} />
+
+                        <View style={styles.infoRow}>
+                            <View style={{ flex: 1 }}>
+                                <Text variant="body">{t('cocoonReminders')}</Text>
+                                <Text variant="caption" style={{ color: theme.colors.textSecondary }}>
+                                    {t('cocoonRemindersDescription')}
+                                </Text>
+                            </View>
+                            <Switch
+                                value={preferences.cocoonReminders}
+                                onValueChange={toggleCocoonReminders}
+                                color={theme.colors.primary}
+                                disabled={prefsLoading}
+                            />
+                        </View>
+                    </Card.Content>
+                </Card>
 
                 {/* Przycisk wylogowania */}
                 <View style={styles.logoutSection}>
