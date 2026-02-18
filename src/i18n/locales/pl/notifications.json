@@ -1,0 +1,10 @@
+{
+  "moltReminder": {
+    "title": "Przypomnienie o wylince",
+    "body": "Minęło 7 dni od wylinki {{name}}. Możesz wznowić karmienie."
+  },
+  "cocoonReminder": {
+    "title": "Zbliżający się wyleg kokonu",
+    "body": "Za 3 dni przewidywany wyleg kokonu {{name}}!"
+  }
+}

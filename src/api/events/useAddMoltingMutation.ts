@@ -4,6 +4,7 @@ import { eventsService } from '../../services/firebase/eventsService';
 import { unwrapServiceWithMeta } from '../serviceAdapter';
 import { queryKeys } from '../queryKeys';
 import { useAuth } from '../../hooks/useAuth';
+import { scheduleMoltReminder } from '../../services/notificationService';
 
 interface AddMoltingData {
     animalId: string;
@@ -11,6 +12,7 @@ interface AddMoltingData {
     eventData: MoltingEventData;
     description?: string;
     photos?: string[];
+    animalName?: string;
 }
 
 export function useAddMoltingMutation() {
@@ -23,11 +25,15 @@ export function useAddMoltingMutation() {
                 ...data,
                 userId: user!.uid,
             })),
-        onSuccess: (_data, { animalId }) => {
+        onSuccess: (_data, { animalId, animalName, date }) => {
             queryClient.invalidateQueries({ queryKey: queryKeys.events.molting.history(animalId) });
             queryClient.invalidateQueries({ queryKey: queryKeys.events.molting.all });
             queryClient.invalidateQueries({ queryKey: queryKeys.animals.detail(animalId) });
             queryClient.invalidateQueries({ queryKey: queryKeys.animals.lists() });
+
+            if (animalName) {
+                scheduleMoltReminder(animalName, date).catch(() => {});
+            }
         },
     });
 }

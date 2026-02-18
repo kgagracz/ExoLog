@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { ActivityIndicator, Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -9,6 +9,7 @@ import {createNativeStackNavigator} from "@react-navigation/native-stack";
 import {useTheme} from "../context/ThemeContext";
 import {Theme} from "../styles/theme";
 import TabNavigator from "./TabNavigator";
+import { registerForNotifications } from "../services/notificationService";
 
 const Stack = createNativeStackNavigator();
 
@@ -17,6 +18,12 @@ export default function AppNavigator() {
     const {theme} = useTheme();
     const {t} = useTranslation('navigation');
     const styles = createStyles(theme)
+
+    useEffect(() => {
+        if (user) {
+            registerForNotifications();
+        }
+    }, [user]);
 
     // Pokaż loading screen podczas sprawdzania stanu uwierzytelnienia
     if (loading) {

@@ -56,6 +56,7 @@ export default function AddCocoonScreen() {
                 },
                 description: formData.notes?.trim(),
                 setReminder: formData.setReminder,
+                animalName: animal.name || animal.species,
             });
             Alert.alert(
                 t('common:success'),

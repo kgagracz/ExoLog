@@ -106,7 +106,7 @@
     - [x] Data złożenia
     - [x] Przewidywana data wyjścia młodych
     - [x] Notatki
-- [] Przypomnienie o zbliżającej się dacie wyjścia młodych
+- [x] Przypomnienie o zbliżającej się dacie wyjścia młodych
 - [] Historia kokonów
 - [x] Otwieranie kokonu
   - [x] Dodawanie ilości młodych i wprowadzanie ich do systemu
@@ -157,10 +157,9 @@
 - [x] Profil użytkownika
 
 #### Powiadomienia
-- [ ] System powiadomień push
-- [ ] Przypomnienia o karmieniu
-- [ ] Przypomnienia o upływie 7 dni od wylinki
-- [ ] Przypomnienia o wyjściu młodych z kokonu
+- [x] System powiadomień push
+- [x] Przypomnienia o upływie 7 dni od wylinki
+- [x] Przypomnienia o wyjściu młodych z kokonu
 
 #### Statystyki
 - [ ] Dashboard z statystykami

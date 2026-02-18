@@ -62,6 +62,7 @@ export default function AddMoltingScreen() {
                     newBodyLength: formData.newBodyLength,
                 },
                 description: formData.notes.trim(),
+                animalName: animal?.name || animal?.species,
             });
             Alert.alert(
                 t('common:success'),

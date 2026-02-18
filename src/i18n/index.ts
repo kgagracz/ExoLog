@@ -12,6 +12,7 @@ import scanner from './locales/pl/scanner.json';
 import forms from './locales/pl/forms.json';
 import filters from './locales/pl/filters.json';
 import navigation from './locales/pl/navigation.json';
+import notifications from './locales/pl/notifications.json';
 
 const deviceLanguage = getLocales()[0]?.languageCode ?? 'pl';
 
@@ -33,6 +34,7 @@ i18n
                 forms,
                 filters,
                 navigation,
+                notifications,
             },
         },
         interpolation: {

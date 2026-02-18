@@ -3,6 +3,7 @@ import { eventsService } from '../../services/firebase/eventsService';
 import { unwrapServiceWithMeta } from '../serviceAdapter';
 import { queryKeys } from '../queryKeys';
 import { useAuth } from '../../hooks/useAuth';
+import { scheduleCocoonHatchReminder } from '../../services/notificationService';
 
 interface AddCocoonData {
     animalId: string;
@@ -16,6 +17,7 @@ interface AddCocoonData {
     description?: string;
     photos?: string[];
     setReminder?: boolean;
+    animalName?: string;
 }
 
 export function useAddCocoonMutation() {
@@ -28,10 +30,14 @@ export function useAddCocoonMutation() {
                 ...data,
                 userId: user!.uid,
             })),
-        onSuccess: (_data, { animalId }) => {
+        onSuccess: (_data, { animalId, setReminder, eventData, animalName }) => {
             queryClient.invalidateQueries({ queryKey: queryKeys.events.cocoon.history(animalId) });
             queryClient.invalidateQueries({ queryKey: queryKeys.events.cocoon.all });
             queryClient.invalidateQueries({ queryKey: queryKeys.animals.detail(animalId) });
+
+            if (setReminder && eventData.estimatedHatchDate && animalName) {
+                scheduleCocoonHatchReminder(animalName, eventData.estimatedHatchDate).catch(() => {});
+            }
         },
     });
 }
