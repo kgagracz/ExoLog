@@ -146,13 +146,13 @@ export default function MatingForm({
 
                     {formData.result === 'success' && (
                         <HelperText type="info" style={styles.successHelper}>
-                            ✅ Obserwuj samicę pod kątem złożenia kokonu w ciągu najbliższych tygodni
+                            {t('mating.successHelper')}
                         </HelperText>
                     )}
 
                     {formData.result === 'failure' && (
                         <HelperText type="info" style={styles.failureHelper}>
-                            💡 Możesz spróbować ponownie po kilku dniach odpoczynku
+                            {t('mating.failureHelper')}
                         </HelperText>
                     )}
                 </Card.Content>
@@ -162,15 +162,15 @@ export default function MatingForm({
             <Card style={styles.section}>
                 <Card.Content>
                     <Text variant="titleMedium" style={styles.sectionTitle}>
-                        📝 Notatki
+                        {t('common:notesIcon')}
                     </Text>
 
                     <FormInput
-                        label="Obserwacje"
+                        label={t('mating.notesLabel')}
                         value={formData.notes}
                         onChangeText={(value) => updateField('notes', value)}
                         error={errors.notes}
-                        placeholder="Zachowanie podczas kopulacji, czas trwania, agresja..."
+                        placeholder={t('mating.notesPlaceholder')}
                         multiline
                         numberOfLines={4}
                     />

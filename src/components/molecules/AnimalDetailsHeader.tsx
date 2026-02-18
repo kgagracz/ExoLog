@@ -1,5 +1,6 @@
 import React from 'react';
 import { Appbar, Menu, Divider } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 
 interface AnimalDetailsHeaderProps {
     animalName: string;
@@ -28,6 +29,8 @@ const AnimalDetailsHeader: React.FC<AnimalDetailsHeaderProps> = ({
                                                                      onMarkDeceased,
                                                                      isOwner = true
                                                                  }) => {
+    const { t } = useTranslation('animals');
+
     return (
         <Appbar.Header>
             <Appbar.BackAction onPress={onGoBack} />
@@ -46,8 +49,8 @@ const AnimalDetailsHeader: React.FC<AnimalDetailsHeaderProps> = ({
                         />
                     }
                 >
-                    <Menu.Item onPress={onEdit} title="Edytuj" leadingIcon="pencil" />
-                    <Menu.Item onPress={onAddFeeding} title="Dodaj karmienie" leadingIcon="food-apple" />
+                    <Menu.Item onPress={onEdit} title={t('common:edit')} leadingIcon="pencil" />
+                    <Menu.Item onPress={onAddFeeding} title={t('details.fabFeeding')} leadingIcon="food-apple" />
                     <Menu.Item onPress={onShowHistory} title="Historia karmienia" leadingIcon="history" />
                     {onShowQR && (
                         <>
@@ -59,14 +62,14 @@ const AnimalDetailsHeader: React.FC<AnimalDetailsHeaderProps> = ({
                     {onMarkDeceased && (
                         <Menu.Item
                             onPress={() => { onMenuToggle(false); onMarkDeceased(); }}
-                            title="Oznacz zgon"
+                            title={t('details.deceasedTitle')}
                             leadingIcon="skull"
                             titleStyle={{ color: '#666' }}
                         />
                     )}
                     <Menu.Item
                         onPress={onDelete}
-                        title="Usuń zwierzę"
+                        title={t('details.deleteTitle')}
                         leadingIcon="delete"
                         titleStyle={{ color: '#d32f2f' }}
                     />

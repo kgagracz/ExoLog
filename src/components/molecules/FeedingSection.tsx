@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import { Text, List, Divider, Button } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from "../../context/ThemeContext";
 import { Theme } from "../../styles/theme";
 import { Animal } from "../../types";
@@ -17,30 +18,31 @@ const FeedingSection: React.FC<FeedingSectionProps> = ({
   onShowHistory 
 }) => {
   const { theme } = useTheme();
+  const { t } = useTranslation('animals');
   const styles = makeStyles(theme);
 
   return (
     <>
       <Text variant="titleMedium" style={styles.sectionTitle}>
-        🍽️ Karmienie
+        {t('forms:spider.feedingSection')}
       </Text>
       <List.Item
-        title="Ostatnie karmienie"
+        title={t('addFeeding.lastFeeding')}
         description={
           animal.feeding?.lastFed
             ? new Date(animal.feeding.lastFed).toLocaleDateString('pl-PL')
-            : 'Nigdy nie karmione'
+            : t('addFeeding.neverFed')
         }
         left={() => <List.Icon icon="food-apple" />}
       />
       <List.Item
-        title="Harmonogram"
-        description={animal.feeding?.schedule || 'Nie określono'}
+        title={t('forms:spider.feedingScheduleLabel')}
+        description={animal.feeding?.schedule || t('addFeeding.neverFed')}
         left={() => <List.Icon icon="calendar-clock" />}
       />
       <List.Item
-        title="Preferowany pokarm"
-        description={animal.feeding?.foodType || 'Nie określono'}
+        title={t('details.feeding')}
+        description={animal.feeding?.foodType || t('addFeeding.neverFed')}
         left={() => <List.Icon icon="bug" />}
       />
 
@@ -48,7 +50,7 @@ const FeedingSection: React.FC<FeedingSectionProps> = ({
         <>
           <Divider style={styles.divider} />
           <Text variant="titleSmall" style={styles.subsectionTitle}>
-            Ostatnie karmienia
+            {t('addFeeding.lastFeeding')}
           </Text>
           {feedingHistory.slice(0, 3).map((feeding, index) => (
             <List.Item

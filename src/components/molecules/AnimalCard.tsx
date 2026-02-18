@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Image } from 'react-native';
 import { Text, Card, Chip } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from "../../context/ThemeContext";
 import { Theme } from "../../styles/theme";
 import { Animal } from "../../types";
@@ -27,6 +28,7 @@ interface AnimalCardProps {
 
 const AnimalCard: React.FC<AnimalCardProps> = ({ animal, onPress, matingStatus, cocoonStatus, lastMoltDate }) => {
   const { theme } = useTheme();
+  const { t } = useTranslation('animals');
   const styles = makeStyles(theme);
 
   // Pobierz zdjęcie główne
@@ -137,16 +139,16 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal, onPress, matingStatus, 
               </View>
             </View>
             <Text variant="bodyMedium" style={styles.animalSpecies} numberOfLines={1}>
-              {animal.species || 'Nieznany gatunek'}
+              {animal.species || t('common:unknownSpecies')}
             </Text>
             <Text variant="bodySmall" style={styles.animalInfo}>
-              {animal.sex === 'male' ? '♂ Samiec' :
-                  animal.sex === 'female' ? '♀ Samica' :
-                      'Nieznana płeć'} • L{animal.specificData?.currentStage || '?'}
+              {animal.sex === 'male' ? `♂ ${t('filters:sex.male')}` :
+                  animal.sex === 'female' ? `♀ ${t('filters:sex.female')}` :
+                      t('common:unknownSex')} • L{animal.specificData?.currentStage || '?'}
             </Text>
             {animal.feeding?.lastFed && (
                 <Text variant="bodySmall" style={styles.animalDate}>
-                  Ostatnie karmienie: {new Date(animal.feeding.lastFed).toLocaleDateString('pl-PL')}
+                  {t('addFeeding.lastFeeding')} {new Date(animal.feeding.lastFed).toLocaleDateString('pl-PL')}
                 </Text>
             )}
           </View>

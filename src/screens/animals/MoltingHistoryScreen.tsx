@@ -3,6 +3,7 @@
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
 import {Card, Chip, IconButton, Text} from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import {MoltingEvent, MoltingEventData} from "../../types/events";
 import {useTheme} from "../../context/ThemeContext";
 import {Theme} from "../../styles/theme";
@@ -18,6 +19,7 @@ export default function MoltingHistoryCard({
                                                onDelete
                                            }: MoltingHistoryCardProps) {
     const {theme} = useTheme();
+    const { t } = useTranslation('animals');
     const styles = makeStyles(theme);
 
     const formatDate = (dateString: string): string => {
@@ -49,7 +51,7 @@ export default function MoltingHistoryCard({
         const stageLabel = (previousStage && newStage) ? `L${previousStage} → L${newStage}` : ''
         const bodyLengthLabel = (previousBodyLength && newBodyLength) ? `${previousBodyLength}DC → ${newBodyLength}DC` : ''
 
-        return `Wylinka ${stageLabel} ${bodyLengthLabel}`
+        return t('moltingHistory.moltLabel', { stageLabel, bodyLengthLabel })
     }
 
     return (

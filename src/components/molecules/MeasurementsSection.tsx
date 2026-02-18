@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import { Text, List } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from "../../context/ThemeContext";
 import { Theme } from "../../styles/theme";
 import { Animal } from "../../types";
@@ -11,6 +12,7 @@ interface MeasurementsSectionProps {
 
 const MeasurementsSection: React.FC<MeasurementsSectionProps> = ({ animal }) => {
   const { theme } = useTheme();
+  const { t } = useTranslation('animals');
   const styles = makeStyles(theme);
 
   const calculateAge = (dateAcquired: string, dateOfBirth?: string): string => {
@@ -27,10 +29,10 @@ const MeasurementsSection: React.FC<MeasurementsSectionProps> = ({ animal }) => 
   return (
     <>
       <Text variant="titleMedium" style={styles.sectionTitle}>
-        📏 Pomiary i wiek
+        {t('details.measurementsIcon')} {t('details.measurements')}
       </Text>
       <List.Item
-        title="Długość ciała"
+        title={t('forms:spider.bodyLengthLabel')}
         description={animal.measurements?.length ? `${animal.measurements.length} cm` : 'Nie zmierzono'}
         left={() => <List.Icon icon="ruler" />}
       />
@@ -40,13 +42,13 @@ const MeasurementsSection: React.FC<MeasurementsSectionProps> = ({ animal }) => 
         left={() => <List.Icon icon="calendar" />}
       />
       <List.Item
-        title="Data nabycia"
+        title={t('forms:spider.dateAcquiredLabel')}
         description={new Date(animal.dateAcquired).toLocaleDateString('pl-PL')}
         left={() => <List.Icon icon="calendar-plus" />}
       />
       {animal.dateOfBirth && (
         <List.Item
-          title="Data urodzenia"
+          title={t('forms:spider.dateOfBirthLabel')}
           description={new Date(animal.dateOfBirth).toLocaleDateString('pl-PL')}
           left={() => <List.Icon icon="cake" />}
         />

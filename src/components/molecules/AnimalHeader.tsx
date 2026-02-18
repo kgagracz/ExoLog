@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, ImageBackground, Dimensions } from 'react-native';
 import { Text, Chip } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from "../../context/ThemeContext";
 import { Theme } from "../../styles/theme";
 import { Animal } from "../../types";
@@ -30,6 +31,7 @@ const HERO_HEIGHT = 280;
 
 const AnimalHeader: React.FC<AnimalHeroHeaderProps> = ({ animal, matingStatus, cocoonStatus, lastMoltDate }) => {
   const { theme } = useTheme();
+  const { t } = useTranslation('animals');
   const styles = makeStyles(theme);
 
   // Pobierz główne zdjęcie
@@ -38,18 +40,18 @@ const AnimalHeader: React.FC<AnimalHeroHeaderProps> = ({ animal, matingStatus, c
 
   const getSexDisplay = (sex: string): string => {
     switch (sex) {
-      case 'male': return '♂ Samiec';
-      case 'female': return '♀ Samica';
-      default: return 'Nieznana płeć';
+      case 'male': return `♂ ${t('filters:sex.male')}`;
+      case 'female': return `♀ ${t('filters:sex.female')}`;
+      default: return t('common:unknownSex');
     }
   };
 
   const getStageCategory = (stage: number | null): string => {
-    if (!stage) return 'Nieznane';
-    if (stage <= 3) return 'Młode (L1-L3)';
-    if (stage <= 6) return 'Juvenile (L4-L6)';
-    if (stage <= 8) return 'Subadult (L7-L8)';
-    return 'Adult (L9+)';
+    if (!stage) return t('forms:spider.stageCategories.unknown');
+    if (stage <= 3) return t('forms:spider.stageCategories.young');
+    if (stage <= 6) return t('forms:spider.stageCategories.juvenile');
+    if (stage <= 8) return t('forms:spider.stageCategories.subadult');
+    return t('forms:spider.stageCategories.adult');
   };
 
   const numericStage = animal.specificData?.currentStage as number | null;
@@ -157,7 +159,7 @@ const AnimalHeader: React.FC<AnimalHeroHeaderProps> = ({ animal, matingStatus, c
         <View style={styles.content}>
           <Text style={styles.animalName}>{animal.name}</Text>
           <Text style={styles.species}>
-            {animal.species || 'Nieznany gatunek'}
+            {animal.species || t('common:unknownSpecies')}
           </Text>
 
           <View style={styles.chipContainer}>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
 import { Appbar, Button, ActivityIndicator, Text } from 'react-native-paper';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from "../../context/ThemeContext";
 import { useAnimalQuery } from "../../api/animals";
 import { useAddCocoonMutation } from "../../api/events";
@@ -11,6 +12,7 @@ import { Animal } from "../../types";
 
 export default function AddCocoonScreen() {
     const { theme } = useTheme();
+    const { t } = useTranslation('animals');
     const styles = makeStyles(theme);
     const navigation = useNavigation<any>();
     const route = useRoute<any>();
@@ -29,7 +31,7 @@ export default function AddCocoonScreen() {
         const newErrors: Record<string, string> = {};
 
         if (!formData?.date) {
-            newErrors.date = 'Data złożenia kokonu jest wymagana';
+            newErrors.date = t('addCocoon.validation.dateRequired');
         }
 
         setErrors(newErrors);
@@ -38,7 +40,7 @@ export default function AddCocoonScreen() {
 
     const handleSave = async () => {
         if (!validateForm() || !animal) {
-            Alert.alert('Błąd walidacji', 'Uzupełnij wszystkie wymagane pola');
+            Alert.alert(t('common:validationError'), t('common:fillRequiredFields'));
             return;
         }
 
@@ -56,12 +58,12 @@ export default function AddCocoonScreen() {
                 setReminder: formData.setReminder,
             });
             Alert.alert(
-                'Sukces',
-                `Kokon został zarejestrowany dla ${animal.name || animal.species}.`,
-                [{ text: 'OK', onPress: () => navigation.goBack() }]
+                t('common:success'),
+                t('addCocoon.successMessage', { name: animal.name || animal.species }),
+                [{ text: t('common:ok'), onPress: () => navigation.goBack() }]
             );
         } catch (error: any) {
-            Alert.alert('Błąd', error.message || 'Nie udało się dodać kokonu');
+            Alert.alert(t('common:error'), error.message || t('addCocoon.errorMessage'));
         } finally {
             setSaving(false);
         }
@@ -89,14 +91,14 @@ export default function AddCocoonScreen() {
             <View style={styles.container}>
                 <Appbar.Header>
                     <Appbar.BackAction onPress={handleCancel} />
-                    <Appbar.Content title="Dodaj kokon" />
+                    <Appbar.Content title={t('addCocoon.title')} />
                 </Appbar.Header>
                 <View style={styles.errorContainer}>
                     <Text variant="bodyLarge" style={styles.errorText}>
-                        ⚠️ Tylko samice mogą składać kokony.
+                        {t('addCocoon.onlyFemalesWarning')}
                     </Text>
                     <Button mode="contained" onPress={handleCancel} style={styles.backButton}>
-                        Wróć
+                        {t('common:back')}
                     </Button>
                 </View>
             </View>
@@ -108,7 +110,7 @@ export default function AddCocoonScreen() {
             <Appbar.Header>
                 <Appbar.BackAction onPress={handleCancel} />
                 <Appbar.Content
-                    title="Dodaj kokon"
+                    title={t('addCocoon.title')}
                     subtitle={animal.name || animal.species}
                 />
             </Appbar.Header>
@@ -126,7 +128,7 @@ export default function AddCocoonScreen() {
                     style={styles.cancelButton}
                     disabled={saving}
                 >
-                    Anuluj
+                    {t('common:cancel')}
                 </Button>
                 <Button
                     mode="contained"
@@ -135,7 +137,7 @@ export default function AddCocoonScreen() {
                     loading={saving}
                     disabled={saving}
                 >
-                    Zapisz kokon
+                    {t('addCocoon.saveCocoon')}
                 </Button>
             </View>
         </View>

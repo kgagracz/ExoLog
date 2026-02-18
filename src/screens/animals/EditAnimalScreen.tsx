@@ -9,8 +9,10 @@ import {useAuth} from "../../hooks/useAuth";
 import SpiderForm from "../../components/molecules/SpiderForm";
 import {Theme} from "../../styles/theme";
 import {storageService} from "../../services/firebase/storageService";
+import { useTranslation } from 'react-i18next';
 
 export default function EditAnimalScreen() {
+    const { t } = useTranslation('animals');
     const { theme } = useTheme();
     const styles = makeStyles(theme);
     const navigation = useNavigation<any>();
@@ -50,15 +52,15 @@ export default function EditAnimalScreen() {
         const newErrors: Record<string, string> = {};
 
         if (!formData.species.trim()) {
-            newErrors.species = 'Nazwa gatunkowa jest wymagana';
+            newErrors.species = t('editAnimal.validation.speciesRequired');
         }
 
         if (!formData.sex) {
-            newErrors.sex = 'Płeć jest wymagana';
+            newErrors.sex = t('editAnimal.validation.sexRequired');
         }
 
         if (!formData.dateAcquired) {
-            newErrors.dateAcquired = 'Data nabycia jest wymagana';
+            newErrors.dateAcquired = t('editAnimal.validation.dateRequired');
         }
 
         setErrors(newErrors);
@@ -67,7 +69,7 @@ export default function EditAnimalScreen() {
 
     const handleSave = async () => {
         if (!validateForm()) {
-            Alert.alert('Błąd walidacji', 'Uzupełnij wszystkie wymagane pola');
+            Alert.alert(t('editAnimal.validation.title'), t('editAnimal.validation.fillRequired'));
             return;
         }
 
@@ -110,8 +112,8 @@ export default function EditAnimalScreen() {
             await updateAnimalMutation.mutateAsync({ animalId, updates: updatedAnimal });
 
             Alert.alert(
-                'Sukces',
-                'Dane ptasznika zostały zaktualizowane',
+                t('common:success'),
+                t('editAnimal.successMessage'),
                 [
                     {
                         text: 'OK',
@@ -121,7 +123,7 @@ export default function EditAnimalScreen() {
             );
         } catch (error) {
             console.error('Error updating animal:', error);
-            Alert.alert('Błąd', 'Nie udało się zaktualizować danych ptasznika');
+            Alert.alert(t('common:error'), t('editAnimal.errorUpdate'));
         } finally {
             setSaving(false);
         }
@@ -129,15 +131,15 @@ export default function EditAnimalScreen() {
 
     const handleCancel = () => {
         Alert.alert(
-            'Anulować edycję?',
-            'Niezapisane zmiany zostaną utracone',
+            t('editAnimal.cancelTitle'),
+            t('editAnimal.cancelMessage'),
             [
                 {
-                    text: 'Kontynuuj edycję',
+                    text: t('editAnimal.continueEditing'),
                     style: 'cancel',
                 },
                 {
-                    text: 'Anuluj',
+                    text: t('common:cancel'),
                     style: 'destructive',
                     onPress: () => navigation.goBack(),
                 },
@@ -161,7 +163,7 @@ export default function EditAnimalScreen() {
         <View style={styles.container}>
             <Appbar.Header>
                 <Appbar.BackAction onPress={handleCancel} />
-                <Appbar.Content title="Edytuj ptasznika" />
+                <Appbar.Content title={t('editAnimal.title')} />
             </Appbar.Header>
 
             <SpiderForm
@@ -178,7 +180,7 @@ export default function EditAnimalScreen() {
                     style={styles.cancelButton}
                     disabled={saving}
                 >
-                    Anuluj
+                    {t('common:cancel')}
                 </Button>
                 <Button
                     mode="contained"
@@ -187,7 +189,7 @@ export default function EditAnimalScreen() {
                     loading={saving}
                     disabled={saving}
                 >
-                    Zapisz zmiany
+                    {t('editAnimal.saveChanges')}
                 </Button>
             </View>
         </View>

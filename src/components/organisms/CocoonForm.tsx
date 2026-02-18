@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { Text, Card, RadioButton, HelperText, Switch } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from "../../context/ThemeContext";
 import FormInput from "../atoms/FormInput";
 import { Theme } from "../../styles/theme";
@@ -35,6 +36,7 @@ export default function CocoonForm({
                                        errors,
                                    }: CocoonFormProps) {
     const { theme } = useTheme();
+    const { t } = useTranslation('forms');
     const styles = makeStyles(theme);
 
     const today = new Date().toISOString().split('T')[0];
@@ -68,10 +70,10 @@ export default function CocoonForm({
     };
 
     const statusOptions = [
-        { label: 'Złożony', value: 'laid' },
-        { label: 'W inkubacji', value: 'incubating' },
-        { label: 'Wykluty', value: 'hatched' },
-        { label: 'Nieudany', value: 'failed' },
+        { label: t('cocoon.statusLaid'), value: 'laid' },
+        { label: t('cocoon.statusIncubating'), value: 'incubating' },
+        { label: t('cocoon.statusHatched'), value: 'hatched' },
+        { label: t('cocoon.statusFailed'), value: 'failed' },
     ];
 
     const getDaysUntilHatch = (): number | null => {
@@ -91,12 +93,12 @@ export default function CocoonForm({
             <Card style={styles.section}>
                 <Card.Content>
                     <Text variant="titleMedium" style={styles.sectionTitle}>
-                        🕷️ Samica
+                        {t('cocoon.femaleSection')}
                     </Text>
 
                     <View style={styles.animalInfo}>
                         <Text variant="bodySmall" style={styles.label}>
-                            Samica składająca kokon
+                            {t('cocoon.femaleLabel')}
                         </Text>
                         <Text variant="bodyLarge" style={styles.animalName}>
                             {currentAnimal.name || currentAnimal.species}
@@ -112,11 +114,11 @@ export default function CocoonForm({
             <Card style={styles.section}>
                 <Card.Content>
                     <Text variant="titleMedium" style={styles.sectionTitle}>
-                        📅 Daty
+                        {t('cocoon.datesSection')}
                     </Text>
 
                     <FormInput
-                        label="Data złożenia kokonu"
+                        label={t('cocoon.layDateLabel')}
                         value={formData.date}
                         onChangeText={(value) => updateField('date', value)}
                         error={errors.date}
@@ -125,7 +127,7 @@ export default function CocoonForm({
                     />
 
                     <FormInput
-                        label="Przewidywana data wylęgu"
+                        label={t('cocoon.estimatedHatchLabel')}
                         value={formData.estimatedHatchDate}
                         onChangeText={(value) => updateField('estimatedHatchDate', value)}
                         error={errors.estimatedHatchDate}
@@ -134,13 +136,13 @@ export default function CocoonForm({
 
                     {daysUntilHatch !== null && daysUntilHatch > 0 && (
                         <HelperText type="info" style={styles.hatchInfo}>
-                            ⏰ Do wylęgu pozostało około {daysUntilHatch} dni
+                            {t('cocoon.daysUntilHatch', { days: daysUntilHatch })}
                         </HelperText>
                     )}
 
                     {daysUntilHatch !== null && daysUntilHatch <= 0 && formData.status !== 'hatched' && (
                         <HelperText type="info" style={styles.hatchWarning}>
-                            ⚠️ Przewidywana data wylęgu minęła - sprawdź kokon!
+                            {t('cocoon.hatchDatePassed')}
                         </HelperText>
                     )}
                 </Card.Content>
@@ -150,7 +152,7 @@ export default function CocoonForm({
             <Card style={styles.section}>
                 <Card.Content>
                     <Text variant="titleMedium" style={styles.sectionTitle}>
-                        📊 Status kokonu
+                        {t('cocoon.statusSection')}
                     </Text>
 
                     <RadioButton.Group
@@ -176,25 +178,25 @@ export default function CocoonForm({
 
                     {formData.status === 'laid' && (
                         <HelperText type="info" style={styles.statusHelper}>
-                            🥚 Kokon został właśnie złożony - obserwuj samicę
+                            {t('cocoon.statusLaidHelper')}
                         </HelperText>
                     )}
 
                     {formData.status === 'incubating' && (
                         <HelperText type="info" style={styles.statusHelper}>
-                            🌡️ Kokon jest w trakcie inkubacji - utrzymuj odpowiednią temperaturę i wilgotność
+                            {t('cocoon.statusIncubatingHelper')}
                         </HelperText>
                     )}
 
                     {formData.status === 'hatched' && (
                         <HelperText type="info" style={styles.successHelper}>
-                            🎉 Gratulacje! Młode się wykluły
+                            {t('cocoon.statusHatchedHelper')}
                         </HelperText>
                     )}
 
                     {formData.status === 'failed' && (
                         <HelperText type="info" style={styles.failureHelper}>
-                            💔 Kokon nie rozwinął się prawidłowo
+                            {t('cocoon.statusFailedHelper')}
                         </HelperText>
                     )}
                 </Card.Content>
@@ -204,16 +206,16 @@ export default function CocoonForm({
             <Card style={styles.section}>
                 <Card.Content>
                     <Text variant="titleMedium" style={styles.sectionTitle}>
-                        🔔 Przypomnienie
+                        {t('cocoon.reminderSection')}
                     </Text>
 
                     <View style={styles.switchRow}>
                         <View style={styles.switchContent}>
                             <Text variant="bodyLarge" style={styles.switchLabel}>
-                                Ustaw przypomnienie
+                                {t('cocoon.setReminder')}
                             </Text>
                             <Text variant="bodySmall" style={styles.switchHelper}>
-                                Otrzymasz powiadomienie przed przewidywaną datą wylęgu
+                                {t('cocoon.reminderHelper')}
                             </Text>
                         </View>
                         <Switch
@@ -229,15 +231,15 @@ export default function CocoonForm({
             <Card style={styles.section}>
                 <Card.Content>
                     <Text variant="titleMedium" style={styles.sectionTitle}>
-                        📝 Notatki
+                        {t('common:notesIcon')}
                     </Text>
 
                     <FormInput
-                        label="Obserwacje"
+                        label={t('cocoon.notesLabel')}
                         value={formData.notes}
                         onChangeText={(value) => updateField('notes', value)}
                         error={errors.notes}
-                        placeholder="Rozmiar kokonu, zachowanie samicy, warunki..."
+                        placeholder={t('cocoon.notesPlaceholder')}
                         multiline
                         numberOfLines={4}
                     />

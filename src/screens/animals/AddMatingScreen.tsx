@@ -8,8 +8,10 @@ import { useAddMatingMutation } from "../../api/events";
 import { Theme } from "../../styles/theme";
 import MatingForm, { MatingResult } from "../../components/organisms/MatingForm";
 import { Animal } from "../../types";
+import { useTranslation } from 'react-i18next';
 
 export default function AddMatingScreen() {
+    const { t } = useTranslation('animals');
     const { theme } = useTheme();
     const styles = makeStyles(theme);
     const navigation = useNavigation<any>();
@@ -43,11 +45,11 @@ export default function AddMatingScreen() {
         const newErrors: Record<string, string> = {};
 
         if (!formData?.date) {
-            newErrors.date = 'Data kopulacji jest wymagana';
+            newErrors.date = t('addMating.validation.dateRequired');
         }
 
         if (!formData?.partnerId) {
-            newErrors.partnerId = 'Wybierz partnera';
+            newErrors.partnerId = t('addMating.validation.partnerRequired');
         }
 
         setErrors(newErrors);
@@ -56,7 +58,7 @@ export default function AddMatingScreen() {
 
     const handleSave = async () => {
         if (!validateForm() || !animal) {
-            Alert.alert('Błąd walidacji', 'Uzupełnij wszystkie wymagane pola');
+            Alert.alert(t('addMating.validation.title'), t('addMating.validation.fillRequired'));
             return;
         }
 
@@ -78,15 +80,15 @@ export default function AddMatingScreen() {
             });
 
             const partner = availablePartners.find(p => p.id === formData.partnerId);
-            const partnerName = partner?.name || partner?.species || 'partnerem';
+            const partnerName = partner?.name || partner?.species || t('addMating.partnerFallback');
 
             Alert.alert(
-                'Sukces',
-                `Kopulacja z ${partnerName} została zarejestrowana.`,
+                t('common:success'),
+                t('addMating.successMessage', { partner: partnerName }),
                 [{ text: 'OK', onPress: () => navigation.goBack() }]
             );
         } catch (error: any) {
-            Alert.alert('Błąd', error.message || 'Nie udało się dodać kopulacji');
+            Alert.alert(t('common:error'), error.message || t('addMating.errorAdd'));
         } finally {
             setSaving(false);
         }
@@ -114,14 +116,14 @@ export default function AddMatingScreen() {
             <View style={styles.container}>
                 <Appbar.Header>
                     <Appbar.BackAction onPress={handleCancel} />
-                    <Appbar.Content title="Dodaj kopulację" />
+                    <Appbar.Content title={t('addMating.title')} />
                 </Appbar.Header>
                 <View style={styles.errorContainer}>
                     <Text variant="bodyLarge" style={styles.errorText}>
-                        ⚠️ Aby dodać kopulację, zwierzę musi mieć określoną płeć.
+                        {t('addMating.unknownSexError')}
                     </Text>
                     <Button mode="contained" onPress={handleCancel} style={styles.backButton}>
-                        Wróć
+                        {t('addMating.goBack')}
                     </Button>
                 </View>
             </View>
@@ -133,7 +135,7 @@ export default function AddMatingScreen() {
             <Appbar.Header>
                 <Appbar.BackAction onPress={handleCancel} />
                 <Appbar.Content
-                    title="Dodaj kopulację"
+                    title={t('addMating.title')}
                     subtitle={animal.name || animal.species}
                 />
             </Appbar.Header>
@@ -152,7 +154,7 @@ export default function AddMatingScreen() {
                     style={styles.cancelButton}
                     disabled={saving}
                 >
-                    Anuluj
+                    {t('common:cancel')}
                 </Button>
                 <Button
                     mode="contained"
@@ -161,7 +163,7 @@ export default function AddMatingScreen() {
                     loading={saving}
                     disabled={saving || availablePartners.length === 0}
                 >
-                    Zapisz kopulację
+                    {t('addMating.saveMating')}
                 </Button>
             </View>
         </View>
