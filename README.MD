@@ -159,7 +159,7 @@
 #### Powiadomienia
 - [ ] System powiadomień push
 - [ ] Przypomnienia o karmieniu
-- [ ] Przypomnienia o przewidywanych wylinkach
+- [ ] Przypomnienia o upływie 7 dni od wylinki
 - [ ] Przypomnienia o wyjściu młodych z kokonu
 
 #### Statystyki
