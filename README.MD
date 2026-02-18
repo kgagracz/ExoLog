@@ -130,11 +130,11 @@
 [//]: # (- [ ] Historia napełnień)
 
 #### Zdjęcia
-- [ ] Dodawanie zdjęć ptasznika
+- [x] Dodawanie zdjęć ptasznika
     - [x] Upload z galerii
     - [x] Zdjęcie z aparatu
-    - [ ] Opis zdjęcia (opcjonalnie)
-    - [ ] Zapisywanie rozmiarów ptasznika
+    - [x] Opis zdjęcia (opcjonalnie)
+    - [x] Zapisywanie rozmiarów ptasznika
     - [x] Data automatyczna
 - [x] Galeria zdjęć ptasznika
 - [x] Usuwanie zdjęć
