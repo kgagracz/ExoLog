@@ -153,7 +153,7 @@
 - [x] Rejestracja użytkownika
 - [x] Logowanie
 - [x] Wylogowanie
-- [ ] Reset hasła
+- [x] Reset hasła
 - [x] Profil użytkownika
 
 #### Powiadomienia
