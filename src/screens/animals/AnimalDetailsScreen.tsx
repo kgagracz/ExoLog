@@ -1,6 +1,6 @@
-import React, {useState} from 'react';
-import {Alert, ScrollView, StyleSheet, View} from 'react-native';
-import {ActivityIndicator, FAB, Text} from 'react-native-paper';
+import React, {useEffect, useRef, useState} from 'react';
+import {Alert, Animated, Dimensions, ScrollView, StyleSheet, View} from 'react-native';
+import {FAB, Text} from 'react-native-paper';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {useAuth} from "../../hooks/useAuth";
 import {useTheme} from "../../context/ThemeContext";
@@ -18,6 +18,94 @@ import { useDeleteAnimalMutation, useMarkDeceasedMutation } from "../../api/anim
 import { useFeedingHistoryQuery } from "../../api/feeding";
 import { useMoltingHistoryQuery, useMatingHistoryQuery, useCocoonHistoryQuery } from "../../api/events";
 import { useTranslation } from 'react-i18next';
+
+const HERO_HEIGHT = 280;
+const SCREEN_WIDTH = Dimensions.get('window').width;
+
+function SkeletonBlock({ width, height, style, theme }: { width: number | string; height: number; style?: any; theme: Theme }) {
+    const opacity = useRef(new Animated.Value(0.3)).current;
+
+    useEffect(() => {
+        const animation = Animated.loop(
+            Animated.sequence([
+                Animated.timing(opacity, { toValue: 0.7, duration: 800, useNativeDriver: true }),
+                Animated.timing(opacity, { toValue: 0.3, duration: 800, useNativeDriver: true }),
+            ])
+        );
+        animation.start();
+        return () => animation.stop();
+    }, [opacity]);
+
+    return (
+        <Animated.View
+            style={[
+                {
+                    width: width as any,
+                    height,
+                    backgroundColor: theme.colors.surfaceLight,
+                    borderRadius: theme.borderRadius.medium,
+                    opacity,
+                },
+                style,
+            ]}
+        />
+    );
+}
+
+function SkeletonCard({ theme }: { theme: Theme }) {
+    const skeletonStyles = makeSkeletonStyles(theme);
+    return (
+        <View style={skeletonStyles.card}>
+            <View style={skeletonStyles.cardHeader}>
+                <SkeletonBlock width={20} height={20} theme={theme} style={{ borderRadius: 10 }} />
+                <SkeletonBlock width={120} height={16} theme={theme} style={{ marginLeft: theme.spacing.small }} />
+            </View>
+            <View style={skeletonStyles.cardContent}>
+                <SkeletonBlock width="100%" height={14} theme={theme} />
+                <SkeletonBlock width="70%" height={14} theme={theme} style={{ marginTop: theme.spacing.small }} />
+            </View>
+        </View>
+    );
+}
+
+function AnimalDetailsSkeleton({ theme }: { theme: Theme }) {
+    const skeletonStyles = makeSkeletonStyles(theme);
+    return (
+        <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
+            {/* Hero skeleton */}
+            <SkeletonBlock
+                width={SCREEN_WIDTH}
+                height={HERO_HEIGHT}
+                theme={theme}
+                style={{ borderRadius: 0, backgroundColor: theme.colors.onSurfaceVariant }}
+            />
+
+            {/* Section cards skeleton */}
+            <SkeletonCard theme={theme} />
+            <SkeletonCard theme={theme} />
+            <SkeletonCard theme={theme} />
+        </ScrollView>
+    );
+}
+
+const makeSkeletonStyles = (theme: Theme) => StyleSheet.create({
+    card: {
+        margin: theme.spacing.medium,
+        marginBottom: theme.spacing.small,
+        backgroundColor: theme.colors.surface,
+        borderRadius: theme.borderRadius.large,
+        padding: theme.spacing.medium,
+        ...theme.shadows.small,
+    },
+    cardHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: theme.spacing.ms,
+    },
+    cardContent: {
+        gap: theme.spacing.small,
+    },
+});
 
 export default function AnimalDetailsScreen() {
     const { t } = useTranslation('animals');
@@ -163,7 +251,7 @@ export default function AnimalDetailsScreen() {
 
     if (loading) {
         return (
-            <View style={[styles.container, styles.centerContent]}>
+            <View style={styles.container}>
                 <AnimalDetailsHeader
                     animalName={t('details.title')}
                     menuVisible={false}
@@ -173,10 +261,8 @@ export default function AnimalDetailsScreen() {
                     onAddFeeding={() => {}}
                     onShowHistory={() => {}}
                     onDelete={() => {}}
-
                 />
-                <ActivityIndicator size="large" />
-                <Text style={styles.loadingText}>{t('details.loading')}</Text>
+                <AnimalDetailsSkeleton theme={theme} />
             </View>
         );
     }
@@ -374,10 +460,6 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     },
     content: {
         flex: 1,
-    },
-    loadingText: {
-        marginTop: theme.spacing.medium,
-        color: theme.colors.onSurfaceVariant,
     },
     notesText: {
         lineHeight: 20,
