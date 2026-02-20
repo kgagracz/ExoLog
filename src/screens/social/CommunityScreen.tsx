@@ -27,6 +27,10 @@ export default function CommunityScreen() {
 
     const pendingCount = incomingRequests.length;
 
+    // Exclude friends from following list to avoid duplicates
+    const friendIds = new Set(friends.flatMap((f) => f.userIds.filter((id) => id !== user?.uid)));
+    const followingOnly = following.filter((f) => !friendIds.has(f.followingId));
+
     return (
         <View style={styles.container}>
             <Appbar.Header style={{ backgroundColor: theme.colors.surface }}>
@@ -106,10 +110,10 @@ export default function CommunityScreen() {
 
                     {/* Following list */}
                     <Text variant="h3" style={styles.sectionTitle}>
-                        {t('community.followingCount', { count: following.length })}
+                        {t('community.followingCount', { count: followingOnly.length })}
                     </Text>
 
-                    {following.length === 0 && !followingLoading ? (
+                    {followingOnly.length === 0 && !followingLoading ? (
                         <View style={styles.emptyState}>
                             <MaterialCommunityIcons name="account-eye-outline" size={64} color={theme.colors.textLight} />
                             <Text variant="body" style={styles.emptyText}>{t('community.noFollowing')}</Text>
@@ -118,7 +122,7 @@ export default function CommunityScreen() {
                             </Text>
                         </View>
                     ) : (
-                        following.map((item) => (
+                        followingOnly.map((item) => (
                             <React.Fragment key={item.id}>
                                 <UserListItem
                                     displayName={item.followingDisplayName}
