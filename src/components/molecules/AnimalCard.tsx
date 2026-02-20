@@ -154,7 +154,9 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal, onPress, matingStatus, 
               <Text variant="bodySmall" style={styles.animalInfo}>
                 {animal.sex === 'male' ? `♂ ${t('filters:sex.male')}` :
                     animal.sex === 'female' ? `♀ ${t('filters:sex.female')}` :
-                        t('common:unknownSex')} • L{animal.specificData?.currentStage || '?'}
+                        t('common:unknownSex')}
+                {animal.specificData?.currentStage != null && ` • L${animal.specificData.currentStage}`}
+                {animal.measurements?.length != null && ` ${animal.measurements.length}DC`}
               </Text>
               {animal.feeding?.lastFed && (
                   <Text variant="bodySmall" style={styles.animalDate}>

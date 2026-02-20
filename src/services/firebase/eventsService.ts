@@ -36,7 +36,9 @@ export const eventsService = {
                 animalId: data.animalId,
                 userId: data.userId,
                 eventTypeId: 'molting',
-                title: `Wylinka L${data.eventData.previousStage} → L${data.eventData.newStage}`,
+                title: data.eventData.previousStage && data.eventData.newStage
+                    ? `Wylinka L${data.eventData.previousStage} → L${data.eventData.newStage}`
+                    : `Wylinka L${data.eventData.newStage ?? '?'}`,
                 description: data.description,
                 date: data.date,
                 eventData: data.eventData,
@@ -56,10 +58,9 @@ export const eventsService = {
                 updatedAt: serverTimestamp(),
             });
 
-            // Automatyczna aktualizacja stadium ptasznika
+            // Automatyczna aktualizacja numeru wylinki ptasznika
             const animalRef = doc(db, 'animals', data.animalId);
             const updateData: any = {
-                stage: data.eventData.newStage,
                 updatedAt: serverTimestamp(),
             };
 

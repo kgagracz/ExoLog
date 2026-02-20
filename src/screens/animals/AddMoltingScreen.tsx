@@ -103,8 +103,8 @@ export default function AddMoltingScreen() {
             </Appbar.Header>
 
             <MoltingForm
-                currentStage={animal.stage}
-                currentBodyLength={animal.bodyLength}
+                currentStage={animal.specificData?.currentStage ?? undefined}
+                currentBodyLength={animal.measurements?.length ?? undefined}
                 onDataChange={setFormData}
                 errors={errors}
             />
