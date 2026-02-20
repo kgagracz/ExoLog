@@ -53,7 +53,7 @@ export default function ActivityFeedScreen() {
         return (
             <Card
                 style={styles.activityCard}
-                onPress={() => navigation.navigate('UserProfile', { userId: item.actorId })}
+                    onPress={() => navigation.navigate('UserAnimalDetails', { animalId: item.animalId })}
             >
                 <Card.Content style={styles.activityContent}>
                     <View style={[styles.iconContainer, { backgroundColor: isPhoto ? theme.colors.primary + '20' : theme.colors.success + '20' }]}>
