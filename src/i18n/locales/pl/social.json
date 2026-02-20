@@ -6,6 +6,9 @@
     "friendsCount": "Znajomi ({{count}})",
     "noFriends": "Nie masz jeszcze znajomych",
     "noFriendsHint": "Wyszukaj użytkowników i wyślij zaproszenie",
+    "followingCount": "Obserwowani ({{count}})",
+    "noFollowing": "Nie obserwujesz jeszcze nikogo",
+    "noFollowingHint": "Wyszukaj użytkowników i zacznij ich obserwować",
     "activityFeed": "Aktywność obserwowanych"
   },
   "userSearch": {

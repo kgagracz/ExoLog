@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
-import { Appbar, Badge, Card, Divider } from 'react-native-paper';
+import { View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import { Appbar, Badge, Divider } from 'react-native-paper';
 // @ts-ignore
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../hooks/useAuth';
-import { useFriendsQuery, useIncomingRequestsQuery } from '../../api/social';
+import { useFriendsQuery, useIncomingRequestsQuery, useFollowingQuery } from '../../api/social';
 import { Theme } from '../../styles/theme';
 import Text from '../../components/atoms/Text';
 import UserListItem from '../../components/molecules/UserListItem';
@@ -22,6 +22,7 @@ export default function CommunityScreen() {
 
     const tabBarHeight = useBottomTabBarHeight();
     const { data: friends = [], isLoading: friendsLoading } = useFriendsQuery();
+    const { data: following = [], isLoading: followingLoading } = useFollowingQuery();
     const { data: incomingRequests = [] } = useIncomingRequestsQuery();
 
     const pendingCount = incomingRequests.length;
@@ -70,37 +71,64 @@ export default function CommunityScreen() {
 
                 <Divider style={styles.divider} />
 
-                {/* Friends list */}
-                <Text variant="h3" style={styles.sectionTitle}>
-                    {t('community.friendsCount', { count: friends.length })}
-                </Text>
+                <ScrollView showsVerticalScrollIndicator={false}>
+                    {/* Friends list */}
+                    <Text variant="h3" style={styles.sectionTitle}>
+                        {t('community.friendsCount', { count: friends.length })}
+                    </Text>
 
-                {friends.length === 0 && !friendsLoading ? (
-                    <View style={styles.emptyState}>
-                        <MaterialCommunityIcons name="account-group-outline" size={64} color={theme.colors.textLight} />
-                        <Text variant="body" style={styles.emptyText}>{t('community.noFriends')}</Text>
-                        <Text variant="caption" style={styles.emptyHint}>
-                            {t('community.noFriendsHint')}
-                        </Text>
-                    </View>
-                ) : (
-                    <FlatList
-                        data={friends}
-                        keyExtractor={(item) => item.id}
-                        renderItem={({ item }) => {
+                    {friends.length === 0 && !friendsLoading ? (
+                        <View style={styles.emptyState}>
+                            <MaterialCommunityIcons name="account-group-outline" size={64} color={theme.colors.textLight} />
+                            <Text variant="body" style={styles.emptyText}>{t('community.noFriends')}</Text>
+                            <Text variant="caption" style={styles.emptyHint}>
+                                {t('community.noFriendsHint')}
+                            </Text>
+                        </View>
+                    ) : (
+                        friends.map((item) => {
                             const friendId = item.userIds.find((id) => id !== user?.uid) || '';
                             const friendData = item.users[friendId];
 
                             return (
-                                <UserListItem
-                                    displayName={friendData?.displayName || t('common:user')}
-                                    onPress={() => navigation.navigate('UserProfile', { userId: friendId })}
-                                />
+                                <React.Fragment key={item.id}>
+                                    <UserListItem
+                                        displayName={friendData?.displayName || t('common:user')}
+                                        onPress={() => navigation.navigate('UserProfile', { userId: friendId })}
+                                    />
+                                    <Divider style={styles.itemDivider} />
+                                </React.Fragment>
                             );
-                        }}
-                        ItemSeparatorComponent={() => <Divider style={styles.itemDivider} />}
-                    />
-                )}
+                        })
+                    )}
+
+                    <Divider style={styles.divider} />
+
+                    {/* Following list */}
+                    <Text variant="h3" style={styles.sectionTitle}>
+                        {t('community.followingCount', { count: following.length })}
+                    </Text>
+
+                    {following.length === 0 && !followingLoading ? (
+                        <View style={styles.emptyState}>
+                            <MaterialCommunityIcons name="account-eye-outline" size={64} color={theme.colors.textLight} />
+                            <Text variant="body" style={styles.emptyText}>{t('community.noFollowing')}</Text>
+                            <Text variant="caption" style={styles.emptyHint}>
+                                {t('community.noFollowingHint')}
+                            </Text>
+                        </View>
+                    ) : (
+                        following.map((item) => (
+                            <React.Fragment key={item.id}>
+                                <UserListItem
+                                    displayName={item.followingDisplayName}
+                                    onPress={() => navigation.navigate('UserProfile', { userId: item.followingId })}
+                                />
+                                <Divider style={styles.itemDivider} />
+                            </React.Fragment>
+                        ))
+                    )}
+                </ScrollView>
             </View>
         </View>
     );

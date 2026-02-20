@@ -1,7 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { ActivityIndicator, Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
+import * as Notifications from 'expo-notifications';
+import { useNavigation } from '@react-navigation/native';
 
 import AuthNavigator from './AuthNavigator';
 import {useAuth} from "../hooks";
@@ -20,12 +22,50 @@ export default function AppNavigator() {
     const {t} = useTranslation('navigation');
     const styles = createStyles(theme)
 
+    const navigation = useNavigation<any>();
+    const notificationResponseListener = useRef<Notifications.EventSubscription>();
+
     useEffect(() => {
         if (user) {
             registerForNotifications();
             registerAndStorePushToken(user.uid);
         }
     }, [user]);
+
+    useEffect(() => {
+        const navigateToAnimal = (animalId: string) => {
+            navigation.navigate('Main', {
+                screen: 'Animals',
+                params: {
+                    screen: 'AnimalDetails',
+                    params: { animalId },
+                },
+            });
+        };
+
+        // Handle notification tap when app was killed (cold start)
+        Notifications.getLastNotificationResponseAsync().then((response) => {
+            const data = response?.notification.request.content.data;
+            if (data?.animalId) {
+                navigateToAnimal(data.animalId);
+            }
+        });
+
+        // Handle notification tap when app is in background
+        notificationResponseListener.current =
+            Notifications.addNotificationResponseReceivedListener((response) => {
+                const data = response.notification.request.content.data;
+                if (data?.animalId) {
+                    navigateToAnimal(data.animalId);
+                }
+            });
+
+        return () => {
+            if (notificationResponseListener.current) {
+                Notifications.removeNotificationSubscription(notificationResponseListener.current);
+            }
+        };
+    }, [navigation]);
 
     // Pokaż loading screen podczas sprawdzania stanu uwierzytelnienia
     if (loading) {
