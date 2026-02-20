@@ -4,7 +4,7 @@ import { Text, TextInput, Button, Card, Checkbox } from 'react-native-paper';
 import {useAuth} from "../../hooks";
 import {useTheme} from "../../context/ThemeContext";
 import {Theme} from "../../styles/theme";
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '../../hooks/useAppTranslation';
 
 interface RegisterScreenProps {
     navigation: any;
@@ -20,7 +20,7 @@ export default function RegisterScreen({ navigation }: RegisterScreenProps) {
     const [loading, setLoading] = useState(false);
     const { signUp } = useAuth();
     const {theme} = useTheme();
-    const { t } = useTranslation('auth');
+    const { t } = useAppTranslation('auth');
     const styles = createStyles(theme)
 
     const validateForm = () => {

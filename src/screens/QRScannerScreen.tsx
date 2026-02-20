@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
 import { Text, Button, ActivityIndicator } from 'react-native-paper';
 import { CameraView, useCameraPermissions } from 'expo-camera';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 import {Theme} from "../styles/theme";
 import {useNavigation} from "@react-navigation/native";
 import { animalsService } from "../services/firebase";
 import {useTheme} from "../context/ThemeContext";
 
 export default function QRScannerScreen() {
-    const { t } = useTranslation('scanner');
+    const { t } = useAppTranslation('scanner');
     const { theme } = useTheme();
     const styles = makeStyles(theme);
     const navigation = useNavigation<any>();

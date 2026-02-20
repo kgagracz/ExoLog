@@ -4,7 +4,7 @@ import {Text, TextInput, Button, Card, Checkbox} from 'react-native-paper';
 import {useAuth} from "../../hooks";
 import {Theme} from "../../styles/theme";
 import {useTheme} from "../../context/ThemeContext";
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '../../hooks/useAppTranslation';
 
 interface LoginScreenProps {
     navigation: any;
@@ -18,7 +18,7 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
     const [loading, setLoading] = useState(false);
     const { signIn } = useAuth();
     const {theme} = useTheme();
-    const { t } = useTranslation('auth');
+    const { t } = useAppTranslation('auth');
     const styles = createStyles(theme)
 
     const handleLogin = async () => {

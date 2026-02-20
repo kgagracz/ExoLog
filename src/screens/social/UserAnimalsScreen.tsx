@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Appbar, Searchbar, Text } from 'react-native-paper';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '../../hooks/useAppTranslation';
 import { usePublicAnimalsQuery } from '../../api/social';
 import { useTheme } from '../../context/ThemeContext';
 import { useAnimalFilters } from '../../hooks/useAnimalFilters';
@@ -21,7 +21,7 @@ export default function UserAnimalsScreen() {
     const styles = makeStyles(theme);
     const navigation = useNavigation<any>();
     const route = useRoute<RouteProp<RouteParams, 'UserAnimals'>>();
-    const { t } = useTranslation('animals');
+    const { t } = useAppTranslation('animals');
 
     const { userId, displayName } = route.params;
 

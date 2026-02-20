@@ -4,7 +4,7 @@ import { Appbar, Card } from 'react-native-paper';
 // @ts-ignore
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '../../hooks/useAppTranslation';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useTheme } from '../../context/ThemeContext';
 import { useActivityFeedQuery, useFollowingQuery } from '../../api/social';
@@ -12,26 +12,26 @@ import { Theme } from '../../styles/theme';
 import Text from '../../components/atoms/Text';
 import type { ActivityItem } from '../../types/social';
 
-function formatRelativeDate(dateStr: string, t: (key: string, opts?: any) => string): string {
-    const now = Date.now();
-    const date = new Date(dateStr).getTime();
-    const diffMs = now - date;
-    const diffMin = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
-
-    if (diffMin < 1) return t('activityFeed.justNow');
-    if (diffMin < 60) return t('activityFeed.minutesAgo', { count: diffMin });
-    if (diffHours < 24) return t('activityFeed.hoursAgo', { count: diffHours });
-    return t('activityFeed.daysAgo', { count: diffDays });
-}
-
 export default function ActivityFeedScreen() {
     const { theme } = useTheme();
     const styles = makeStyles(theme);
     const navigation = useNavigation<any>();
-    const { t } = useTranslation('social');
+    const { t } = useAppTranslation('social');
     const tabBarHeight = useBottomTabBarHeight();
+
+    const formatRelativeDate = (dateStr: string): string => {
+        const now = Date.now();
+        const date = new Date(dateStr).getTime();
+        const diffMs = now - date;
+        const diffMin = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
+
+        if (diffMin < 1) return t('activityFeed.justNow');
+        if (diffMin < 60) return t('activityFeed.minutesAgo', { count: diffMin });
+        if (diffHours < 24) return t('activityFeed.hoursAgo', { count: diffHours });
+        return t('activityFeed.daysAgo', { count: diffDays });
+    };
 
     const { data: following = [] } = useFollowingQuery();
     const { data: activities = [], isLoading, refetch } = useActivityFeedQuery();
@@ -66,7 +66,7 @@ export default function ActivityFeedScreen() {
                     <View style={styles.activityInfo}>
                         <Text variant="body" style={styles.activityText}>{description}</Text>
                         <Text variant="caption" style={styles.activityTime}>
-                            {formatRelativeDate(item.createdAt, t)}
+                            {formatRelativeDate(item.createdAt)}
                         </Text>
                     </View>
                 </Card.Content>

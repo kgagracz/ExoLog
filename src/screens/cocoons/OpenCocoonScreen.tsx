@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native';
 import { Text, Appbar, Card, Button, TextInput, HelperText, ActivityIndicator } from 'react-native-paper';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '../../hooks/useAppTranslation';
 import { useTheme } from "../../context/ThemeContext";
 import { useAddMultipleSpidersMutation } from "../../api/animals";
 import { useUpdateCocoonStatusMutation } from "../../api/events";
@@ -10,7 +10,7 @@ import { Theme } from "../../styles/theme";
 
 export default function OpenCocoonScreen() {
     const { theme } = useTheme();
-    const { t } = useTranslation('cocoons');
+    const { t } = useAppTranslation('cocoons');
     const styles = makeStyles(theme);
     const navigation = useNavigation<any>();
     const route = useRoute<any>();

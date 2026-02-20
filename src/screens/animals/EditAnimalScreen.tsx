@@ -9,10 +9,10 @@ import {useAuth} from "../../hooks/useAuth";
 import SpiderForm from "../../components/molecules/SpiderForm";
 import {Theme} from "../../styles/theme";
 import {storageService} from "../../services/firebase/storageService";
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '../../hooks/useAppTranslation';
 
 export default function EditAnimalScreen() {
-    const { t } = useTranslation('animals');
+    const { t } = useAppTranslation('animals');
     const { theme } = useTheme();
     const styles = makeStyles(theme);
     const navigation = useNavigation<any>();

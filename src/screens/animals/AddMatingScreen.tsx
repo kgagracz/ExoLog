@@ -8,10 +8,10 @@ import { useAddMatingMutation } from "../../api/events";
 import { Theme } from "../../styles/theme";
 import MatingForm, { MatingResult } from "../../components/organisms/MatingForm";
 import { Animal } from "../../types";
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '../../hooks/useAppTranslation';
 
 export default function AddMatingScreen() {
-    const { t } = useTranslation('animals');
+    const { t } = useAppTranslation('animals');
     const { theme } = useTheme();
     const styles = makeStyles(theme);
     const navigation = useNavigation<any>();

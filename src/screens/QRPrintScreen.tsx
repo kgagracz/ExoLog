@@ -11,7 +11,7 @@ import {
     Chip, SegmentedButtons
 } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { useTheme } from "../context/ThemeContext";
@@ -20,7 +20,7 @@ import { Theme } from "../styles/theme";
 import { Animal } from "../types";
 
 export default function QRPrintScreen() {
-    const { t } = useTranslation('scanner');
+    const { t } = useAppTranslation('scanner');
     const { theme } = useTheme();
     const styles = makeStyles(theme);
     const navigation = useNavigation<any>();

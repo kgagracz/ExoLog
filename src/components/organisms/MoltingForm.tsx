@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {View, StyleSheet, ScrollView} from 'react-native';
 import {Text, Card, Switch, HelperText} from 'react-native-paper';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '../../hooks/useAppTranslation';
 import {useTheme} from "../../context/ThemeContext";
 import FormInput from "../atoms/FormInput";
 import FormNumberInput from "../atoms/FormNumberInput";
@@ -33,7 +33,7 @@ export default function MoltingForm({
                                         errors,
                                     }: MoltingFormProps) {
     const {theme} = useTheme();
-    const { t } = useTranslation('forms');
+    const { t } = useAppTranslation('forms');
     const styles = makeStyles(theme);
 
     const [formData, setFormData] = useState<MoltingFormData>({

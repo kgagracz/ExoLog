@@ -18,7 +18,7 @@ import { useAnimalQuery } from "../../api/animals";
 import { useDeleteAnimalMutation, useMarkDeceasedMutation } from "../../api/animals";
 import { useFeedingHistoryQuery } from "../../api/feeding";
 import { useMoltingHistoryQuery, useMatingHistoryQuery, useCocoonHistoryQuery } from "../../api/events";
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '../../hooks/useAppTranslation';
 
 const HERO_HEIGHT = 280;
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -109,7 +109,7 @@ const makeSkeletonStyles = (theme: Theme) => StyleSheet.create({
 });
 
 export default function AnimalDetailsScreen() {
-    const { t } = useTranslation('animals');
+    const { t } = useAppTranslation('animals');
     const navigation = useNavigation<any>();
     const route = useRoute<any>();
     const { animalId } = route.params;

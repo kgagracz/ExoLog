@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet, Image, Animated } from 'react-native';
 import { Text, Card, Chip } from 'react-native-paper';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '../../hooks/useAppTranslation';
 import { useTheme } from "../../context/ThemeContext";
 import { useSlideUp } from "../../hooks/useAnimations";
 import { Theme } from "../../styles/theme";
@@ -31,7 +31,7 @@ interface AnimalCardProps {
 
 const AnimalCard: React.FC<AnimalCardProps> = ({ animal, onPress, matingStatus, cocoonStatus, lastMoltDate, index = 0 }) => {
   const { theme } = useTheme();
-  const { t } = useTranslation('animals');
+  const { t } = useAppTranslation('animals');
   const styles = makeStyles(theme);
 
   const delay = Math.min(index, 8) * 80;

@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import { Text, List } from 'react-native-paper';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '../../hooks/useAppTranslation';
 import { useTheme } from "../../context/ThemeContext";
 import { Theme } from "../../styles/theme";
 import { Animal } from "../../types";
@@ -12,7 +12,7 @@ interface MeasurementsSectionProps {
 
 const MeasurementsSection: React.FC<MeasurementsSectionProps> = ({ animal }) => {
   const { theme } = useTheme();
-  const { t } = useTranslation('animals');
+  const { t } = useAppTranslation('animals');
   const styles = makeStyles(theme);
 
   const calculateAge = (dateAcquired: string, dateOfBirth?: string): string => {

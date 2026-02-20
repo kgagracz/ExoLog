@@ -17,7 +17,7 @@ import { useAnimalsQuery } from "../../api/animals";
 import { useBulkFeedMutation, useFeedAnimalMutation } from "../../api/feeding";
 import { Theme } from "../../styles/theme";
 import { useTheme } from "../../context/ThemeContext";
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '../../hooks/useAppTranslation';
 
 interface AddFeedingScreenProps {
     navigation?: any;
@@ -26,7 +26,7 @@ interface AddFeedingScreenProps {
 type FeedingMode = 'all' | 'select';
 
 export const AddFeedingScreen: React.FC<AddFeedingScreenProps> = ({ navigation }) => {
-    const { t } = useTranslation('animals');
+    const { t } = useAppTranslation('animals');
     const { data: animals = [], isLoading: loading } = useAnimalsQuery();
     const feedAnimalMutation = useFeedAnimalMutation();
     const bulkFeedMutation = useBulkFeedMutation();

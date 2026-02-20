@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import { Text, List, Divider, Button } from 'react-native-paper';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '../../hooks/useAppTranslation';
 import { useTheme } from "../../context/ThemeContext";
 import { Theme } from "../../styles/theme";
 import { Animal } from "../../types";
@@ -18,7 +18,7 @@ const FeedingSection: React.FC<FeedingSectionProps> = ({
   onShowHistory 
 }) => {
   const { theme } = useTheme();
-  const { t } = useTranslation('animals');
+  const { t } = useAppTranslation('animals');
   const styles = makeStyles(theme);
 
   return (

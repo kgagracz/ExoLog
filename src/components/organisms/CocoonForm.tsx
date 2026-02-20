@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { Text, Card, RadioButton, HelperText, Switch } from 'react-native-paper';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '../../hooks/useAppTranslation';
 import { useTheme } from "../../context/ThemeContext";
 import FormInput from "../atoms/FormInput";
 import { Theme } from "../../styles/theme";
@@ -36,7 +36,7 @@ export default function CocoonForm({
                                        errors,
                                    }: CocoonFormProps) {
     const { theme } = useTheme();
-    const { t } = useTranslation('forms');
+    const { t } = useAppTranslation('forms');
     const styles = makeStyles(theme);
 
     const today = new Date().toISOString().split('T')[0];

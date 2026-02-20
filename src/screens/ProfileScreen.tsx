@@ -5,7 +5,7 @@ import { Appbar, Card, Button, Divider, Switch } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../hooks/useAuth';
 import { useSlideUp } from '../hooks/useAnimations';
@@ -25,7 +25,7 @@ function AnimatedCard({ delay, children, style }: { delay: number; children: Rea
 }
 
 export default function ProfileScreen() {
-    const { t } = useTranslation('profile');
+    const { t } = useAppTranslation('profile');
     const { theme, toggleTheme, isDark } = useTheme();
     const styles = makeStyles(theme);
     const navigation = useNavigation();

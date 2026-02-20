@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
 import { Appbar, Button, ActivityIndicator, Text } from 'react-native-paper';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '../../hooks/useAppTranslation';
 import { useTheme } from "../../context/ThemeContext";
 import { useAnimalQuery } from "../../api/animals";
 import { useAddCocoonMutation } from "../../api/events";
@@ -12,7 +12,7 @@ import { Animal } from "../../types";
 
 export default function AddCocoonScreen() {
     const { theme } = useTheme();
-    const { t } = useTranslation('animals');
+    const { t } = useAppTranslation('animals');
     const styles = makeStyles(theme);
     const navigation = useNavigation<any>();
     const route = useRoute<any>();

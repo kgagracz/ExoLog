@@ -4,7 +4,7 @@ import { Text, TextInput, Button, Card } from 'react-native-paper';
 import {useAuth} from "../../hooks";
 import {useTheme} from "../../context/ThemeContext";
 import {Theme} from "../../styles/theme";
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '../../hooks/useAppTranslation';
 
 interface ForgotPasswordScreenProps {
     navigation: any;
@@ -15,7 +15,7 @@ export default function ForgotPasswordScreen({ navigation }: ForgotPasswordScree
     const [loading, setLoading] = useState(false);
     const { resetPassword } = useAuth();
     const {theme} = useTheme();
-    const { t } = useTranslation('auth');
+    const { t } = useAppTranslation('auth');
     const styles = createStyles(theme)
 
     const handleResetPassword = async () => {

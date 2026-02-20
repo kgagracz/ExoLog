@@ -4,7 +4,7 @@ import { Appbar, Card, Button, Divider } from 'react-native-paper';
 // @ts-ignore
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '../../hooks/useAppTranslation';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../hooks/useAuth';
@@ -33,7 +33,7 @@ export default function UserProfileScreen() {
     const navigation = useNavigation();
     const route = useRoute<RouteProp<RouteParams, 'UserProfile'>>();
     const { user } = useAuth();
-    const { t } = useTranslation('social');
+    const { t } = useAppTranslation('social');
 
     const tabBarHeight = useBottomTabBarHeight();
     const { userId } = route.params;

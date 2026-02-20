@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import { FAB, Portal } from 'react-native-paper';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '../../hooks/useAppTranslation';
 import { useTheme } from "../../context/ThemeContext";
 
 interface AddActionsFABProps {
@@ -20,7 +20,7 @@ const AddActionsFAB: React.FC<AddActionsFABProps> = ({
   onAddFeeding
 }) => {
   const { theme } = useTheme();
-  const { t } = useTranslation('navigation');
+  const { t } = useAppTranslation('navigation');
 
   if (!visible) return null;
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Image, Modal, KeyboardAvoidingView, Platform } from 'react-native';
 import { Text, Card, Button, IconButton } from 'react-native-paper';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '../../hooks/useAppTranslation';
 import { useTheme } from '../../context/ThemeContext';
 import FormInput from '../atoms/FormInput';
 import FormNumberInput from '../atoms/FormNumberInput';
@@ -31,7 +31,7 @@ const PhotoUploadModal: React.FC<PhotoUploadModalProps> = ({
     onDismiss,
 }) => {
     const { theme } = useTheme();
-    const { t } = useTranslation('forms');
+    const { t } = useAppTranslation('forms');
     const styles = makeStyles(theme);
 
     const [description, setDescription] = useState('');

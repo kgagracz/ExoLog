@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { Text, Card, RadioButton, HelperText } from 'react-native-paper';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '../../hooks/useAppTranslation';
 import { useTheme } from "../../context/ThemeContext";
 import FormInput from "../atoms/FormInput";
 import FormSelect from "../atoms/FormSelect";
@@ -31,7 +31,7 @@ export default function MatingForm({
                                        errors,
                                    }: MatingFormProps) {
     const { theme } = useTheme();
-    const { t } = useTranslation('forms');
+    const { t } = useAppTranslation('forms');
     const styles = makeStyles(theme);
 
     const isMale = currentAnimal.sex === 'male';

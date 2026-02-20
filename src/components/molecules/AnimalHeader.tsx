@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet, ImageBackground, Dimensions, TouchableOpacity } from 'react-native';
 import { Text, Chip } from 'react-native-paper';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '../../hooks/useAppTranslation';
 import { useTheme } from "../../context/ThemeContext";
 import { Theme } from "../../styles/theme";
 import { Animal } from "../../types";
@@ -33,7 +33,7 @@ const HERO_HEIGHT = 280;
 
 const AnimalHeader: React.FC<AnimalHeroHeaderProps> = ({ animal, matingStatus, cocoonStatus, lastMoltDate, onPhotoPress }) => {
   const { theme } = useTheme();
-  const { t } = useTranslation('animals');
+  const { t } = useAppTranslation('animals');
   const styles = makeStyles(theme);
 
   // Pobierz główne zdjęcie

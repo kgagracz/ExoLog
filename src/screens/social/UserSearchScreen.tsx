@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { View, FlatList, StyleSheet } from 'react-native';
 import { Appbar, Divider, Searchbar } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '../../hooks/useAppTranslation';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useTheme } from '../../context/ThemeContext';
 import { useSearchUsersQuery, useSendRequestMutation, useFriendshipStatusQuery } from '../../api/social';
@@ -24,7 +24,7 @@ function useDebounce(value: string, delay: number): string {
 
 function UserSearchResultItem({ profile }: { profile: PublicUserProfile }) {
     const navigation = useNavigation<any>();
-    const { t } = useTranslation('social');
+    const { t } = useAppTranslation('social');
     const { data: status } = useFriendshipStatusQuery(profile.uid);
     const sendRequest = useSendRequestMutation();
 
@@ -74,7 +74,7 @@ export default function UserSearchScreen() {
     const { theme } = useTheme();
     const styles = makeStyles(theme);
     const navigation = useNavigation();
-    const { t } = useTranslation('social');
+    const { t } = useAppTranslation('social');
     const tabBarHeight = useBottomTabBarHeight();
 
     const [searchText, setSearchText] = useState('');

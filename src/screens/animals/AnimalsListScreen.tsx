@@ -12,7 +12,7 @@ import UserAvatar from "../../components/atoms/UserAvatar";
 import {Theme} from "../../styles/theme";
 import {Animal} from "../../types";
 import {useAnimalFilters} from "../../hooks/useAnimalFilters";
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '../../hooks/useAppTranslation';
 
 interface MatingStatus {
   hasMating: boolean;
@@ -31,7 +31,7 @@ interface AnimalsListScreenProps {
 }
 
 const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => {
-  const { t } = useTranslation('animals');
+  const { t } = useAppTranslation('animals');
   const { data: animals = [], isLoading: loading, refetch: refresh } = useAnimalsQuery();
   const { theme } = useTheme();
   const styles = makeStyles(theme);

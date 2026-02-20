@@ -2,7 +2,7 @@ import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {Pressable, ScrollView, StyleSheet, View} from 'react-native';
 import {ActivityIndicator, Button, Card, Checkbox, HelperText, IconButton, Switch, Text, TextInput} from 'react-native-paper';
 import * as DocumentPicker from 'expo-document-picker';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '../../hooks/useAppTranslation';
 import FormInput from '../atoms/FormInput';
 import FormSelect from '../atoms/FormSelect';
 import FormNumberInput from '../atoms/FormNumberInput';
@@ -44,7 +44,7 @@ interface SpiderFormProps {
 
 export default function SpiderForm({ initialData = {}, onDataChange, errors, editMode = false }: SpiderFormProps) {
   const {theme} = useTheme()
-  const { t } = useTranslation('forms');
+  const { t } = useAppTranslation('forms');
 
   const sexOptions = [
     { label: t('spider.sex.male'), value: 'male' },

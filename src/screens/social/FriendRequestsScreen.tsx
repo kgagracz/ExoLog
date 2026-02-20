@@ -4,7 +4,7 @@ import { Appbar, Divider } from 'react-native-paper';
 // @ts-ignore
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '../../hooks/useAppTranslation';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../hooks/useAuth';
@@ -25,7 +25,7 @@ export default function FriendRequestsScreen() {
     const styles = makeStyles(theme);
     const navigation = useNavigation();
     const { user } = useAuth();
-    const { t } = useTranslation('social');
+    const { t } = useAppTranslation('social');
     const tabBarHeight = useBottomTabBarHeight();
 
     const { data: incoming = [], isLoading: incomingLoading } = useIncomingRequestsQuery();

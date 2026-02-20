@@ -7,14 +7,14 @@ import { Theme } from "../../styles/theme";
 import { useTheme } from "../../context/ThemeContext";
 import SpiderForm from "../../components/molecules/SpiderForm";
 import { storageService } from "../../services/firebase/storageService";
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '../../hooks/useAppTranslation';
 
 interface AddSpiderScreenProps {
   navigation: any;
 }
 
 export default function AddSpiderScreen({ navigation }: AddSpiderScreenProps) {
-  const { t } = useTranslation('animals');
+  const { t } = useAppTranslation('animals');
   const [formData, setFormData] = useState<any>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Appbar, Menu, Divider } from 'react-native-paper';
-import { useTranslation } from 'react-i18next';
+import { useAppTranslation } from '../../hooks/useAppTranslation';
 
 interface AnimalDetailsHeaderProps {
     animalName: string;
@@ -29,7 +29,7 @@ const AnimalDetailsHeader: React.FC<AnimalDetailsHeaderProps> = ({
                                                                      onMarkDeceased,
                                                                      isOwner = true
                                                                  }) => {
-    const { t } = useTranslation('animals');
+    const { t } = useAppTranslation('animals');
 
     return (
         <Appbar.Header>
