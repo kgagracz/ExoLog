@@ -1,13 +1,12 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import {
     View,
     Modal,
     StyleSheet,
     Image,
     Dimensions,
-    TouchableOpacity,
-    FlatList,
     StatusBar,
+    Animated,
 } from 'react-native';
 import ImageZoom from 'react-native-image-pan-zoom';
 import type { IOnMove } from 'react-native-image-pan-zoom';
@@ -37,6 +36,7 @@ interface PhotoViewerModalProps {
 }
 
 const { width, height } = Dimensions.get('window');
+const SWIPE_THRESHOLD = width * 0.2;
 
 const PhotoViewerModal: React.FC<PhotoViewerModalProps> = ({
                                                                visible,
@@ -49,53 +49,99 @@ const PhotoViewerModal: React.FC<PhotoViewerModalProps> = ({
     const { theme } = useTheme();
     const styles = makeStyles(theme);
     const [currentIndex, setCurrentIndex] = useState(initialIndex);
-    const [scrollEnabled, setScrollEnabled] = useState(true);
-    const flatListRef = useRef<FlatList>(null);
+    const [isZoomed, setIsZoomed] = useState(false);
+    const currentIndexRef = useRef(initialIndex);
+    const swipeOffsetRef = useRef(0);
+    const scrollX = useRef(new Animated.Value(-initialIndex * width)).current;
 
     const currentPhoto = photos[currentIndex];
 
-    const handleViewableItemsChanged = useCallback(
-        ({ viewableItems }: any) => {
-            if (viewableItems.length > 0) {
-                setCurrentIndex(viewableItems[0].index);
-            }
-        },
-        []
-    );
-
-    const viewabilityConfig = {
-        itemVisiblePercentThreshold: 50,
-    };
-
-    React.useEffect(() => {
+    useEffect(() => {
+        currentIndexRef.current = initialIndex;
         setCurrentIndex(initialIndex);
-        setScrollEnabled(true);
-    }, [initialIndex, visible]);
+        setIsZoomed(false);
+        scrollX.setValue(-initialIndex * width);
+    }, [initialIndex, visible, scrollX]);
 
     const handleZoomChange = useCallback((position: IOnMove) => {
-        setScrollEnabled(position.scale <= 1);
+        setIsZoomed(position.scale > 1.05);
     }, []);
 
-    const renderPhoto = ({ item }: { item: Photo }) => (
-        <View style={styles.photoContainer}>
-            <ZoomableImage
-                cropWidth={width}
-                cropHeight={height}
-                imageWidth={width}
-                imageHeight={height * 0.8}
-                enableDoubleClickZoom
-                minScale={1}
-                maxScale={4}
-                onMove={handleZoomChange}
-            >
-                <Image
-                    source={{ uri: item.url || item.uri }}
-                    style={styles.photo}
-                    resizeMode="contain"
-                />
-            </ZoomableImage>
-        </View>
-    );
+    const handleHorizontalOuterRange = useCallback((offsetX: number) => {
+        swipeOffsetRef.current = offsetX;
+        if (!isZoomed) {
+            scrollX.setValue(-currentIndexRef.current * width + offsetX);
+        }
+    }, [isZoomed, scrollX]);
+
+    const handleResponderRelease = useCallback(() => {
+        const offset = swipeOffsetRef.current;
+        swipeOffsetRef.current = 0;
+
+        if (isZoomed) return;
+
+        const idx = currentIndexRef.current;
+        let targetIndex = idx;
+
+        if (offset < -SWIPE_THRESHOLD && idx < photos.length - 1) {
+            targetIndex = idx + 1;
+        } else if (offset > SWIPE_THRESHOLD && idx > 0) {
+            targetIndex = idx - 1;
+        }
+
+        currentIndexRef.current = targetIndex;
+
+        Animated.spring(scrollX, {
+            toValue: -targetIndex * width,
+            useNativeDriver: true,
+            tension: 80,
+            friction: 12,
+        }).start(({ finished }) => {
+            if (finished) {
+                setCurrentIndex(targetIndex);
+                setIsZoomed(false);
+            }
+        });
+    }, [isZoomed, photos.length, scrollX]);
+
+    // Render only nearby photos for performance
+    const renderSlot = (index: number) => {
+        if (index < 0 || index >= photos.length) return null;
+        const photo = photos[index];
+        const isCenter = index === currentIndex;
+
+        return (
+            <View key={photo.id} style={[styles.photoSlot, { left: index * width }]}>
+                {isCenter ? (
+                    <ZoomableImage
+                        key={photo.id}
+                        cropWidth={width}
+                        cropHeight={height}
+                        imageWidth={width}
+                        imageHeight={height * 0.8}
+                        enableDoubleClickZoom
+                        minScale={1}
+                        maxScale={4}
+                        onMove={handleZoomChange}
+                        horizontalOuterRangeOffset={handleHorizontalOuterRange}
+                        responderRelease={handleResponderRelease}
+                    >
+                        <Image
+                            source={{ uri: photo.url || photo.uri }}
+                            style={styles.photo}
+                            resizeMode="contain"
+                        />
+                    </ZoomableImage>
+                ) : (
+                    <Image
+                        source={{ uri: photo.url || photo.uri }}
+                        style={styles.photo}
+                        resizeMode="contain"
+                    />
+                )}
+            </View>
+        );
+    };
 
     return (
         <Modal
@@ -138,25 +184,12 @@ const PhotoViewerModal: React.FC<PhotoViewerModalProps> = ({
                     </View>
                 </View>
 
-                {/* Photo viewer */}
-                <FlatList
-                    ref={flatListRef}
-                    data={photos}
-                    renderItem={renderPhoto}
-                    keyExtractor={(item) => item.id}
-                    horizontal
-                    pagingEnabled
-                    scrollEnabled={scrollEnabled}
-                    showsHorizontalScrollIndicator={false}
-                    initialScrollIndex={initialIndex}
-                    getItemLayout={(_, index) => ({
-                        length: width,
-                        offset: width * index,
-                        index,
-                    })}
-                    onViewableItemsChanged={handleViewableItemsChanged}
-                    viewabilityConfig={viewabilityConfig}
-                />
+                {/* Photo strip — continuous scroll, no reset */}
+                <Animated.View style={[styles.strip, { transform: [{ translateX: scrollX }] }]}>
+                    {renderSlot(currentIndex - 1)}
+                    {renderSlot(currentIndex)}
+                    {renderSlot(currentIndex + 1)}
+                </Animated.View>
 
                 {/* Description */}
                 {currentPhoto?.description ? (
@@ -220,14 +253,19 @@ const makeStyles = (theme: Theme) =>
             fontSize: 16,
             fontWeight: '500',
         },
-        photoContainer: {
+        strip: {
+            width: '100%',
+            height,
+        },
+        photoSlot: {
+            position: 'absolute',
             width,
             height,
             justifyContent: 'center',
             alignItems: 'center',
         },
         photo: {
-            width: width,
+            width,
             height: height * 0.8,
         },
         indicators: {
