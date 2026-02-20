@@ -1,5 +1,5 @@
-import React from 'react';
-import { ScrollView, RefreshControl, StyleSheet } from 'react-native';
+import React, { useRef } from 'react';
+import { ScrollView, RefreshControl, StyleSheet, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
 import {Animal} from "../../../types";
 import AnimalCard from "../../molecules/AnimalCard";
 
@@ -20,6 +20,7 @@ interface AnimalsListProps {
     loading: boolean;
     onRefresh: () => void;
     onAnimalPress: (animal: Animal) => void;
+    onScrollDirectionChange?: (hidden: boolean) => void;
     matingStatuses?: Record<string, MatingStatus>;
     cocoonStatuses?: Record<string, CocoonStatus>;
     lastMoltDates?: Record<string, string>;
@@ -30,14 +31,27 @@ const AnimalsList: React.FC<AnimalsListProps> = ({
                                                      loading,
                                                      onRefresh,
                                                      onAnimalPress,
+                                                     onScrollDirectionChange,
                                                      matingStatuses = {},
                                                      cocoonStatuses = {},
                                                      lastMoltDates = {}
                                                  }) => {
+    const lastOffsetRef = useRef(0);
+
+    const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+        if (!onScrollDirectionChange) return;
+        const currentOffset = e.nativeEvent.contentOffset.y;
+        const scrollingDown = currentOffset > lastOffsetRef.current && currentOffset > 10;
+        onScrollDirectionChange(scrollingDown);
+        lastOffsetRef.current = currentOffset;
+    };
+
     return (
         <ScrollView
             style={styles.list}
             showsVerticalScrollIndicator={false}
+            onScroll={handleScroll}
+            scrollEventThrottle={16}
             refreshControl={
                 <RefreshControl refreshing={loading} onRefresh={onRefresh} />
             }

@@ -1,8 +1,8 @@
 import {useAnimalsQuery} from "../../api/animals";
 import {useLastMoltDatesQuery, useMatingStatusesQuery, useCocoonStatusesQuery} from "../../api/events";
 import {useTheme} from "../../context/ThemeContext";
-import {useMemo, useState} from "react";
-import {StyleSheet, View} from "react-native";
+import {useCallback, useMemo, useRef, useState} from "react";
+import {Animated, StyleSheet, View} from "react-native";
 import {Appbar, Searchbar, Text} from "react-native-paper";
 import {EmptyState} from "../../components";
 import AnimalsList from "../../components/organisms/AnimalList";
@@ -37,6 +37,18 @@ const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => 
   const styles = makeStyles(theme);
 
   const [fabOpen, setFabOpen] = useState<boolean>(false);
+  const headerAnim = useRef(new Animated.Value(0)).current;
+  const isHiddenRef = useRef(false);
+
+  const handleScrollDirectionChange = useCallback((hidden: boolean) => {
+    if (hidden === isHiddenRef.current) return;
+    isHiddenRef.current = hidden;
+    Animated.timing(headerAnim, {
+      toValue: hidden ? 1 : 0,
+      duration: 250,
+      useNativeDriver: false,
+    }).start();
+  }, [headerAnim]);
 
   const filters = useAnimalFilters(animals);
 
@@ -84,26 +96,32 @@ const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => 
         </Appbar.Header>
 
         <View style={styles.content}>
-          <Searchbar
-              placeholder={t('list.searchPlaceholder')}
-              onChangeText={filters.setSearchText}
-              value={filters.searchText}
-              style={styles.searchBar}
-          />
+          <Animated.View style={{
+            maxHeight: headerAnim.interpolate({ inputRange: [0, 1], outputRange: [200, 0] }),
+            opacity: headerAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }),
+            overflow: 'hidden',
+          }}>
+            <Searchbar
+                placeholder={t('list.searchPlaceholder')}
+                onChangeText={filters.setSearchText}
+                value={filters.searchText}
+                style={styles.searchBar}
+            />
 
-          <AnimalFiltersToolbar
-              sexFilter={filters.sexFilter}
-              speciesFilter={filters.speciesFilter}
-              sortOption={filters.sortOption}
-              filtersVisible={filters.filtersVisible}
-              availableSpecies={filters.availableSpecies}
-              hasActiveFilters={filters.hasActiveFilters}
-              toggleFiltersVisible={filters.toggleFiltersVisible}
-              toggleSex={filters.toggleSex}
-              setSpeciesFilter={filters.setSpeciesFilter}
-              setSortOption={filters.setSortOption}
-              clearAllFilters={filters.clearAllFilters}
-          />
+            <AnimalFiltersToolbar
+                sexFilter={filters.sexFilter}
+                speciesFilter={filters.speciesFilter}
+                sortOption={filters.sortOption}
+                filtersVisible={filters.filtersVisible}
+                availableSpecies={filters.availableSpecies}
+                hasActiveFilters={filters.hasActiveFilters}
+                toggleFiltersVisible={filters.toggleFiltersVisible}
+                toggleSex={filters.toggleSex}
+                setSpeciesFilter={filters.setSpeciesFilter}
+                setSortOption={filters.setSortOption}
+                clearAllFilters={filters.clearAllFilters}
+            />
+          </Animated.View>
 
           {showEmptyState ? (
               <EmptyState
@@ -123,6 +141,7 @@ const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => 
                   loading={loading}
                   onRefresh={refresh}
                   onAnimalPress={handleAnimalPress}
+                  onScrollDirectionChange={handleScrollDirectionChange}
                   matingStatuses={matingStatuses}
                   cocoonStatuses={cocoonStatuses}
                   lastMoltDates={lastMoltDates}
