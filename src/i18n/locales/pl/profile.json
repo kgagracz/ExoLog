@@ -17,5 +17,7 @@
   "moltReminders": "Przypomnienia o wylince",
   "moltRemindersDescription": "Powiadomienie 7 dni po ostatniej wylince",
   "cocoonReminders": "Przypomnienia o kokonie",
-  "cocoonRemindersDescription": "Powiadomienie 3 dni przed przewidywanym wylegiem"
+  "cocoonRemindersDescription": "Powiadomienie 3 dni przed przewidywanym wylegiem",
+  "followedUserActivity": "Aktywność obserwowanych",
+  "followedUserActivityDescription": "Powiadomienia o nowych zdjęciach i wylinkach obserwowanych użytkowników"
 }

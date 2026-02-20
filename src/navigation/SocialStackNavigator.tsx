@@ -6,6 +6,7 @@ import UserProfileScreen from '../screens/social/UserProfileScreen';
 import FriendRequestsScreen from '../screens/social/FriendRequestsScreen';
 import UserAnimalsScreen from '../screens/social/UserAnimalsScreen';
 import AnimalDetailsScreen from '../screens/animals/AnimalDetailsScreen';
+import ActivityFeedScreen from '../screens/social/ActivityFeedScreen';
 
 type SocialStackParamList = {
     CommunityHome: undefined;
@@ -14,6 +15,7 @@ type SocialStackParamList = {
     FriendRequests: undefined;
     UserAnimals: { userId: string; displayName: string };
     UserAnimalDetails: { animalId: string };
+    ActivityFeed: undefined;
 };
 
 const Stack = createNativeStackNavigator<SocialStackParamList>();
@@ -31,6 +33,7 @@ export default function SocialStackNavigator() {
             <Stack.Screen name="FriendRequests" component={FriendRequestsScreen} />
             <Stack.Screen name="UserAnimals" component={UserAnimalsScreen} />
             <Stack.Screen name="UserAnimalDetails" component={AnimalDetailsScreen} />
+            <Stack.Screen name="ActivityFeed" component={ActivityFeedScreen} />
         </Stack.Navigator>
     );
 }

@@ -44,3 +44,4 @@ yarn-error.*
 .firebase/
 firebase-debug.log
 firestore-debug.log
+functions/lib/

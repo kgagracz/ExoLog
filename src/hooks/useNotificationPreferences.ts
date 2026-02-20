@@ -10,6 +10,7 @@ export function useNotificationPreferences() {
     const [preferences, setPreferences] = useState<NotificationPreferences>({
         moltReminders: true,
         cocoonReminders: true,
+        followedUserActivity: true,
     });
     const [loading, setLoading] = useState(true);
 
@@ -35,5 +36,10 @@ export function useNotificationPreferences() {
         }
     }, []);
 
-    return { preferences, loading, toggleMoltReminders, toggleCocoonReminders };
+    const toggleFollowedUserActivity = useCallback(async (value: boolean) => {
+        const updated = await setNotificationPreferences({ followedUserActivity: value });
+        setPreferences(updated);
+    }, []);
+
+    return { preferences, loading, toggleMoltReminders, toggleCocoonReminders, toggleFollowedUserActivity };
 }

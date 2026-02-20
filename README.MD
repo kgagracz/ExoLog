@@ -207,8 +207,24 @@
 - [x] Informacja o prywatnym profilu dla niezalogowanych
 - [x] Przycisk relacji (wyślij zaproszenie / oczekuje / usuń znajomego)
 
+#### Śledzenie użytkowników
+- [x] Obserwowanie dowolnego publicznego użytkownika (niezależne od znajomych)
+- [x] Przycisk Obserwuj/Przestań obserwować na profilu użytkownika
+- [x] Licznik obserwujących na profilu
+- [x] Feed aktywności obserwowanych użytkowników
+  - [x] Powiadomienia o nowych zdjęciach pająków
+  - [x] Powiadomienia o zarejestrowanych wylinkach
+  - [x] Relatywny czas (przed chwilą, X min temu, X godz. temu)
+  - [x] Pull-to-refresh
+- [x] Push notifications przez Firebase Cloud Functions
+  - [x] Trigger na dodanie zdjęcia (onUpdate animals)
+  - [x] Trigger na rejestrację wylinki (onCreate events)
+  - [x] Wysyłka przez Expo push service
+- [x] Rejestracja Expo push tokenów (automatyczna przy logowaniu, czyszczenie przy wylogowaniu)
+- [x] Toggle preferencji powiadomień aktywności obserwowanych
+
 #### Nawigacja
 - [x] Zakładka "Społeczność" w bottom tabs (ikona account-group)
-- [x] Stack: Społeczność → Wyszukiwanie → Profil użytkownika → Zaproszenia
+- [x] Stack: Społeczność → Wyszukiwanie → Profil użytkownika → Zaproszenia → Aktywność
 
 ---

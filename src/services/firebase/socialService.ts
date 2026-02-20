@@ -6,6 +6,7 @@ import {
     getDocs,
     updateDoc,
     deleteDoc,
+    deleteField,
     query,
     where,
     orderBy,
@@ -13,9 +14,10 @@ import {
     serverTimestamp,
     writeBatch,
     setDoc,
+    increment,
 } from 'firebase/firestore';
 import { db } from './firebase.config';
-import type { PublicUserProfile, FriendRequest, Friendship, FriendshipStatus } from '../../types/social';
+import type { PublicUserProfile, FriendRequest, Friendship, FriendshipStatus, Follow, ActivityItem } from '../../types/social';
 import type { Animal } from '../../types';
 
 export const socialService = {
@@ -413,6 +415,216 @@ export const socialService = {
             return { success: true, data: animals };
         } catch (error: any) {
             console.error('Error getting public animals:', error);
+            return { success: false, error: error.message };
+        }
+    },
+
+    // ========================
+    // Follows
+    // ========================
+
+    async followUser(data: {
+        followerId: string;
+        followingId: string;
+        followerDisplayName: string;
+        followingDisplayName: string;
+    }): Promise<{ success: boolean; error?: string }> {
+        try {
+            const existingQuery = query(
+                collection(db, 'follows'),
+                where('followerId', '==', data.followerId),
+                where('followingId', '==', data.followingId),
+            );
+            const existing = await getDocs(existingQuery);
+            if (!existing.empty) {
+                return { success: false, error: 'Już obserwujesz tego użytkownika' };
+            }
+
+            const batch = writeBatch(db);
+
+            const followRef = doc(collection(db, 'follows'));
+            batch.set(followRef, {
+                followerId: data.followerId,
+                followingId: data.followingId,
+                followerDisplayName: data.followerDisplayName,
+                followingDisplayName: data.followingDisplayName,
+                createdAt: serverTimestamp(),
+            });
+
+            const followerProfileRef = doc(db, 'userProfiles', data.followerId);
+            batch.update(followerProfileRef, { 'stats.followingCount': increment(1) });
+
+            const followingProfileRef = doc(db, 'userProfiles', data.followingId);
+            batch.update(followingProfileRef, { 'stats.followersCount': increment(1) });
+
+            await batch.commit();
+            return { success: true };
+        } catch (error: any) {
+            console.error('Error following user:', error);
+            return { success: false, error: error.message };
+        }
+    },
+
+    async unfollowUser(followerId: string, followingId: string): Promise<{ success: boolean; error?: string }> {
+        try {
+            const q = query(
+                collection(db, 'follows'),
+                where('followerId', '==', followerId),
+                where('followingId', '==', followingId),
+            );
+            const snapshot = await getDocs(q);
+
+            if (snapshot.empty) {
+                return { success: false, error: 'Nie obserwujesz tego użytkownika' };
+            }
+
+            const batch = writeBatch(db);
+            snapshot.docs.forEach((docSnap) => {
+                batch.delete(docSnap.ref);
+            });
+
+            const followerProfileRef = doc(db, 'userProfiles', followerId);
+            batch.update(followerProfileRef, { 'stats.followingCount': increment(-1) });
+
+            const followingProfileRef = doc(db, 'userProfiles', followingId);
+            batch.update(followingProfileRef, { 'stats.followersCount': increment(-1) });
+
+            await batch.commit();
+            return { success: true };
+        } catch (error: any) {
+            console.error('Error unfollowing user:', error);
+            return { success: false, error: error.message };
+        }
+    },
+
+    async checkFollowStatus(followerId: string, followingId: string): Promise<{ success: boolean; data?: boolean; error?: string }> {
+        try {
+            const q = query(
+                collection(db, 'follows'),
+                where('followerId', '==', followerId),
+                where('followingId', '==', followingId),
+            );
+            const snapshot = await getDocs(q);
+            return { success: true, data: !snapshot.empty };
+        } catch (error: any) {
+            console.error('Error checking follow status:', error);
+            return { success: false, error: error.message };
+        }
+    },
+
+    async getFollowers(userId: string): Promise<{ success: boolean; data?: Follow[]; error?: string }> {
+        try {
+            const q = query(
+                collection(db, 'follows'),
+                where('followingId', '==', userId),
+                orderBy('createdAt', 'desc'),
+            );
+            const snapshot = await getDocs(q);
+            const followers: Follow[] = snapshot.docs.map((docSnap) => {
+                const data = docSnap.data();
+                return {
+                    id: docSnap.id,
+                    ...data,
+                    createdAt: data.createdAt?.toDate?.()?.toISOString() || data.createdAt,
+                } as Follow;
+            });
+            return { success: true, data: followers };
+        } catch (error: any) {
+            console.error('Error getting followers:', error);
+            return { success: false, error: error.message };
+        }
+    },
+
+    async getFollowing(userId: string): Promise<{ success: boolean; data?: Follow[]; error?: string }> {
+        try {
+            const q = query(
+                collection(db, 'follows'),
+                where('followerId', '==', userId),
+                orderBy('createdAt', 'desc'),
+            );
+            const snapshot = await getDocs(q);
+            const following: Follow[] = snapshot.docs.map((docSnap) => {
+                const data = docSnap.data();
+                return {
+                    id: docSnap.id,
+                    ...data,
+                    createdAt: data.createdAt?.toDate?.()?.toISOString() || data.createdAt,
+                } as Follow;
+            });
+            return { success: true, data: following };
+        } catch (error: any) {
+            console.error('Error getting following:', error);
+            return { success: false, error: error.message };
+        }
+    },
+
+    async getActivityFeed(followedUserIds: string[], limitCount: number = 20): Promise<{ success: boolean; data?: ActivityItem[]; error?: string }> {
+        try {
+            if (followedUserIds.length === 0) {
+                return { success: true, data: [] };
+            }
+
+            const allActivities: ActivityItem[] = [];
+
+            // Firestore 'in' queries are limited to 30 values
+            for (let i = 0; i < followedUserIds.length; i += 30) {
+                const chunk = followedUserIds.slice(i, i + 30);
+                const q = query(
+                    collection(db, 'activities'),
+                    where('actorId', 'in', chunk),
+                    orderBy('createdAt', 'desc'),
+                    firebaseLimit(limitCount),
+                );
+                const snapshot = await getDocs(q);
+                snapshot.docs.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    allActivities.push({
+                        id: docSnap.id,
+                        ...data,
+                        createdAt: data.createdAt?.toDate?.()?.toISOString() || data.createdAt,
+                    } as ActivityItem);
+                });
+            }
+
+            allActivities.sort((a, b) =>
+                new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+            );
+
+            return { success: true, data: allActivities.slice(0, limitCount) };
+        } catch (error: any) {
+            console.error('Error getting activity feed:', error);
+            return { success: false, error: error.message };
+        }
+    },
+
+    // ========================
+    // Push Token
+    // ========================
+
+    async savePushToken(userId: string, token: string): Promise<{ success: boolean; error?: string }> {
+        try {
+            const profileRef = doc(db, 'userProfiles', userId);
+            await updateDoc(profileRef, {
+                expoPushToken: token,
+                updatedAt: serverTimestamp(),
+            });
+            return { success: true };
+        } catch (error: any) {
+            console.error('Error saving push token:', error);
+            return { success: false, error: error.message };
+        }
+    },
+
+    async removePushToken(userId: string): Promise<{ success: boolean; error?: string }> {
+        try {
+            const profileRef = doc(db, 'userProfiles', userId);
+            await updateDoc(profileRef, {
+                expoPushToken: deleteField(),
+                updatedAt: serverTimestamp(),
+            });
+            return { success: true };
+        } catch (error: any) {
+            console.error('Error removing push token:', error);
             return { success: false, error: error.message };
         }
     },

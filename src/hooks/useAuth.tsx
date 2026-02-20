@@ -11,6 +11,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { auth, socialService } from "../services/firebase";
 import { queryClient } from "../api/queryClient";
+import { unregisterPushToken } from "../services/pushTokenService";
 
 interface AuthContextType {
     user: User | null;
@@ -224,6 +225,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const logout = async (): Promise<{ success: boolean; error?: string }> => {
         try {
             console.log('👋 Wylogowywanie...');
+
+            if (user) {
+                unregisterPushToken(user.uid).catch(() => {});
+            }
 
             await signOut(auth);
 

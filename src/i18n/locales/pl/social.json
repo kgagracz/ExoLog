@@ -5,7 +5,8 @@
     "friendRequests": "Zaproszenia do znajomych",
     "friendsCount": "Znajomi ({{count}})",
     "noFriends": "Nie masz jeszcze znajomych",
-    "noFriendsHint": "Wyszukaj użytkowników i wyślij zaproszenie"
+    "noFriendsHint": "Wyszukaj użytkowników i wyślij zaproszenie",
+    "activityFeed": "Aktywność obserwowanych"
   },
   "userSearch": {
     "title": "Szukaj użytkowników",
@@ -33,7 +34,11 @@
     "animalsSection": "Zwierzęta ({{count}})",
     "noAnimals": "Brak zwierząt do wyświetlenia",
     "showBreeding": "Pokaż hodowle ({{count}})",
-    "privateProfile": "Profil prywatny — dodaj do znajomych, aby zobaczyć zwierzęta"
+    "privateProfile": "Profil prywatny — dodaj do znajomych, aby zobaczyć zwierzęta",
+    "follow": "Obserwuj",
+    "unfollow": "Przestań obserwować",
+    "followers": "Obserwujący",
+    "following": "Obserwowani"
   },
   "friendRequests": {
     "title": "Zaproszenia",
@@ -41,5 +46,16 @@
     "outgoing": "Wysłane",
     "noRequests": "Brak zaproszeń",
     "awaitingAcceptance": "Oczekuje na akceptację"
+  },
+  "activityFeed": {
+    "title": "Aktywność",
+    "empty": "Brak aktywności",
+    "emptyHint": "Zacznij obserwować użytkowników, aby widzieć ich aktywność",
+    "photoAdded": "{{user}} dodał(a) zdjęcie {{animal}}",
+    "moltingRegistered": "{{user}} zarejestrował(a) wylinkę {{animal}} (L{{from}} → L{{to}})",
+    "justNow": "Przed chwilą",
+    "minutesAgo": "{{count}} min temu",
+    "hoursAgo": "{{count}} godz. temu",
+    "daysAgo": "{{count}} dni temu"
   }
 }

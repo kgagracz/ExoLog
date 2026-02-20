@@ -15,6 +15,9 @@ import {
     useSendRequestMutation,
     useRemoveFriendMutation,
     useFriendsQuery,
+    useFollowStatusQuery,
+    useFollowMutation,
+    useUnfollowMutation,
 } from '../../api/social';
 import { Theme } from '../../styles/theme';
 import Text from '../../components/atoms/Text';
@@ -44,6 +47,10 @@ export default function UserProfileScreen() {
 
     const sendRequest = useSendRequestMutation();
     const removeFriend = useRemoveFriendMutation();
+
+    const { data: isFollowing } = useFollowStatusQuery(userId);
+    const follow = useFollowMutation();
+    const unfollow = useUnfollowMutation();
 
     const canViewAnimals = profile?.isPublic || friendshipStatus === 'friends';
 
@@ -163,6 +170,10 @@ export default function UserProfileScreen() {
                                 <Text variant="caption" style={styles.statLabel}>{t('userProfile.statsAnimals')}</Text>
                             </View>
                             <View style={styles.statItem}>
+                                <Text variant="h3" style={styles.statValue}>{profile.stats.followersCount ?? 0}</Text>
+                                <Text variant="caption" style={styles.statLabel}>{t('userProfile.followers')}</Text>
+                            </View>
+                            <View style={styles.statItem}>
                                 <Text variant="h3" style={styles.statValue}>
                                     {new Date(profile.stats.joinDate).toLocaleDateString('pl-PL', {
                                         month: 'short',
@@ -185,6 +196,25 @@ export default function UserProfileScreen() {
                             style={styles.relationButton}
                         >
                             {relationButton.label}
+                        </Button>
+                    )}
+
+                    {/* Follow button */}
+                    {user?.uid !== userId && (
+                        <Button
+                            mode={isFollowing ? 'outlined' : 'contained'}
+                            icon={isFollowing ? 'eye-off' : 'eye'}
+                            onPress={() => {
+                                if (isFollowing) {
+                                    unfollow.mutate(userId);
+                                } else if (profile) {
+                                    follow.mutate({ followingId: userId, followingDisplayName: profile.displayName });
+                                }
+                            }}
+                            loading={follow.isPending || unfollow.isPending}
+                            style={styles.followButton}
+                        >
+                            {isFollowing ? t('userProfile.unfollow') : t('userProfile.follow')}
                         </Button>
                     )}
 
@@ -300,6 +330,9 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         marginTop: 4,
     },
     relationButton: {
+        marginBottom: 8,
+    },
+    followButton: {
         marginBottom: 16,
     },
     divider: {

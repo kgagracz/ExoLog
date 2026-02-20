@@ -35,7 +35,7 @@ export default function ProfileScreen() {
 
     const { data: profile } = useUserProfileQuery(user?.uid);
     const toggleVisibility = useToggleVisibilityMutation();
-    const { preferences, loading: prefsLoading, toggleMoltReminders, toggleCocoonReminders } = useNotificationPreferences();
+    const { preferences, loading: prefsLoading, toggleMoltReminders, toggleCocoonReminders, toggleFollowedUserActivity } = useNotificationPreferences();
 
     // Ensure profile exists on first visit
     useEffect(() => {
@@ -223,6 +223,24 @@ export default function ProfileScreen() {
                                 <Switch
                                     value={preferences.cocoonReminders}
                                     onValueChange={toggleCocoonReminders}
+                                    color={theme.colors.primary}
+                                    disabled={prefsLoading}
+                                />
+                            </View>
+
+                            <Divider style={styles.divider} />
+
+                            <View style={styles.infoRow}>
+                                <MaterialCommunityIcons name="account-eye-outline" size={20} color={theme.colors.primary} style={styles.rowIcon} />
+                                <View style={{ flex: 1 }}>
+                                    <Text variant="body">{t('followedUserActivity')}</Text>
+                                    <Text variant="caption" style={{ color: theme.colors.textSecondary }}>
+                                        {t('followedUserActivityDescription')}
+                                    </Text>
+                                </View>
+                                <Switch
+                                    value={preferences.followedUserActivity}
+                                    onValueChange={toggleFollowedUserActivity}
                                     color={theme.colors.primary}
                                     disabled={prefsLoading}
                                 />

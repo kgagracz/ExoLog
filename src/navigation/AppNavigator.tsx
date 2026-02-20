@@ -10,6 +10,7 @@ import {useTheme} from "../context/ThemeContext";
 import {Theme} from "../styles/theme";
 import TabNavigator from "./TabNavigator";
 import { registerForNotifications } from "../services/notificationService";
+import { registerAndStorePushToken } from "../services/pushTokenService";
 
 const Stack = createNativeStackNavigator();
 
@@ -22,6 +23,7 @@ export default function AppNavigator() {
     useEffect(() => {
         if (user) {
             registerForNotifications();
+            registerAndStorePushToken(user.uid);
         }
     }, [user]);
 

@@ -5,11 +5,13 @@ const STORAGE_KEY = 'notificationPreferences';
 export interface NotificationPreferences {
     moltReminders: boolean;
     cocoonReminders: boolean;
+    followedUserActivity: boolean;
 }
 
 const DEFAULT_PREFERENCES: NotificationPreferences = {
     moltReminders: true,
     cocoonReminders: true,
+    followedUserActivity: true,
 };
 
 export async function getNotificationPreferences(): Promise<NotificationPreferences> {

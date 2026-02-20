@@ -6,5 +6,11 @@
   "cocoonReminder": {
     "title": "Zbliżający się wyleg kokonu",
     "body": "Za 3 dni przewidywany wyleg kokonu {{name}}!"
+  },
+  "followActivity": {
+    "photoTitle": "Nowe zdjęcie!",
+    "photoBody": "{{name}} dodał(a) nowe zdjęcie {{animal}}",
+    "moltingTitle": "Nowa wylinka!",
+    "moltingBody": "{{name}} zarejestrował(a) wylinkę {{animal}} (L{{from}} → L{{to}})"
   }
 }

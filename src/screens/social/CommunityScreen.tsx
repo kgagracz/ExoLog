@@ -43,6 +43,17 @@ export default function CommunityScreen() {
                     <Text variant="body" style={styles.searchPlaceholder}>{t('community.searchPlaceholder')}</Text>
                 </TouchableOpacity>
 
+                {/* Activity Feed */}
+                <TouchableOpacity
+                    style={styles.requestsRow}
+                    onPress={() => navigation.navigate('ActivityFeed')}
+                    activeOpacity={0.7}
+                >
+                    <MaterialCommunityIcons name="timeline-text" size={24} color={theme.colors.primary} />
+                    <Text variant="body" style={styles.requestsText}>{t('community.activityFeed')}</Text>
+                    <MaterialCommunityIcons name="chevron-right" size={24} color={theme.colors.textSecondary} />
+                </TouchableOpacity>
+
                 {/* Friend requests section */}
                 <TouchableOpacity
                     style={styles.requestsRow}
