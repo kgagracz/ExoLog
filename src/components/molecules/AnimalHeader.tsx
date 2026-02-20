@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, ImageBackground, Dimensions } from 'react-native';
+import { View, StyleSheet, ImageBackground, Dimensions, TouchableOpacity } from 'react-native';
 import { Text, Chip } from 'react-native-paper';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
@@ -25,12 +25,13 @@ interface AnimalHeroHeaderProps {
   matingStatus?: MatingStatus;
   cocoonStatus?: CocoonStatus;
   lastMoltDate?: string;
+  onPhotoPress?: () => void;
 }
 
 const { width } = Dimensions.get('window');
 const HERO_HEIGHT = 280;
 
-const AnimalHeader: React.FC<AnimalHeroHeaderProps> = ({ animal, matingStatus, cocoonStatus, lastMoltDate }) => {
+const AnimalHeader: React.FC<AnimalHeroHeaderProps> = ({ animal, matingStatus, cocoonStatus, lastMoltDate, onPhotoPress }) => {
   const { theme } = useTheme();
   const { t } = useTranslation('animals');
   const styles = makeStyles(theme);
@@ -192,13 +193,15 @@ const AnimalHeader: React.FC<AnimalHeroHeaderProps> = ({ animal, matingStatus, c
 
   if (photoUrl) {
     return (
-        <ImageBackground
-            source={{ uri: photoUrl }}
-            style={styles.heroContainer}
-            resizeMode="cover"
-        >
-          {renderContent()}
-        </ImageBackground>
+        <TouchableOpacity activeOpacity={0.9} onPress={onPhotoPress} disabled={!onPhotoPress}>
+          <ImageBackground
+              source={{ uri: photoUrl }}
+              style={styles.heroContainer}
+              resizeMode="cover"
+          >
+            {renderContent()}
+          </ImageBackground>
+        </TouchableOpacity>
     );
   }
 

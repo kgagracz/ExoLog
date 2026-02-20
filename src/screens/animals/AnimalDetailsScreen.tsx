@@ -11,6 +11,7 @@ import MeasurementsSection from "../../components/molecules/MeasurementsSection"
 import FeedingSection from "../../components/molecules/FeedingSection";
 import PhotosSection from "../../components/molecules/PhotoSection";
 import QRCodeModal from "../../components/organisms/QRCodeModal";
+import PhotoViewerModal from "../../components/organisms/PhotoVievewModal";
 import {Theme} from "../../styles/theme";
 import MoltingHistoryCard from "./MoltingHistoryScreen";
 import { useAnimalQuery } from "../../api/animals";
@@ -128,6 +129,7 @@ export default function AnimalDetailsScreen() {
     const [menuVisible, setMenuVisible] = useState(false);
     const [fabOpen, setFabOpen] = useState(false);
     const [qrModalVisible, setQrModalVisible] = useState(false);
+    const [photoViewerVisible, setPhotoViewerVisible] = useState(false);
 
     const matingStatus = matingHistoryData.length > 0
         ? {
@@ -310,6 +312,7 @@ export default function AnimalDetailsScreen() {
                     matingStatus={matingStatus}
                     cocoonStatus={cocoonStatus}
                     lastMoltDate={moltingHistory[0]?.date}
+                    onPhotoPress={animal.photos?.length ? () => setPhotoViewerVisible(true) : undefined}
                 />
 
                 {/* Pomiary i wiek */}
@@ -445,6 +448,21 @@ export default function AnimalDetailsScreen() {
                 onClose={() => setQrModalVisible(false)}
                 animal={animal}
             />
+
+            {/* Modal podglądu zdjęcia głównego */}
+            {animal.photos && animal.photos.length > 0 && (
+                <PhotoViewerModal
+                    visible={photoViewerVisible}
+                    photos={animal.photos.map(p => ({
+                        id: p.id || p.url,
+                        url: p.url,
+                        isMain: p.isMain,
+                        description: p.description,
+                    }))}
+                    initialIndex={Math.max(0, animal.photos.findIndex(p => p.isMain))}
+                    onClose={() => setPhotoViewerVisible(false)}
+                />
+            )}
         </View>
     );
 }
