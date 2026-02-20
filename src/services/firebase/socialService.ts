@@ -260,6 +260,23 @@ export const socialService = {
 
     async acceptFriendRequest(requestId: string, fromUserId: string, toUserId: string, fromDisplayName: string, toDisplayName: string): Promise<{ success: boolean; error?: string }> {
         try {
+            // Check which follow directions already exist
+            const [followABSnap, followBASnap] = await Promise.all([
+                getDocs(query(
+                    collection(db, 'follows'),
+                    where('followerId', '==', fromUserId),
+                    where('followingId', '==', toUserId),
+                )),
+                getDocs(query(
+                    collection(db, 'follows'),
+                    where('followerId', '==', toUserId),
+                    where('followingId', '==', fromUserId),
+                )),
+            ]);
+
+            const alreadyAFollowsB = !followABSnap.empty;
+            const alreadyBFollowsA = !followBASnap.empty;
+
             const batch = writeBatch(db);
 
             // Update request status
@@ -280,6 +297,42 @@ export const socialService = {
                 },
                 createdAt: serverTimestamp(),
             });
+
+            // Auto-follow: fromUser -> toUser
+            if (!alreadyAFollowsB) {
+                const followABRef = doc(collection(db, 'follows'));
+                batch.set(followABRef, {
+                    followerId: fromUserId,
+                    followingId: toUserId,
+                    followerDisplayName: fromDisplayName,
+                    followingDisplayName: toDisplayName,
+                    createdAt: serverTimestamp(),
+                });
+
+                const fromProfileRef = doc(db, 'userProfiles', fromUserId);
+                batch.update(fromProfileRef, { 'stats.followingCount': increment(1) });
+
+                const toProfileRef = doc(db, 'userProfiles', toUserId);
+                batch.update(toProfileRef, { 'stats.followersCount': increment(1) });
+            }
+
+            // Auto-follow: toUser -> fromUser
+            if (!alreadyBFollowsA) {
+                const followBARef = doc(collection(db, 'follows'));
+                batch.set(followBARef, {
+                    followerId: toUserId,
+                    followingId: fromUserId,
+                    followerDisplayName: toDisplayName,
+                    followingDisplayName: fromDisplayName,
+                    createdAt: serverTimestamp(),
+                });
+
+                const toProfileRef2 = doc(db, 'userProfiles', toUserId);
+                batch.update(toProfileRef2, { 'stats.followingCount': increment(1) });
+
+                const fromProfileRef2 = doc(db, 'userProfiles', fromUserId);
+                batch.update(fromProfileRef2, { 'stats.followersCount': increment(1) });
+            }
 
             await batch.commit();
             return { success: true };

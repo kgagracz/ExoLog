@@ -28,6 +28,10 @@ export function useAcceptRequestMutation() {
             queryClient.invalidateQueries({ queryKey: queryKeys.social.requests.incoming(user!.uid) });
             queryClient.invalidateQueries({ queryKey: queryKeys.social.friends(user!.uid) });
             queryClient.invalidateQueries({ queryKey: queryKeys.social.friendshipStatus(user!.uid, variables.fromUserId) });
+            queryClient.invalidateQueries({ queryKey: queryKeys.social.following(user!.uid) });
+            queryClient.invalidateQueries({ queryKey: queryKeys.social.followers(user!.uid) });
+            queryClient.invalidateQueries({ queryKey: queryKeys.social.followStatus(user!.uid, variables.fromUserId) });
+            queryClient.invalidateQueries({ queryKey: queryKeys.social.activityFeed(user!.uid) });
         },
     });
 }
