@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import {
     View,
     Modal,
@@ -9,9 +9,15 @@ import {
     FlatList,
     StatusBar,
 } from 'react-native';
+import ImageZoom from 'react-native-image-pan-zoom';
+import type { IOnMove } from 'react-native-image-pan-zoom';
 import { IconButton, Text } from 'react-native-paper';
 import {useTheme} from "../../context/ThemeContext";
 import {Theme} from "../../styles/theme";
+
+const ZoomableImage = ImageZoom as unknown as React.ComponentType<
+    React.ComponentProps<typeof ImageZoom> & { children: React.ReactNode }
+>;
 
 interface Photo {
     id: string;
@@ -43,10 +49,12 @@ const PhotoViewerModal: React.FC<PhotoViewerModalProps> = ({
     const { theme } = useTheme();
     const styles = makeStyles(theme);
     const [currentIndex, setCurrentIndex] = useState(initialIndex);
+    const [scrollEnabled, setScrollEnabled] = useState(true);
+    const flatListRef = useRef<FlatList>(null);
 
     const currentPhoto = photos[currentIndex];
 
-    const handleViewableItemsChanged = React.useCallback(
+    const handleViewableItemsChanged = useCallback(
         ({ viewableItems }: any) => {
             if (viewableItems.length > 0) {
                 setCurrentIndex(viewableItems[0].index);
@@ -61,15 +69,31 @@ const PhotoViewerModal: React.FC<PhotoViewerModalProps> = ({
 
     React.useEffect(() => {
         setCurrentIndex(initialIndex);
+        setScrollEnabled(true);
     }, [initialIndex, visible]);
+
+    const handleZoomChange = useCallback((position: IOnMove) => {
+        setScrollEnabled(position.scale <= 1);
+    }, []);
 
     const renderPhoto = ({ item }: { item: Photo }) => (
         <View style={styles.photoContainer}>
-            <Image
-                source={{ uri: item.url || item.uri }}
-                style={styles.photo}
-                resizeMode="contain"
-            />
+            <ZoomableImage
+                cropWidth={width}
+                cropHeight={height}
+                imageWidth={width}
+                imageHeight={height * 0.8}
+                enableDoubleClickZoom
+                minScale={1}
+                maxScale={4}
+                onMove={handleZoomChange}
+            >
+                <Image
+                    source={{ uri: item.url || item.uri }}
+                    style={styles.photo}
+                    resizeMode="contain"
+                />
+            </ZoomableImage>
         </View>
     );
 
@@ -116,11 +140,13 @@ const PhotoViewerModal: React.FC<PhotoViewerModalProps> = ({
 
                 {/* Photo viewer */}
                 <FlatList
+                    ref={flatListRef}
                     data={photos}
                     renderItem={renderPhoto}
                     keyExtractor={(item) => item.id}
                     horizontal
                     pagingEnabled
+                    scrollEnabled={scrollEnabled}
                     showsHorizontalScrollIndicator={false}
                     initialScrollIndex={initialIndex}
                     getItemLayout={(_, index) => ({
