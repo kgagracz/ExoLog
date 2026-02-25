@@ -5,6 +5,7 @@ import { View, StyleSheet, Alert } from 'react-native';
 import { Appbar, Button, ActivityIndicator } from 'react-native-paper';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import {useTheme} from "../../context/ThemeContext";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAnimalQuery } from "../../api/animals";
 import { useAddMoltingMutation } from "../../api/events";
 import {Theme} from "../../styles/theme";
@@ -14,6 +15,7 @@ import { useAppTranslation } from '../../hooks/useAppTranslation';
 export default function AddMoltingScreen() {
     const { t } = useAppTranslation('animals');
     const { theme } = useTheme();
+    const insets = useSafeAreaInsets();
     const styles = makeStyles(theme);
     const navigation = useNavigation<any>();
     const route = useRoute<any>();
@@ -105,7 +107,7 @@ export default function AddMoltingScreen() {
                 errors={errors}
             />
 
-            <View style={styles.buttonContainer}>
+            <View style={[styles.buttonContainer, { paddingBottom: 16 + insets.bottom }]}>
                 <Button
                     mode="outlined"
                     onPress={handleCancel}

@@ -4,6 +4,7 @@ import { Text, Appbar, Card, Button, TextInput, HelperText, ActivityIndicator } 
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useAppTranslation } from '../../hooks/useAppTranslation';
 import { useTheme } from "../../context/ThemeContext";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAddMultipleSpidersMutation } from "../../api/animals";
 import { useUpdateCocoonStatusMutation } from "../../api/events";
 import { Theme } from "../../styles/theme";
@@ -11,6 +12,7 @@ import { Theme } from "../../styles/theme";
 export default function OpenCocoonScreen() {
     const { theme } = useTheme();
     const { t } = useAppTranslation('cocoons');
+    const insets = useSafeAreaInsets();
     const styles = makeStyles(theme);
     const navigation = useNavigation<any>();
     const route = useRoute<any>();
@@ -220,7 +222,7 @@ export default function OpenCocoonScreen() {
                 )}
 
                 {/* Przycisk */}
-                <View style={styles.buttonContainer}>
+                <View style={[styles.buttonContainer, { paddingBottom: 16 + insets.bottom }]}>
                     <Button
                         mode="contained"
                         onPress={handleOpenCocoon}

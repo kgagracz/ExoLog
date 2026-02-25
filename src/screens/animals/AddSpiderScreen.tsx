@@ -3,6 +3,7 @@ import { View, StyleSheet, Alert } from 'react-native';
 import { Appbar, FAB } from 'react-native-paper';
 import { useAddSpiderMutation, useAddMultipleSpidersMutation, useUpdateAnimalMutation, useUploadCitesMutation } from "../../api/animals";
 import { useAuth } from "../../hooks/useAuth";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Theme } from "../../styles/theme";
 import { useTheme } from "../../context/ThemeContext";
 import SpiderForm from "../../components/molecules/SpiderForm";
@@ -25,6 +26,7 @@ export default function AddSpiderScreen({ navigation }: AddSpiderScreenProps) {
   const { user } = useAuth();
 
   const { theme } = useTheme();
+  const insets = useSafeAreaInsets();
   const styles = createStyles(theme);
 
   const getLastWordFromSpecies = (species: string): string => {
@@ -183,7 +185,7 @@ export default function AddSpiderScreen({ navigation }: AddSpiderScreenProps) {
 
         <FAB
             icon="check"
-            style={styles.fab}
+            style={[styles.fab, { bottom: 16 + insets.bottom }]}
             onPress={handleSave}
             loading={saving}
             disabled={saving}

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native';
 import { Appbar, Button, ActivityIndicator } from 'react-native-paper';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {Animal} from "../../types";
 import {useTheme} from "../../context/ThemeContext";
 import { useAnimalQuery, useUpdateAnimalMutation, useUploadCitesMutation } from "../../api/animals";
@@ -13,6 +14,7 @@ import { useAppTranslation } from '../../hooks/useAppTranslation';
 export default function EditAnimalScreen() {
     const { t } = useAppTranslation('animals');
     const { theme } = useTheme();
+    const insets = useSafeAreaInsets();
     const styles = makeStyles(theme);
     const navigation = useNavigation<any>();
     const route = useRoute<any>();
@@ -167,7 +169,7 @@ export default function EditAnimalScreen() {
                 editMode
             />
 
-            <View style={styles.buttonContainer}>
+            <View style={[styles.buttonContainer, { paddingBottom: 16 + insets.bottom }]}>
                 <Button
                     mode="outlined"
                     onPress={handleCancel}

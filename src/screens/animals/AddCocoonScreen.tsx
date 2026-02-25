@@ -4,6 +4,7 @@ import { Appbar, Button, ActivityIndicator, Text } from 'react-native-paper';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useAppTranslation } from '../../hooks/useAppTranslation';
 import { useTheme } from "../../context/ThemeContext";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAnimalQuery } from "../../api/animals";
 import { useAddCocoonMutation } from "../../api/events";
 import { Theme } from "../../styles/theme";
@@ -13,6 +14,7 @@ import { Animal } from "../../types";
 export default function AddCocoonScreen() {
     const { theme } = useTheme();
     const { t } = useAppTranslation('animals');
+    const insets = useSafeAreaInsets();
     const styles = makeStyles(theme);
     const navigation = useNavigation<any>();
     const route = useRoute<any>();
@@ -118,7 +120,7 @@ export default function AddCocoonScreen() {
                 errors={errors}
             />
 
-            <View style={styles.buttonContainer}>
+            <View style={[styles.buttonContainer, { paddingBottom: 16 + insets.bottom }]}>
                 <Button
                     mode="outlined"
                     onPress={handleCancel}

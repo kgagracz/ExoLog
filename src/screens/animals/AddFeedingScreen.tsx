@@ -15,6 +15,7 @@ import {
 } from 'react-native-paper';
 import { useAnimalsQuery } from "../../api/animals";
 import { useBulkFeedMutation, useFeedAnimalMutation } from "../../api/feeding";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Theme } from "../../styles/theme";
 import { useTheme } from "../../context/ThemeContext";
 import { useAppTranslation } from '../../hooks/useAppTranslation';
@@ -48,6 +49,7 @@ export const AddFeedingScreen: React.FC<AddFeedingScreenProps> = ({ navigation }
     }), [animals]);
 
     const { theme } = useTheme();
+    const insets = useSafeAreaInsets();
     const styles = makeStyles(theme);
 
     const [feedingMode, setFeedingMode] = useState<FeedingMode>('all');
@@ -286,7 +288,7 @@ export const AddFeedingScreen: React.FC<AddFeedingScreenProps> = ({ navigation }
                 icon="content-save"
                 style={[
                     styles.fab,
-                    { backgroundColor: selectedAnimals.size > 0 ? theme.colors.primary : theme.colors.disabled }
+                    { bottom: 16 + insets.bottom, backgroundColor: selectedAnimals.size > 0 ? theme.colors.primary : theme.colors.disabled }
                 ]}
                 onPress={handleSave}
                 label={t('addFeeding.saveFeeding')}
