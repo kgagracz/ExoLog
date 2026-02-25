@@ -24,7 +24,7 @@ const createPaperTheme = (theme: Theme, isDark: boolean) => {
             primary: theme.colors.primary,
             onPrimary: '#FFFFFF',
             primaryContainer: theme.colors.secondary,
-            onPrimaryContainer: '#000000',
+            onPrimaryContainer: '#FFFFFF',
             secondary: theme.colors.secondary,
             onSecondary: '#FFFFFF',
             background: theme.colors.background,
