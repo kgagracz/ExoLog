@@ -59,7 +59,7 @@ export const queryKeys = {
         },
         friends: (userId: string) => [...queryKeys.social.all, 'friends', userId] as const,
         friendshipStatus: (userId: string, otherId: string) => [...queryKeys.social.all, 'status', userId, otherId] as const,
-        publicAnimals: (userId: string) => [...queryKeys.social.all, 'publicAnimals', userId] as const,
+        publicAnimals: (userId: string, maxResults?: number) => [...queryKeys.social.all, 'publicAnimals', userId, ...(maxResults ? [maxResults] : [])] as const,
         followStatus: (userId: string, otherId: string) => [...queryKeys.social.all, 'followStatus', userId, otherId] as const,
         followers: (userId: string) => [...queryKeys.social.all, 'followers', userId] as const,
         following: (userId: string) => [...queryKeys.social.all, 'following', userId] as const,

@@ -209,6 +209,8 @@
 - [x] Lista zwierząt użytkownika (jeśli profil publiczny lub znajomy)
 - [x] Informacja o prywatnym profilu dla niezalogowanych
 - [x] Przycisk relacji (wyślij zaproszenie / oczekuje / usuń znajomego)
+- [x] Automatyczna aktualizacja licznika zwierząt (stats.totalAnimals) przy dodawaniu, usuwaniu i oznaczaniu jako zmarłe
+- [x] Limit 5 zwierząt na podglądzie profilu (optymalizacja zapytań Firestore)
 
 #### Śledzenie użytkowników
 - [x] Obserwowanie dowolnego publicznego użytkownika (niezależne od znajomych)

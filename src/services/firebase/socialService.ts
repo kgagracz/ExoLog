@@ -443,15 +443,35 @@ export const socialService = {
     },
 
     // ========================
-    // Public Animals
+    // Animal Count Sync
     // ========================
 
-    async getPublicAnimals(userId: string): Promise<{ success: boolean; data?: Animal[]; error?: string }> {
+    async syncTotalAnimals(userId: string): Promise<void> {
         try {
             const q = query(
                 collection(db, 'animals'),
                 where('userId', '==', userId),
                 where('isActive', '==', true),
+            );
+            const snapshot = await getDocs(q);
+            const profileRef = doc(db, 'userProfiles', userId);
+            await updateDoc(profileRef, { 'stats.totalAnimals': snapshot.size });
+        } catch (error) {
+            console.error('Error syncing totalAnimals:', error);
+        }
+    },
+
+    // ========================
+    // Public Animals
+    // ========================
+
+    async getPublicAnimals(userId: string, maxResults?: number): Promise<{ success: boolean; data?: Animal[]; error?: string }> {
+        try {
+            const q = query(
+                collection(db, 'animals'),
+                where('userId', '==', userId),
+                where('isActive', '==', true),
+                ...(maxResults ? [firebaseLimit(maxResults)] : []),
             );
 
             const snapshot = await getDocs(q);

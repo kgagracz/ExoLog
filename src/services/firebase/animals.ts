@@ -11,7 +11,8 @@ import {
   orderBy,
   serverTimestamp,
   writeBatch,
-  Timestamp
+  Timestamp,
+  increment,
 } from 'firebase/firestore';
 import { ref, listAll, deleteObject } from 'firebase/storage';
 import {db, storage} from "./firebase.config";
@@ -46,6 +47,9 @@ export const animalsService = {
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       });
+
+      const profileRef = doc(db, 'userProfiles', animal.userId);
+      await updateDoc(profileRef, { 'stats.totalAnimals': increment(1) });
 
       return { success: true, id: docRef.id };
     } catch (error: any) {
@@ -419,7 +423,13 @@ export const animalsService = {
 
       await batch.commit();
 
-      // 4. Usuń pliki ze Storage (zdjęcia + CITES)
+      // 4. Dekrementuj licznik zwierząt w profilu
+      if (animalData?.userId) {
+        const profileRef = doc(db, 'userProfiles', animalData.userId);
+        await updateDoc(profileRef, { 'stats.totalAnimals': increment(-1) });
+      }
+
+      // 5. Usuń pliki ze Storage (zdjęcia + CITES)
       if (animalData?.userId) {
         const basePath = `users/${animalData.userId}/animals/${animalId}`;
         const foldersToClean = ['photos', 'cites'];

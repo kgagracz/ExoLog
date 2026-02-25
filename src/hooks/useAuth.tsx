@@ -131,6 +131,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 await AsyncStorage.setItem(STORAGE_KEYS.IS_LOGGED_IN, 'true');
                 await AsyncStorage.setItem(STORAGE_KEYS.USER_ID, firebaseUser.uid);
                 await updateActivity();
+
+                // Sync animal count in profile (fire-and-forget)
+                socialService.syncTotalAnimals(firebaseUser.uid).catch(() => {});
+
                 console.log('💾 Zapisano stan logowania');
             } else {
                 // Wyczyść dane przy wylogowaniu

@@ -42,6 +42,7 @@ export default function UserProfileScreen() {
     const { data: friendshipStatus } = useFriendshipStatusQuery(userId);
     const { data: animals = [] } = usePublicAnimalsQuery(
         friendshipStatus === 'friends' || profile?.isPublic ? userId : undefined,
+        5,
     );
     const { data: friends = [] } = useFriendsQuery();
 
@@ -53,6 +54,9 @@ export default function UserProfileScreen() {
     const unfollow = useUnfollowMutation();
 
     const canViewAnimals = profile?.isPublic || friendshipStatus === 'friends';
+    const animalCount = (profile?.stats.totalAnimals || 0) > 0
+        ? profile!.stats.totalAnimals
+        : animals.length;
 
     const handleRelationAction = () => {
         if (!profile) return;
@@ -166,7 +170,7 @@ export default function UserProfileScreen() {
                     <Card style={styles.statsCard}>
                         <Card.Content style={styles.statsContent}>
                             <View style={styles.statItem}>
-                                <Text variant="h3" style={styles.statValue}>{profile.stats.totalAnimals}</Text>
+                                <Text variant="h3" style={styles.statValue}>{animalCount}</Text>
                                 <Text variant="caption" style={styles.statLabel}>{t('userProfile.statsAnimals')}</Text>
                             </View>
                             <View style={styles.statItem}>
@@ -224,7 +228,7 @@ export default function UserProfileScreen() {
                     {canViewAnimals ? (
                         <>
                             <Text variant="h3" style={styles.sectionTitle}>
-                                {t('userProfile.animalsSection', { count: profile.stats.totalAnimals })}
+                                {t('userProfile.animalsSection', { count: animalCount })}
                             </Text>
                             {animals.length === 0 ? (
                                 <View style={styles.emptyAnimals}>
@@ -232,7 +236,7 @@ export default function UserProfileScreen() {
                                 </View>
                             ) : (
                                 <>
-                                    {animals.slice(0, 3).map((animal) => (
+                                    {animals.slice(0, 5).map((animal) => (
                                         <Card key={animal.id} style={styles.animalCard}>
                                             <Card.Content style={styles.animalContent}>
                                                 <MaterialCommunityIcons name="spider" size={24} color={theme.colors.primary} />
@@ -249,7 +253,7 @@ export default function UserProfileScreen() {
                                         onPress={() => navigation.navigate('UserAnimals' as any, { userId, displayName: profile.displayName })}
                                         style={styles.showBreedingButton}
                                     >
-                                        {t('userProfile.showBreeding', { count: profile.stats.totalAnimals })}
+                                        {t('userProfile.showBreeding', { count: animalCount })}
                                     </Button>
                                 </>
                             )}
