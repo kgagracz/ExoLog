@@ -34,7 +34,19 @@
     },
     "plugins": [
       "expo-localization",
-      ["expo-notifications", { "icon": "./assets/icon.png", "color": "#4CAF50" }]
-    ]
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#4CAF50"
+        }
+      ]
+    ],
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/198660f2-2104-4f5e-9913-59154bf84f2f"
+    }
   }
 }
