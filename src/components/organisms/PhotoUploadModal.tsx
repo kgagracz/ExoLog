@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Image, Modal, KeyboardAvoidingView, Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text, Card, Button, IconButton } from 'react-native-paper';
 import { useAppTranslation } from '../../hooks/useAppTranslation';
 import { useTheme } from '../../context/ThemeContext';
@@ -32,6 +33,7 @@ const PhotoUploadModal: React.FC<PhotoUploadModalProps> = ({
 }) => {
     const { theme } = useTheme();
     const { t } = useAppTranslation('forms');
+    const insets = useSafeAreaInsets();
     const styles = makeStyles(theme);
 
     const [description, setDescription] = useState('');
@@ -137,7 +139,7 @@ const PhotoUploadModal: React.FC<PhotoUploadModalProps> = ({
                     </Card>
                 </ScrollView>
 
-                <View style={styles.footer}>
+                <View style={[styles.footer, { paddingBottom: 16 + insets.bottom }]}>
                     <Button
                         mode="contained"
                         onPress={handleConfirm}
