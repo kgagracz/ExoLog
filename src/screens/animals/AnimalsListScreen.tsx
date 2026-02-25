@@ -127,7 +127,6 @@ const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => 
         ) : (
             <Appbar.Header>
               <Appbar.Content title={t('list.title', { count: animals.length })} />
-              <Appbar.Action icon="checkbox-multiple-marked-outline" onPress={selection.enterSelection} />
               <Appbar.Action icon="qrcode" onPress={handleQRPrint} />
               <View style={styles.avatarContainer}>
                 <UserAvatar onPress={handleProfilePress} size={36} />
