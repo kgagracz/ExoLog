@@ -8,19 +8,13 @@
       "android": {
         "buildType": "apk"
       },
-      "channel": "preview",
-      "env": {
-        "GOOGLE_SERVICES_JSON": "google-services.json"
-      }
+      "channel": "preview"
     },
     "production": {
       "android": {
         "buildType": "app-bundle"
       },
-      "channel": "production",
-      "env": {
-        "GOOGLE_SERVICES_JSON": "google-services.json"
-      }
+      "channel": "production"
     }
   },
   "submit": {
