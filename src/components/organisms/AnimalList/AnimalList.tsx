@@ -31,6 +31,8 @@ interface AnimalsListProps {
     selectionMode?: boolean;
     selectedIds?: Set<string>;
     onToggleSelect?: (id: string) => void;
+    onAnimalLongPress?: (animal: Animal) => void;
+    onAnimalMenuPress?: (animal: Animal) => void;
 }
 
 const AnimalsList: React.FC<AnimalsListProps> = ({
@@ -48,6 +50,8 @@ const AnimalsList: React.FC<AnimalsListProps> = ({
                                                      selectionMode,
                                                      selectedIds,
                                                      onToggleSelect,
+                                                     onAnimalLongPress,
+                                                     onAnimalMenuPress,
                                                  }) => {
     const lastOffsetRef = useRef(0);
 
@@ -79,6 +83,8 @@ const AnimalsList: React.FC<AnimalsListProps> = ({
                     key={item.animal.id}
                     animal={item.animal}
                     onPress={onAnimalPress}
+                    onLongPress={onAnimalLongPress}
+                    onMenuPress={onAnimalMenuPress}
                     matingStatus={matingStatuses[item.animal.id]}
                     cocoonStatus={cocoonStatuses[item.animal.id]}
                     lastMoltDate={lastMoltDates[item.animal.id]}
@@ -107,6 +113,8 @@ const AnimalsList: React.FC<AnimalsListProps> = ({
                         key={animal.id}
                         animal={animal}
                         onPress={onAnimalPress}
+                        onLongPress={onAnimalLongPress}
+                        onMenuPress={onAnimalMenuPress}
                         matingStatus={matingStatuses[animal.id]}
                         cocoonStatus={cocoonStatuses[animal.id]}
                         lastMoltDate={lastMoltDates[animal.id]}

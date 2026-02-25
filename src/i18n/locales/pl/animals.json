@@ -63,7 +63,9 @@
     "fabMolting": "Wylinka",
     "fabMating": "Kopulacja",
     "fabCocoon": "Kokon",
-    "fabPhoto": "Zdjęcie"
+    "fabPhoto": "Zdjęcie",
+    "feedingHistory": "Historia karmienia",
+    "markDeceased": "Oznacz zgon"
   },
   "edit": {
     "title": "Edytuj ptasznika",

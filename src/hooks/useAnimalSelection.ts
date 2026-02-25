@@ -13,6 +13,11 @@ export function useAnimalSelection(visibleAnimals: Animal[]) {
 
     const enterSelection = useCallback(() => setSelectionMode(true), []);
 
+    const enterWithAnimal = useCallback((id: string) => {
+        setSelectionMode(true);
+        setSelectedIds(new Set([id]));
+    }, []);
+
     const exitSelection = useCallback(() => {
         setSelectionMode(false);
         setSelectedIds(new Set());
@@ -65,10 +70,13 @@ export function useAnimalSelection(visibleAnimals: Animal[]) {
         );
     }, [selectedIds, t, deleteMultipleMutation]);
 
+    const isDeleting = deleteMultipleMutation.isPending;
+
     return {
         selectionMode,
         selectedIds,
         enterSelection,
+        enterWithAnimal,
         exitSelection,
         toggleSelect,
         selectAll,
@@ -76,5 +84,6 @@ export function useAnimalSelection(visibleAnimals: Animal[]) {
         allSelected,
         confirmDeleteSelected,
         deleteMultipleMutation,
+        isDeleting,
     };
 }

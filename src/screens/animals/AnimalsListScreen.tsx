@@ -3,11 +3,12 @@ import {useLastMoltDatesQuery, useMatingStatusesQuery, useCocoonStatusesQuery} f
 import {useTheme} from "../../context/ThemeContext";
 import {useCallback, useMemo, useRef, useState} from "react";
 import {Alert, Animated, StyleSheet, View} from "react-native";
-import {Appbar, Searchbar, Text} from "react-native-paper";
+import {ActivityIndicator, Appbar, Searchbar, Text} from "react-native-paper";
 import {EmptyState} from "../../components";
 import AnimalsList from "../../components/organisms/AnimalList";
 import AddActionsFAB from "../../components/molecules/AddActionsFAB";
 import AnimalFiltersToolbar from "../../components/molecules/AnimalFiltersToolbar";
+import AnimalContextMenu from "../../components/organisms/AnimalContextMenu";
 import UserAvatar from "../../components/atoms/UserAvatar";
 import {Theme} from "../../styles/theme";
 import {Animal, SpeciesGroup} from "../../types";
@@ -39,6 +40,7 @@ const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => 
   const styles = makeStyles(theme);
 
   const [fabOpen, setFabOpen] = useState<boolean>(false);
+  const [contextAnimal, setContextAnimal] = useState<Animal | null>(null);
   const headerAnim = useRef(new Animated.Value(0)).current;
   const isHiddenRef = useRef(false);
 
@@ -189,6 +191,8 @@ const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => 
                   selectionMode={selection.selectionMode}
                   selectedIds={selection.selectedIds}
                   onToggleSelect={selection.toggleSelect}
+                  onAnimalLongPress={(animal: Animal) => selection.enterWithAnimal(animal.id)}
+                  onAnimalMenuPress={setContextAnimal}
               />
           )}
         </View>
@@ -200,6 +204,19 @@ const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => 
                 onAddAnimal={handleAddSpider}
                 onAddFeeding={handleAddFeeding}
             />
+        )}
+
+        <AnimalContextMenu
+            animal={contextAnimal}
+            visible={!!contextAnimal}
+            onDismiss={() => setContextAnimal(null)}
+            navigation={navigation}
+        />
+
+        {selection.isDeleting && (
+            <View style={styles.loadingOverlay}>
+              <ActivityIndicator size="large" color={theme.colors.primary} />
+            </View>
         )}
       </View>
   );
@@ -230,6 +247,12 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
   },
   noResultsText: {
     color: theme.colors.textSecondary,
+  },
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

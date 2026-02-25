@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { View, StyleSheet, Image, Animated } from 'react-native';
-import { Text, Card, Chip, Checkbox } from 'react-native-paper';
+import { Text, Card, Chip, Checkbox, IconButton } from 'react-native-paper';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAppTranslation } from '../../hooks/useAppTranslation';
 import { useTheme } from "../../context/ThemeContext";
@@ -30,9 +30,11 @@ interface AnimalCardProps {
   selectable?: boolean;
   selected?: boolean;
   onToggleSelect?: (id: string) => void;
+  onLongPress?: (animal: Animal) => void;
+  onMenuPress?: (animal: Animal) => void;
 }
 
-const AnimalCard: React.FC<AnimalCardProps> = ({ animal, onPress, matingStatus, cocoonStatus, lastMoltDate, index = 0, selectable, selected, onToggleSelect }) => {
+const AnimalCard: React.FC<AnimalCardProps> = ({ animal, onPress, matingStatus, cocoonStatus, lastMoltDate, index = 0, selectable, selected, onToggleSelect, onLongPress, onMenuPress }) => {
   const { theme } = useTheme();
   const { t } = useAppTranslation('animals');
   const styles = makeStyles(theme);
@@ -93,7 +95,13 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal, onPress, matingStatus, 
   const cocoonLabel = animal.sex === 'female' ? getCocoonLabel() : null;
   const moltLabel = getMoltLabel();
 
+  const longPressedRef = useRef(false);
+
   const handlePress = () => {
+    if (longPressedRef.current) {
+      longPressedRef.current = false;
+      return;
+    }
     if (selectable && onToggleSelect) {
       onToggleSelect(animal.id);
     } else {
@@ -101,9 +109,16 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal, onPress, matingStatus, 
     }
   };
 
+  const handleLongPress = () => {
+    if (!selectable && onLongPress) {
+      longPressedRef.current = true;
+      onLongPress(animal);
+    }
+  };
+
   return (
       <Animated.View style={{ opacity, transform: [{ translateY }] }}>
-        <Card style={[styles.animalCard, selected && { borderLeftColor: theme.colors.error }]} onPress={handlePress}>
+        <Card style={[styles.animalCard, selected && { borderLeftColor: theme.colors.error }]} onPress={handlePress} onLongPress={handleLongPress}>
           <View style={styles.cardContent}>
             {selectable && (
                 <View style={styles.checkboxContainer}>
@@ -180,6 +195,14 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal, onPress, matingStatus, 
                   </Text>
               )}
             </View>
+            {!selectable && onMenuPress && (
+                <IconButton
+                    icon="dots-vertical"
+                    size={20}
+                    onPress={() => onMenuPress(animal)}
+                    style={styles.menuButton}
+                />
+            )}
           </View>
         </Card>
       </Animated.View>
@@ -228,6 +251,9 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
   infoContainer: {
     flex: 1,
     justifyContent: 'center',
+  },
+  menuButton: {
+    margin: 0,
   },
   headerRow: {
     flexDirection: 'row',
