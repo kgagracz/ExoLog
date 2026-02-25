@@ -1,0 +1,52 @@
+export default {
+  expo: {
+    name: "ExoLog",
+    slug: "ExoLog",
+    version: "1.0.0",
+    orientation: "portrait",
+    icon: "./assets/icon.png",
+    userInterfaceStyle: "light",
+    newArchEnabled: true,
+    splash: {
+      image: "./assets/splash-icon.png",
+      resizeMode: "contain",
+      backgroundColor: "#ffffff",
+    },
+    ios: {
+      supportsTablet: true,
+    },
+    android: {
+      adaptiveIcon: {
+        foregroundImage: "./assets/adaptive-icon.png",
+        backgroundColor: "#ffffff",
+      },
+      edgeToEdgeEnabled: true,
+      package: "com.st3k.ExoLog",
+      googleServicesFile: process.env.GOOGLE_SERVICES_JSON,
+    },
+    web: {
+      favicon: "./assets/favicon.png",
+    },
+    extra: {
+      eas: {
+        projectId: "198660f2-2104-4f5e-9913-59154bf84f2f",
+      },
+    },
+    plugins: [
+      "expo-localization",
+      [
+        "expo-notifications",
+        {
+          icon: "./assets/icon.png",
+          color: "#4CAF50",
+        },
+      ],
+    ],
+    runtimeVersion: {
+      policy: "appVersion",
+    },
+    updates: {
+      url: "https://u.expo.dev/198660f2-2104-4f5e-9913-59154bf84f2f",
+    },
+  },
+};
