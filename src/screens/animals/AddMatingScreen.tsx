@@ -22,7 +22,6 @@ export default function AddMatingScreen() {
     const { data: animals = [] } = useAnimalsQuery();
     const addMatingMutation = useAddMatingMutation();
 
-    const [saving, setSaving] = useState(false);
     const [formData, setFormData] = useState<any>(null);
     const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -62,7 +61,6 @@ export default function AddMatingScreen() {
             return;
         }
 
-        setSaving(true);
         try {
             const isMale = animal.sex === 'male';
             const maleId = isMale ? animal.id : formData.partnerId;
@@ -89,8 +87,6 @@ export default function AddMatingScreen() {
             );
         } catch (error: any) {
             Alert.alert(t('common:error'), error.message || t('addMating.errorAdd'));
-        } finally {
-            setSaving(false);
         }
     };
 
@@ -152,7 +148,7 @@ export default function AddMatingScreen() {
                     mode="outlined"
                     onPress={handleCancel}
                     style={styles.cancelButton}
-                    disabled={saving}
+                    disabled={addMatingMutation.isPending}
                 >
                     {t('common:cancel')}
                 </Button>
@@ -160,8 +156,8 @@ export default function AddMatingScreen() {
                     mode="contained"
                     onPress={handleSave}
                     style={styles.saveButton}
-                    loading={saving}
-                    disabled={saving || availablePartners.length === 0}
+                    loading={addMatingMutation.isPending}
+                    disabled={addMatingMutation.isPending || availablePartners.length === 0}
                 >
                     {t('addMating.saveMating')}
                 </Button>

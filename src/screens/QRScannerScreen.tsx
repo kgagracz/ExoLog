@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
 import { Text, Button, ActivityIndicator } from 'react-native-paper';
 import { CameraView, useCameraPermissions } from 'expo-camera';
+import { useMutation } from '@tanstack/react-query';
 import { useAppTranslation } from '../hooks/useAppTranslation';
 import {Theme} from "../styles/theme";
 import {useNavigation} from "@react-navigation/native";
 import { animalsService } from "../services/firebase";
+import { unwrapService } from "../api/serviceAdapter";
 import {useTheme} from "../context/ThemeContext";
 
 export default function QRScannerScreen() {
@@ -15,51 +17,41 @@ export default function QRScannerScreen() {
     const navigation = useNavigation<any>();
     const [permission, requestPermission] = useCameraPermissions();
     const [scanned, setScanned] = useState(false);
-    const [processing, setProcessing] = useState(false);
+
+    const verifyAnimalMutation = useMutation({
+        mutationFn: (animalId: string) => unwrapService(animalsService.getById(animalId)),
+    });
+
+    const processing = verifyAnimalMutation.isPending;
 
     const handleBarCodeScanned = async ({ type, data }: { type: string; data: string }) => {
         if (scanned || processing) return;
 
         setScanned(true);
-        setProcessing(true);
 
-        try {
-            // Sprawdź czy to nasz kod QR (format: exolog:animal:{animalId})
-            if (data.startsWith('exolog:animal:')) {
-                const animalId = data.replace('exolog:animal:', '');
+        // Sprawdź czy to nasz kod QR (format: exolog:animal:{animalId})
+        if (data.startsWith('exolog:animal:')) {
+            const animalId = data.replace('exolog:animal:', '');
 
-                // Sprawdź czy zwierzę istnieje
-                const result = await animalsService.getById(animalId);
-
-                if (result.success && result.data) {
-                    // Przenieś do szczegółów zwierzęcia
-                    navigation.navigate('Animals', {
-                        screen: 'AnimalDetails',
-                        params: { animalId }
-                    });
-                } else {
-                    Alert.alert(
-                        t('qrScanner.notFoundTitle'),
-                        t('qrScanner.notFoundMessage'),
-                        [{ text: t('common:ok'), onPress: () => setScanned(false) }]
-                    );
-                }
-            } else {
+            try {
+                await verifyAnimalMutation.mutateAsync(animalId);
+                navigation.navigate('Animals', {
+                    screen: 'AnimalDetails',
+                    params: { animalId }
+                });
+            } catch {
                 Alert.alert(
-                    t('qrScanner.unknownCodeTitle'),
-                    t('qrScanner.unknownCodeMessage'),
+                    t('qrScanner.notFoundTitle'),
+                    t('qrScanner.notFoundMessage'),
                     [{ text: t('common:ok'), onPress: () => setScanned(false) }]
                 );
             }
-        } catch (error) {
-            console.error('Error processing QR code:', error);
+        } else {
             Alert.alert(
-                t('common:error'),
-                t('qrScanner.errorMessage'),
+                t('qrScanner.unknownCodeTitle'),
+                t('qrScanner.unknownCodeMessage'),
                 [{ text: t('common:ok'), onPress: () => setScanned(false) }]
             );
-        } finally {
-            setProcessing(false);
         }
     };
 

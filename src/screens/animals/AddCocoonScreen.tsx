@@ -21,7 +21,6 @@ export default function AddCocoonScreen() {
     const { data: animalData, isLoading: animalLoading } = useAnimalQuery(animalId);
     const addCocoonMutation = useAddCocoonMutation();
 
-    const [saving, setSaving] = useState(false);
     const [formData, setFormData] = useState<any>(null);
     const [errors, setErrors] = useState<Record<string, string>>({});
     const animal = animalData ?? null;
@@ -44,7 +43,6 @@ export default function AddCocoonScreen() {
             return;
         }
 
-        setSaving(true);
         try {
             await addCocoonMutation.mutateAsync({
                 animalId,
@@ -65,8 +63,6 @@ export default function AddCocoonScreen() {
             );
         } catch (error: any) {
             Alert.alert(t('common:error'), error.message || t('addCocoon.errorMessage'));
-        } finally {
-            setSaving(false);
         }
     };
 
@@ -127,7 +123,7 @@ export default function AddCocoonScreen() {
                     mode="outlined"
                     onPress={handleCancel}
                     style={styles.cancelButton}
-                    disabled={saving}
+                    disabled={addCocoonMutation.isPending}
                 >
                     {t('common:cancel')}
                 </Button>
@@ -135,8 +131,8 @@ export default function AddCocoonScreen() {
                     mode="contained"
                     onPress={handleSave}
                     style={styles.saveButton}
-                    loading={saving}
-                    disabled={saving}
+                    loading={addCocoonMutation.isPending}
+                    disabled={addCocoonMutation.isPending}
                 >
                     {t('addCocoon.saveCocoon')}
                 </Button>

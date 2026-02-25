@@ -4,11 +4,10 @@ import { Appbar, Button, ActivityIndicator } from 'react-native-paper';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import {Animal} from "../../types";
 import {useTheme} from "../../context/ThemeContext";
-import { useAnimalQuery, useUpdateAnimalMutation } from "../../api/animals";
+import { useAnimalQuery, useUpdateAnimalMutation, useUploadCitesMutation } from "../../api/animals";
 import {useAuth} from "../../hooks/useAuth";
 import SpiderForm from "../../components/molecules/SpiderForm";
 import {Theme} from "../../styles/theme";
-import {storageService} from "../../services/firebase/storageService";
 import { useAppTranslation } from '../../hooks/useAppTranslation';
 
 export default function EditAnimalScreen() {
@@ -19,10 +18,11 @@ export default function EditAnimalScreen() {
     const route = useRoute<any>();
     const { animalId } = route.params;
     const updateAnimalMutation = useUpdateAnimalMutation();
+    const uploadCitesMutation = useUploadCitesMutation();
     const { user } = useAuth();
 
     const { data: animalData, isLoading: animalLoading } = useAnimalQuery(animalId);
-    const [saving, setSaving] = useState(false);
+    const saving = uploadCitesMutation.isPending || updateAnimalMutation.isPending;
     const [animal, setAnimal] = useState<Animal | null>(null);
     const [formData, setFormData] = useState<any>(null);
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -74,20 +74,16 @@ export default function EditAnimalScreen() {
         }
 
         try {
-            setSaving(true);
-
             // Upload CITES document if new file selected
             let citesDocumentUrl = animal?.specificData?.citesDocumentUrl;
             let citesDocumentPath = animal?.specificData?.citesDocumentPath;
 
             if (formData.hasCites && formData.citesDocumentUri && user) {
-                const uploadResult = await storageService.uploadCitesDocument(
-                    user.uid, animalId, formData.citesDocumentUri
-                );
-                if (uploadResult.success) {
-                    citesDocumentUrl = uploadResult.url;
-                    citesDocumentPath = uploadResult.path;
-                }
+                const uploadResult = await uploadCitesMutation.mutateAsync({
+                    userId: user.uid, animalId, fileUri: formData.citesDocumentUri,
+                });
+                citesDocumentUrl = uploadResult.url;
+                citesDocumentPath = uploadResult.path;
             }
 
             const updatedAnimal: Partial<Animal> = {
@@ -124,8 +120,6 @@ export default function EditAnimalScreen() {
         } catch (error) {
             console.error('Error updating animal:', error);
             Alert.alert(t('common:error'), t('edit.errorUpdate'));
-        } finally {
-            setSaving(false);
         }
     };
 

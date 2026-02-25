@@ -22,7 +22,6 @@ export default function AddMoltingScreen() {
     const { data: animalData, isLoading: animalLoading } = useAnimalQuery(animalId);
     const addMoltingMutation = useAddMoltingMutation();
 
-    const [saving, setSaving] = useState(false);
     const [formData, setFormData] = useState<any>(null);
     const [errors, setErrors] = useState<Record<string, string>>({});
     const animal = animalData ?? null;
@@ -50,7 +49,6 @@ export default function AddMoltingScreen() {
             return;
         }
 
-        setSaving(true);
         try {
             await addMoltingMutation.mutateAsync({
                 animalId,
@@ -71,8 +69,6 @@ export default function AddMoltingScreen() {
             );
         } catch (error: any) {
             Alert.alert(t('common:error'), error.message || t('addMolting.errorAdd'));
-        } finally {
-            setSaving(false);
         }
     };
 
@@ -114,7 +110,7 @@ export default function AddMoltingScreen() {
                     mode="outlined"
                     onPress={handleCancel}
                     style={styles.cancelButton}
-                    disabled={saving}
+                    disabled={addMoltingMutation.isPending}
                 >
                     {t('common:cancel')}
                 </Button>
@@ -122,8 +118,8 @@ export default function AddMoltingScreen() {
                     mode="contained"
                     onPress={handleSave}
                     style={styles.saveButton}
-                    loading={saving}
-                    disabled={saving}
+                    loading={addMoltingMutation.isPending}
+                    disabled={addMoltingMutation.isPending}
                 >
                     {t('addMolting.saveMolting')}
                 </Button>

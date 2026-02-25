@@ -10,3 +10,4 @@ export { useMarkDeceasedMutation } from './useMarkDeceasedMutation';
 export { useUploadPhotosMutation } from './useUploadPhotosMutation';
 export { useDeletePhotoMutation } from './useDeletePhotoMutation';
 export { useSetMainPhotoMutation } from './useSetMainPhotoMutation';
+export { useUploadCitesMutation } from './useUploadCitesMutation';

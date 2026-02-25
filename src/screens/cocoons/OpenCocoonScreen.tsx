@@ -20,8 +20,8 @@ export default function OpenCocoonScreen() {
     const addMultipleSpidersMutation = useAddMultipleSpidersMutation();
 
     const [spiderCount, setSpiderCount] = useState('');
-    const [saving, setSaving] = useState(false);
     const [error, setError] = useState('');
+    const saving = updateCocoonStatusMutation.isPending || addMultipleSpidersMutation.isPending;
 
     const validateCount = (value: string): boolean => {
         const num = parseInt(value, 10);
@@ -70,7 +70,6 @@ export default function OpenCocoonScreen() {
 
     const handleConfirmOpen = async () => {
         const count = parseInt(spiderCount, 10);
-        setSaving(true);
 
         try {
             // 1. Zaktualizuj status kokonu na "hatched"
@@ -121,8 +120,6 @@ export default function OpenCocoonScreen() {
         } catch (error: any) {
             console.error('Error opening cocoon:', error);
             Alert.alert(t('common:error'), error.message || t('open.openError'));
-        } finally {
-            setSaving(false);
         }
     };
 

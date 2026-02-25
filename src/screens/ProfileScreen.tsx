@@ -10,8 +10,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../hooks/useAuth';
 import { useSlideUp } from '../hooks/useAnimations';
 import { useNotificationPreferences } from '../hooks/useNotificationPreferences';
-import { useUserProfileQuery, useToggleVisibilityMutation } from '../api/social';
-import { socialService } from '../services/firebase';
+import { useUserProfileQuery, useToggleVisibilityMutation, useUpdateProfileMutation } from '../api/social';
 import { Theme } from '../styles/theme';
 import Text from '../components/atoms/Text';
 
@@ -35,13 +34,13 @@ export default function ProfileScreen() {
 
     const { data: profile } = useUserProfileQuery(user?.uid);
     const toggleVisibility = useToggleVisibilityMutation();
+    const updateProfile = useUpdateProfileMutation();
     const { preferences, loading: prefsLoading, toggleMoltReminders, toggleCocoonReminders, toggleFollowedUserActivity } = useNotificationPreferences();
 
     // Ensure profile exists on first visit
     useEffect(() => {
         if (user && profile === null) {
-            socialService.createOrUpdateProfile({
-                uid: user.uid,
+            updateProfile.mutate({
                 displayName: user.displayName || user.email?.split('@')[0] || t('common:user'),
                 email: user.email || '',
                 isPublic: true,

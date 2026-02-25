@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
 import { Appbar, FAB } from 'react-native-paper';
-import { useAddSpiderMutation, useAddMultipleSpidersMutation, useUpdateAnimalMutation } from "../../api/animals";
+import { useAddSpiderMutation, useAddMultipleSpidersMutation, useUpdateAnimalMutation, useUploadCitesMutation } from "../../api/animals";
 import { useAuth } from "../../hooks/useAuth";
 import { Theme } from "../../styles/theme";
 import { useTheme } from "../../context/ThemeContext";
 import SpiderForm from "../../components/molecules/SpiderForm";
-import { storageService } from "../../services/firebase/storageService";
 import { useAppTranslation } from '../../hooks/useAppTranslation';
 
 interface AddSpiderScreenProps {
@@ -17,11 +16,12 @@ export default function AddSpiderScreen({ navigation }: AddSpiderScreenProps) {
   const { t } = useAppTranslation('animals');
   const [formData, setFormData] = useState<any>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [saving, setSaving] = useState(false);
 
   const addSpiderMutation = useAddSpiderMutation();
   const addMultipleSpidersMutation = useAddMultipleSpidersMutation();
   const updateAnimalMutation = useUpdateAnimalMutation();
+  const uploadCitesMutation = useUploadCitesMutation();
+  const saving = addSpiderMutation.isPending || addMultipleSpidersMutation.isPending || uploadCitesMutation.isPending || updateAnimalMutation.isPending;
   const { user } = useAuth();
 
   const { theme } = useTheme();
@@ -64,19 +64,17 @@ export default function AddSpiderScreen({ navigation }: AddSpiderScreenProps) {
   const uploadCitesIfNeeded = async (animalId: string) => {
     if (!formData.hasCites || !formData.citesDocumentUri || !user) return;
 
-    const uploadResult = await storageService.uploadCitesDocument(
-        user.uid, animalId, formData.citesDocumentUri
-    );
+    const uploadResult = await uploadCitesMutation.mutateAsync({
+        userId: user.uid, animalId, fileUri: formData.citesDocumentUri,
+    });
 
-    if (uploadResult.success) {
-      await updateAnimalMutation.mutateAsync({ animalId, updates: {
-        specificData: {
-          hasCites: true,
-          citesDocumentUrl: uploadResult.url,
-          citesDocumentPath: uploadResult.path,
-        },
-      }});
-    }
+    await updateAnimalMutation.mutateAsync({ animalId, updates: {
+      specificData: {
+        hasCites: true,
+        citesDocumentUrl: uploadResult.url,
+        citesDocumentPath: uploadResult.path,
+      },
+    }});
   };
 
   const handleSave = async () => {
@@ -84,8 +82,6 @@ export default function AddSpiderScreen({ navigation }: AddSpiderScreenProps) {
       Alert.alert(t('common:error'), t('common:fillRequiredFields'));
       return;
     }
-
-    setSaving(true);
 
     try {
       const quantity = formData.quantity || 1;
@@ -170,8 +166,6 @@ export default function AddSpiderScreen({ navigation }: AddSpiderScreenProps) {
       }
     } catch (error: any) {
       Alert.alert(t('common:error'), error.message || t('common:unexpectedError'));
-    } finally {
-      setSaving(false);
     }
   };
 
