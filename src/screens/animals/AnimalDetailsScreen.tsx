@@ -130,7 +130,6 @@ export default function AnimalDetailsScreen() {
     const [fabOpen, setFabOpen] = useState(false);
     const [qrModalVisible, setQrModalVisible] = useState(false);
     const [photoViewerVisible, setPhotoViewerVisible] = useState(false);
-    const [deceasedLoading, setDeceasedLoading] = useState(false);
 
     const matingStatus = matingHistoryData.length > 0
         ? {
@@ -183,7 +182,6 @@ export default function AnimalDetailsScreen() {
                     text: t('details.markDeceased'),
                     style: 'destructive',
                     onPress: async () => {
-                        setDeceasedLoading(true);
                         try {
                             await markDeceasedMutation.mutateAsync({ animalId });
                             Alert.alert(
@@ -193,8 +191,6 @@ export default function AnimalDetailsScreen() {
                             );
                         } catch (err: any) {
                             Alert.alert(t('common:error'), err.message || t('details.deceasedError'));
-                        } finally {
-                            setDeceasedLoading(false);
                         }
                     }
                 }
@@ -399,8 +395,8 @@ export default function AnimalDetailsScreen() {
                 <View style={styles.fabSpacer} />
             </ScrollView>
 
-            {/* Loader podczas oznaczania zgonu */}
-            {deceasedLoading && (
+            {/* Loader podczas oznaczania zgonu / usuwania */}
+            {(markDeceasedMutation.isPending || deleteAnimalMutation.isPending) && (
                 <View style={styles.loadingOverlay}>
                     <ActivityIndicator size="large" color={theme.colors.primary} />
                 </View>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Alert, StyleSheet, View } from 'react-native';
 import { ActivityIndicator, Dialog, Divider, List, Portal } from 'react-native-paper';
 import { useAppTranslation } from '../../hooks/useAppTranslation';
@@ -20,7 +20,7 @@ const AnimalContextMenu: React.FC<AnimalContextMenuProps> = ({ animal, visible, 
     const styles = makeStyles(theme);
     const deleteAnimalMutation = useDeleteAnimalMutation();
     const markDeceasedMutation = useMarkDeceasedMutation();
-    const [deceasedLoading, setDeceasedLoading] = useState(false);
+    const isLoading = markDeceasedMutation.isPending || deleteAnimalMutation.isPending;
 
     if (!animal) return null;
 
@@ -67,14 +67,7 @@ const AnimalContextMenu: React.FC<AnimalContextMenuProps> = ({ animal, visible, 
                 {
                     text: t('details.markDeceased'),
                     style: 'destructive',
-                    onPress: async () => {
-                        setDeceasedLoading(true);
-                        try {
-                            await markDeceasedMutation.mutateAsync({ animalId: animal.id });
-                        } finally {
-                            setDeceasedLoading(false);
-                        }
-                    },
+                    onPress: () => markDeceasedMutation.mutate({ animalId: animal.id }),
                 },
             ],
         );
@@ -98,9 +91,9 @@ const AnimalContextMenu: React.FC<AnimalContextMenuProps> = ({ animal, visible, 
 
     return (
         <Portal>
-            <Dialog visible={visible} onDismiss={deceasedLoading ? undefined : onDismiss} style={styles.dialog}>
+            <Dialog visible={visible} onDismiss={isLoading ? undefined : onDismiss} style={styles.dialog}>
                 <Dialog.Title style={styles.title}>{animal.name}</Dialog.Title>
-                {deceasedLoading ? (
+                {isLoading ? (
                     <View style={styles.loadingContainer}>
                         <ActivityIndicator size="large" color={theme.colors.primary} />
                     </View>
