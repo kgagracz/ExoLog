@@ -143,6 +143,7 @@
 - [x] Usuwanie zdjęć
 - [x] Upload do Firebase Storage
 - [x] Zarządzanie zdjęciami oparte na React Query (cache, automatyczna invalidacja, eliminacja stale closure bugs)
+- [x] Automatyczny zapis zdjęcia z aparatu do galerii telefonu
 
 ---
 

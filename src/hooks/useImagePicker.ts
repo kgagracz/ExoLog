@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import * as ImagePicker from 'expo-image-picker';
+import * as MediaLibrary from 'expo-media-library';
 import { Alert, Platform } from 'react-native';
 
 interface ImagePickerOptions {
@@ -124,6 +125,16 @@ export const useImagePicker = (): UseImagePickerReturn => {
                     type: !asset.type ? undefined : asset.type,
                     fileName: asset.fileName || undefined,
                 };
+
+                // Zapisz zdjęcie do galerii telefonu
+                try {
+                    const { status } = await MediaLibrary.requestPermissionsAsync();
+                    if (status === 'granted') {
+                        await MediaLibrary.saveToLibraryAsync(asset.uri);
+                    }
+                } catch (e) {
+                    console.warn('Could not save photo to gallery:', e);
+                }
 
                 setImages(prev => [...prev, selectedImage]);
                 return selectedImage;
