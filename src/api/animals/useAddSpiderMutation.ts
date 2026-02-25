@@ -50,7 +50,7 @@ function mapSpiderToAnimal(spiderData: SpiderData, userId: string): Omit<Animal,
             lastMeasured: new Date().toISOString().split('T')[0],
         },
         specificData: {
-            currentStage: spiderData.currentStage || 1,
+            currentStage: spiderData.currentStage ?? undefined,
             webType: 'minimal',
             urticatingHairs: false,
             temperament: spiderData.temperament || 'unknown',
