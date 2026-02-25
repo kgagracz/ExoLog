@@ -7,7 +7,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "build-android": "firebase deploy --only functions && eas build --profile preview --platform android"
+    "build-android": "firebase deploy --only functions && eas build --profile preview --platform android",
+    "update-android": "firebase deploy --only functions && eas update --channel preview -- platform android"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^2.2.0",
