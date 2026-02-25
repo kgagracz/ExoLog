@@ -54,12 +54,26 @@ const AnimalsList: React.FC<AnimalsListProps> = ({
                                                      onAnimalMenuPress,
                                                  }) => {
     const lastOffsetRef = useRef(0);
+    const directionAnchorRef = useRef(0);
+    const isHiddenRef = useRef(false);
+
+    const SCROLL_THRESHOLD = 20;
 
     const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
         if (!onScrollDirectionChange) return;
         const currentOffset = e.nativeEvent.contentOffset.y;
-        const scrollingDown = currentOffset > lastOffsetRef.current && currentOffset > 10;
-        onScrollDirectionChange(scrollingDown);
+        const delta = currentOffset - directionAnchorRef.current;
+
+        if (delta > SCROLL_THRESHOLD && currentOffset > 10 && !isHiddenRef.current) {
+            isHiddenRef.current = true;
+            onScrollDirectionChange(true);
+            directionAnchorRef.current = currentOffset;
+        } else if (delta < -SCROLL_THRESHOLD && isHiddenRef.current) {
+            isHiddenRef.current = false;
+            onScrollDirectionChange(false);
+            directionAnchorRef.current = currentOffset;
+        }
+
         lastOffsetRef.current = currentOffset;
     };
 
