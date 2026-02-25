@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {Alert, Animated, Dimensions, ScrollView, StyleSheet, View} from 'react-native';
-import {FAB, Text} from 'react-native-paper';
+import {ActivityIndicator, FAB, Text} from 'react-native-paper';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {useAuth} from "../../hooks/useAuth";
 import {useTheme} from "../../context/ThemeContext";
@@ -130,6 +130,7 @@ export default function AnimalDetailsScreen() {
     const [fabOpen, setFabOpen] = useState(false);
     const [qrModalVisible, setQrModalVisible] = useState(false);
     const [photoViewerVisible, setPhotoViewerVisible] = useState(false);
+    const [deceasedLoading, setDeceasedLoading] = useState(false);
 
     const matingStatus = matingHistoryData.length > 0
         ? {
@@ -182,6 +183,7 @@ export default function AnimalDetailsScreen() {
                     text: t('details.markDeceased'),
                     style: 'destructive',
                     onPress: async () => {
+                        setDeceasedLoading(true);
                         try {
                             await markDeceasedMutation.mutateAsync({ animalId });
                             Alert.alert(
@@ -191,6 +193,8 @@ export default function AnimalDetailsScreen() {
                             );
                         } catch (err: any) {
                             Alert.alert(t('common:error'), err.message || t('details.deceasedError'));
+                        } finally {
+                            setDeceasedLoading(false);
                         }
                     }
                 }
@@ -395,6 +399,13 @@ export default function AnimalDetailsScreen() {
                 <View style={styles.fabSpacer} />
             </ScrollView>
 
+            {/* Loader podczas oznaczania zgonu */}
+            {deceasedLoading && (
+                <View style={styles.loadingOverlay}>
+                    <ActivityIndicator size="large" color={theme.colors.primary} />
+                </View>
+            )}
+
             {/* FAB do dodawania wydarzeń — tylko dla właściciela */}
             <FAB.Group
                 open={fabOpen}
@@ -495,5 +506,12 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     },
     fab: {
         backgroundColor: theme.colors.primary,
+    },
+    loadingOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0,0,0,0.3)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 10,
     },
 });

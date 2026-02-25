@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Alert, StyleSheet, View } from 'react-native';
-import { Dialog, Divider, List, Portal } from 'react-native-paper';
+import { ActivityIndicator, Dialog, Divider, List, Portal } from 'react-native-paper';
 import { useAppTranslation } from '../../hooks/useAppTranslation';
 import { useTheme } from '../../context/ThemeContext';
 import { useDeleteAnimalMutation, useMarkDeceasedMutation } from '../../api/animals';
@@ -20,6 +20,7 @@ const AnimalContextMenu: React.FC<AnimalContextMenuProps> = ({ animal, visible, 
     const styles = makeStyles(theme);
     const deleteAnimalMutation = useDeleteAnimalMutation();
     const markDeceasedMutation = useMarkDeceasedMutation();
+    const [deceasedLoading, setDeceasedLoading] = useState(false);
 
     if (!animal) return null;
 
@@ -66,7 +67,14 @@ const AnimalContextMenu: React.FC<AnimalContextMenuProps> = ({ animal, visible, 
                 {
                     text: t('details.markDeceased'),
                     style: 'destructive',
-                    onPress: () => markDeceasedMutation.mutate({ animalId: animal.id }),
+                    onPress: async () => {
+                        setDeceasedLoading(true);
+                        try {
+                            await markDeceasedMutation.mutateAsync({ animalId: animal.id });
+                        } finally {
+                            setDeceasedLoading(false);
+                        }
+                    },
                 },
             ],
         );
@@ -90,8 +98,13 @@ const AnimalContextMenu: React.FC<AnimalContextMenuProps> = ({ animal, visible, 
 
     return (
         <Portal>
-            <Dialog visible={visible} onDismiss={onDismiss} style={styles.dialog}>
+            <Dialog visible={visible} onDismiss={deceasedLoading ? undefined : onDismiss} style={styles.dialog}>
                 <Dialog.Title style={styles.title}>{animal.name}</Dialog.Title>
+                {deceasedLoading ? (
+                    <View style={styles.loadingContainer}>
+                        <ActivityIndicator size="large" color={theme.colors.primary} />
+                    </View>
+                ) : (
                 <Dialog.ScrollArea style={styles.scrollArea}>
                     <View>
                         <List.Item title={t('common:edit')} left={props => <List.Icon {...props} icon="pencil" />} onPress={handleEdit} />
@@ -118,6 +131,7 @@ const AnimalContextMenu: React.FC<AnimalContextMenuProps> = ({ animal, visible, 
                         />
                     </View>
                 </Dialog.ScrollArea>
+                )}
             </Dialog>
         </Portal>
     );
@@ -138,6 +152,11 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     },
     deleteText: {
         color: theme.colors.error,
+    },
+    loadingContainer: {
+        paddingVertical: 32,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
 });
 
