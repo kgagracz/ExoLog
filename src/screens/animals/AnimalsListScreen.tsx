@@ -137,7 +137,7 @@ const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => 
 
         <View style={styles.content}>
           <Animated.View style={{
-            maxHeight: headerAnim.interpolate({ inputRange: [0, 1], outputRange: [200, 0] }),
+            maxHeight: headerAnim.interpolate({ inputRange: [0, 1], outputRange: [300, 0] }),
             opacity: headerAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }),
             overflow: 'hidden',
           }}>

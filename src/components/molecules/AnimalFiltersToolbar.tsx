@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {View, StyleSheet, ScrollView, Pressable} from 'react-native';
+import {View, StyleSheet, ScrollView} from 'react-native';
 import {Chip, IconButton, Menu, Text} from 'react-native-paper';
 import {useTranslation} from 'react-i18next';
 import {useTheme} from '../../context/ThemeContext';
@@ -51,18 +51,38 @@ const AnimalFiltersToolbar: React.FC<AnimalFiltersToolbarProps> = ({
 
     const [sortMenuVisible, setSortMenuVisible] = useState(false);
     const [speciesMenuVisible, setSpeciesMenuVisible] = useState(false);
+    const [speciesMenuKey, setSpeciesMenuKey] = useState(0);
+
+    const closeSpeciesMenu = () => {
+        setSpeciesMenuVisible(false);
+        //workaoround
+        setSpeciesMenuKey(k => k + 1);
+    };
 
     return (
         <View>
             {/* Top bar: filter toggle + sort menu */}
             <View style={styles.topBar}>
-                <View>
-                    <IconButton
-                        icon="filter-variant"
-                        onPress={toggleFiltersVisible}
-                        style={styles.iconButton}
-                    />
-                    {hasActiveFilters && <View style={styles.filterDot} />}
+                <View style={styles.filterButtons}>
+                    <View>
+                        <IconButton
+                            icon="filter-variant"
+                            onPress={toggleFiltersVisible}
+                            style={styles.iconButton}
+                        />
+                        {hasActiveFilters && <View style={styles.filterDot} />}
+                    </View>
+                    {hasActiveFilters && (
+                        <Chip
+                            icon="close"
+                            onPress={clearAllFilters}
+                            compact
+                            style={styles.clearChip}
+                            textStyle={styles.clearChipText}
+                        >
+                            {t('labels.clear')}
+                        </Chip>
+                    )}
                 </View>
 
                 <Menu
@@ -109,7 +129,7 @@ const AnimalFiltersToolbar: React.FC<AnimalFiltersToolbarProps> = ({
                                 onPress={() => toggleSex(sex)}
                                 compact
                                 style={styles.filterChip}
-                                showSelectedCheck={false}
+                                showSelectedCheck
                             >
                                 {SEX_LABELS[sex]}
                             </Chip>
@@ -123,38 +143,36 @@ const AnimalFiltersToolbar: React.FC<AnimalFiltersToolbarProps> = ({
                                 {t('labels.species')}
                             </Text>
                             <Menu
+                                key={speciesMenuKey}
                                 visible={speciesMenuVisible}
-                                onDismiss={() => setSpeciesMenuVisible(false)}
+                                onDismiss={closeSpeciesMenu}
                                 anchor={
-                                    <Pressable onPress={() => setSpeciesMenuVisible(true)}>
-                                        <Chip
-                                            icon="chevron-down"
-                                            compact
-                                            style={styles.filterChip}
-                                        >
-                                            {speciesFilter || t('labels.allSpecies')}
-                                        </Chip>
-                                    </Pressable>
+                                    <Chip
+                                        icon="chevron-down"
+                                        compact
+                                        style={styles.filterChip}
+                                        onPress={() => setSpeciesMenuVisible(true)}
+                                    >
+                                        {speciesFilter || t('labels.allSpecies')}
+                                    </Chip>
                                 }
                             >
                                 <Menu.Item
                                     title={t('labels.allSpecies')}
-
                                     leadingIcon={speciesFilter === null ? 'check' : undefined}
                                     onPress={() => {
                                         setSpeciesFilter(null);
-                                        setSpeciesMenuVisible(false);
+                                        closeSpeciesMenu();
                                     }}
                                 />
                                 {availableSpecies.map(species => (
                                     <Menu.Item
                                         key={species}
                                         title={species}
-    
                                         leadingIcon={speciesFilter === species ? 'check' : undefined}
                                         onPress={() => {
                                             setSpeciesFilter(species);
-                                            setSpeciesMenuVisible(false);
+                                            closeSpeciesMenu();
                                         }}
                                     />
                                 ))}
@@ -164,45 +182,6 @@ const AnimalFiltersToolbar: React.FC<AnimalFiltersToolbarProps> = ({
                 </View>
             )}
 
-            {/* Active filters chips */}
-            {hasActiveFilters && (
-                <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    style={styles.activeFiltersRow}
-                >
-                    {Array.from(sexFilter).map(sex => (
-                        <Chip
-                            key={`sex-${sex}`}
-                            onClose={() => toggleSex(sex)}
-                            compact
-                            style={styles.activeChip}
-
-                        >
-                            {SEX_LABELS[sex]}
-                        </Chip>
-                    ))}
-                    {speciesFilter && (
-                        <Chip
-                            onClose={() => setSpeciesFilter(null)}
-                            compact
-                            style={styles.activeChip}
-
-                        >
-                            {speciesFilter}
-                        </Chip>
-                    )}
-                    <Chip
-                        icon="close"
-                        onPress={clearAllFilters}
-                        compact
-                        style={styles.clearChip}
-                        textStyle={styles.clearChipText}
-                    >
-                        {t('labels.clear')}
-                    </Chip>
-                </ScrollView>
-            )}
         </View>
     );
 };
@@ -214,6 +193,11 @@ const makeStyles = (theme: Theme) =>
             justifyContent: 'space-between',
             alignItems: 'center',
             marginBottom: 4,
+        },
+        filterButtons: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 8,
         },
         iconButton: {
             margin: 0,
