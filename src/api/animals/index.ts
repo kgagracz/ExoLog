@@ -7,3 +7,6 @@ export { useUpdateAnimalMutation } from './useUpdateAnimalMutation';
 export { useDeleteAnimalMutation } from './useDeleteAnimalMutation';
 export { useDeleteMultipleAnimalsMutation } from './useDeleteMultipleAnimalsMutation';
 export { useMarkDeceasedMutation } from './useMarkDeceasedMutation';
+export { useUploadPhotosMutation } from './useUploadPhotosMutation';
+export { useDeletePhotoMutation } from './useDeletePhotoMutation';
+export { useSetMainPhotoMutation } from './useSetMainPhotoMutation';

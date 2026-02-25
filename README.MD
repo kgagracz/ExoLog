@@ -142,6 +142,7 @@
 - [x] Galeria zdjęć ptasznika
 - [x] Usuwanie zdjęć
 - [x] Upload do Firebase Storage
+- [x] Zarządzanie zdjęciami oparte na React Query (cache, automatyczna invalidacja, eliminacja stale closure bugs)
 
 ---
 
