@@ -1,11 +1,12 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Animated, StyleSheet, View } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import { Animated, StyleSheet, View } from 'react-native';
 import { Appbar, Searchbar, Text } from 'react-native-paper';
-import { useAnimalsQuery, useDeleteMultipleAnimalsMutation } from '../../api/animals';
+import { useAnimalsQuery } from '../../api/animals';
 import { useLastMoltDatesQuery, useMatingStatusesQuery, useCocoonStatusesQuery } from '../../api/events';
 import { useTheme } from '../../context/ThemeContext';
 import { useAppTranslation } from '../../hooks/useAppTranslation';
 import { useAnimalFilters } from '../../hooks/useAnimalFilters';
+import { useAnimalSelection } from '../../hooks/useAnimalSelection';
 import AnimalsList from '../../components/organisms/AnimalList';
 import AnimalFiltersToolbar from '../../components/molecules/AnimalFiltersToolbar';
 import { Theme } from '../../styles/theme';
@@ -23,13 +24,8 @@ const SpeciesAnimalsScreen: React.FC<SpeciesAnimalsScreenProps> = ({ navigation,
     const { theme } = useTheme();
     const styles = makeStyles(theme);
 
-    const deleteMultipleMutation = useDeleteMultipleAnimalsMutation();
-
     const headerAnim = useRef(new Animated.Value(0)).current;
     const isHiddenRef = useRef(false);
-
-    const [selectionMode, setSelectionMode] = useState(false);
-    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
     const speciesAnimals = useMemo(
         () => allAnimals.filter(a => a.species === species),
@@ -37,6 +33,7 @@ const SpeciesAnimalsScreen: React.FC<SpeciesAnimalsScreenProps> = ({ navigation,
     );
 
     const filters = useAnimalFilters(speciesAnimals);
+    const selection = useAnimalSelection(filters.filteredAndSortedAnimals);
 
     const allIds = useMemo(() => speciesAnimals.map(a => a.id), [speciesAnimals]);
     const femaleIds = useMemo(() => speciesAnimals.filter(a => a.sex === 'female').map(a => a.id), [speciesAnimals]);
@@ -65,74 +62,25 @@ const SpeciesAnimalsScreen: React.FC<SpeciesAnimalsScreenProps> = ({ navigation,
         navigation?.navigate('AnimalDetails', { animalId: animal.id });
     };
 
-    const handleToggleSelect = useCallback((id: string) => {
-        setSelectedIds(prev => {
-            const next = new Set(prev);
-            if (next.has(id)) {
-                next.delete(id);
-            } else {
-                next.add(id);
-            }
-            return next;
-        });
-    }, []);
-
-    const handleSelectAll = () => {
-        setSelectedIds(new Set(filters.filteredAndSortedAnimals.map(a => a.id)));
-    };
-
-    const handleDeselectAll = () => {
-        setSelectedIds(new Set());
-    };
-
-    const handleExitSelection = () => {
-        setSelectionMode(false);
-        setSelectedIds(new Set());
-    };
-
-    const handleDeleteSelected = () => {
-        if (selectedIds.size === 0) return;
-
-        Alert.alert(
-            t('list.deleteSelectedTitle'),
-            t('list.deleteSelectedMessage', { count: selectedIds.size }),
-            [
-                { text: t('common:cancel'), style: 'cancel' },
-                {
-                    text: t('common:delete'),
-                    style: 'destructive',
-                    onPress: () => {
-                        deleteMultipleMutation.mutate([...selectedIds], {
-                            onSuccess: () => {
-                                setSelectionMode(false);
-                                setSelectedIds(new Set());
-                            },
-                        });
-                    },
-                },
-            ],
-        );
-    };
-
     const showNoResults = speciesAnimals.length > 0 && filters.filteredAndSortedAnimals.length === 0;
 
     return (
         <View style={styles.container}>
-            {selectionMode ? (
+            {selection.selectionMode ? (
                 <Appbar.Header>
-                    <Appbar.Action icon="close" onPress={handleExitSelection} />
-                    <Appbar.Content title={t('list.selectedCount', { count: selectedIds.size })} />
+                    <Appbar.Action icon="close" onPress={selection.exitSelection} />
+                    <Appbar.Content title={t('list.selectedCount', { count: selection.selectedIds.size })} />
                     <Appbar.Action
-                        icon={selectedIds.size === filters.filteredAndSortedAnimals.length ? 'checkbox-blank-outline' : 'checkbox-marked'}
-                        onPress={selectedIds.size === filters.filteredAndSortedAnimals.length ? handleDeselectAll : handleSelectAll}
+                        icon={selection.allSelected ? 'checkbox-blank-outline' : 'checkbox-marked'}
+                        onPress={selection.allSelected ? selection.deselectAll : selection.selectAll}
                     />
-                    <Appbar.Action icon="delete" onPress={handleDeleteSelected} disabled={selectedIds.size === 0} />
+                    <Appbar.Action icon="delete" onPress={() => selection.confirmDeleteSelected()} disabled={selection.selectedIds.size === 0} />
                 </Appbar.Header>
             ) : (
                 <Appbar.Header>
                     <Appbar.BackAction onPress={() => navigation?.goBack()} />
                     <Appbar.Content title={`${species} (${speciesAnimals.length})`} titleStyle={styles.headerTitle} />
-                    <Appbar.Action icon="checkbox-multiple-marked-outline" onPress={() => setSelectionMode(true)} />
+                    <Appbar.Action icon="checkbox-multiple-marked-outline" onPress={selection.enterSelection} />
                 </Appbar.Header>
             )}
 
@@ -180,9 +128,9 @@ const SpeciesAnimalsScreen: React.FC<SpeciesAnimalsScreenProps> = ({ navigation,
                         matingStatuses={matingStatuses}
                         cocoonStatuses={cocoonStatuses}
                         lastMoltDates={lastMoltDates}
-                        selectionMode={selectionMode}
-                        selectedIds={selectedIds}
-                        onToggleSelect={handleToggleSelect}
+                        selectionMode={selection.selectionMode}
+                        selectedIds={selection.selectedIds}
+                        onToggleSelect={selection.toggleSelect}
                     />
                 )}
             </View>

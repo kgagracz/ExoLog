@@ -1,4 +1,4 @@
-import {useAnimalsQuery, useDeleteMultipleAnimalsMutation} from "../../api/animals";
+import {useAnimalsQuery} from "../../api/animals";
 import {useLastMoltDatesQuery, useMatingStatusesQuery, useCocoonStatusesQuery} from "../../api/events";
 import {useTheme} from "../../context/ThemeContext";
 import {useCallback, useMemo, useRef, useState} from "react";
@@ -13,6 +13,7 @@ import {Theme} from "../../styles/theme";
 import {Animal, SpeciesGroup} from "../../types";
 import {useAnimalFilters} from "../../hooks/useAnimalFilters";
 import {useSpeciesGrouping} from "../../hooks/useSpeciesGrouping";
+import {useAnimalSelection} from "../../hooks/useAnimalSelection";
 import { useAppTranslation } from '../../hooks/useAppTranslation';
 
 interface MatingStatus {
@@ -37,7 +38,6 @@ const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => 
   const { theme } = useTheme();
   const styles = makeStyles(theme);
 
-  const deleteMultipleMutation = useDeleteMultipleAnimalsMutation();
   const [fabOpen, setFabOpen] = useState<boolean>(false);
   const headerAnim = useRef(new Animated.Value(0)).current;
   const isHiddenRef = useRef(false);
@@ -54,6 +54,8 @@ const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => 
 
   const filters = useAnimalFilters(animals);
   const groupedItems = useSpeciesGrouping(filters.filteredAndSortedAnimals);
+
+  const selection = useAnimalSelection(filters.filteredAndSortedAnimals);
 
   const allIds = useMemo(() => animals.map(a => a.id), [animals]);
   const femaleIds = useMemo(() => animals.filter(a => a.sex === 'female').map(a => a.id), [animals]);
@@ -91,7 +93,7 @@ const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => 
           {
             text: t('common:delete'),
             style: 'destructive',
-            onPress: () => deleteMultipleMutation.mutate(animalIds),
+            onPress: () => selection.deleteMultipleMutation.mutate(animalIds),
           },
         ],
     );
@@ -110,13 +112,26 @@ const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => 
 
   return (
       <View style={styles.container}>
-        <Appbar.Header>
-          <Appbar.Content title={t('list.title', { count: animals.length })} />
-          <Appbar.Action icon="qrcode" onPress={handleQRPrint} />
-          <View style={styles.avatarContainer}>
-            <UserAvatar onPress={handleProfilePress} size={36} />
-          </View>
-        </Appbar.Header>
+        {selection.selectionMode ? (
+            <Appbar.Header>
+              <Appbar.Action icon="close" onPress={selection.exitSelection} />
+              <Appbar.Content title={t('list.selectedCount', { count: selection.selectedIds.size })} />
+              <Appbar.Action
+                  icon={selection.allSelected ? 'checkbox-blank-outline' : 'checkbox-marked'}
+                  onPress={selection.allSelected ? selection.deselectAll : selection.selectAll}
+              />
+              <Appbar.Action icon="delete" onPress={() => selection.confirmDeleteSelected()} disabled={selection.selectedIds.size === 0} />
+            </Appbar.Header>
+        ) : (
+            <Appbar.Header>
+              <Appbar.Content title={t('list.title', { count: animals.length })} />
+              <Appbar.Action icon="checkbox-multiple-marked-outline" onPress={selection.enterSelection} />
+              <Appbar.Action icon="qrcode" onPress={handleQRPrint} />
+              <View style={styles.avatarContainer}>
+                <UserAvatar onPress={handleProfilePress} size={36} />
+              </View>
+            </Appbar.Header>
+        )}
 
         <View style={styles.content}>
           <Animated.View style={{
@@ -171,16 +186,21 @@ const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => 
                   groupedItems={groupedItems}
                   onGroupPress={handleGroupPress}
                   onGroupLongPress={handleGroupLongPress}
+                  selectionMode={selection.selectionMode}
+                  selectedIds={selection.selectedIds}
+                  onToggleSelect={selection.toggleSelect}
               />
           )}
         </View>
 
-        <AddActionsFAB
-            open={fabOpen}
-            onStateChange={({ open }) => setFabOpen(open)}
-            onAddAnimal={handleAddSpider}
-            onAddFeeding={handleAddFeeding}
-        />
+        {!selection.selectionMode && (
+            <AddActionsFAB
+                open={fabOpen}
+                onStateChange={({ open }) => setFabOpen(open)}
+                onAddAnimal={handleAddSpider}
+                onAddFeeding={handleAddFeeding}
+            />
+        )}
       </View>
   );
 };

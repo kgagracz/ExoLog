@@ -15,4 +15,4 @@
 - Module should reflect the area of change (e.g. Community, Animals, Auth, Feeding, Events, Navigation).
 - Description must be a single sentence in English.
 - Example: `feat(Community) - automatically follow users when accepting a friend request`
-- 
+- Return commit message after every prompt
