@@ -49,7 +49,7 @@
     "notesIcon": "📝",
     "deleteTitle": "Usuń zwierzę",
     "deleteMessage": "Czy na pewno chcesz trwale usunąć {{name}}?\n\nTa operacja jest nieodwracalna i usunie także całą historię karmienia.",
-    "deceasedTitle": "💀 Oznacz zgon",
+    "deceasedTitle": "Oznacz zgon",
     "deceasedMessage": "Czy na pewno chcesz oznaczyć {{name}} jako martwe?\n\nZwierzę zostanie usunięte z listy, ale jego dane zostaną zachowane w historii.",
     "deceasedSuccess": "{{name}} został oznaczony jako martwy.",
     "deceasedSaved": "Zapisano",
