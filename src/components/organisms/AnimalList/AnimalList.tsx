@@ -1,7 +1,8 @@
 import React, { useRef } from 'react';
 import { ScrollView, RefreshControl, StyleSheet, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
-import {Animal} from "../../../types";
+import {Animal, AnimalListItem} from "../../../types";
 import AnimalCard from "../../molecules/AnimalCard";
+import SpeciesGroupCard from "../../molecules/SpeciesGroupCard";
 
 interface MatingStatus {
     hasMating: boolean;
@@ -24,6 +25,8 @@ interface AnimalsListProps {
     matingStatuses?: Record<string, MatingStatus>;
     cocoonStatuses?: Record<string, CocoonStatus>;
     lastMoltDates?: Record<string, string>;
+    groupedItems?: AnimalListItem[];
+    onGroupPress?: (species: string) => void;
 }
 
 const AnimalsList: React.FC<AnimalsListProps> = ({
@@ -34,7 +37,9 @@ const AnimalsList: React.FC<AnimalsListProps> = ({
                                                      onScrollDirectionChange,
                                                      matingStatuses = {},
                                                      cocoonStatuses = {},
-                                                     lastMoltDates = {}
+                                                     lastMoltDates = {},
+                                                     groupedItems,
+                                                     onGroupPress,
                                                  }) => {
     const lastOffsetRef = useRef(0);
 
@@ -44,6 +49,34 @@ const AnimalsList: React.FC<AnimalsListProps> = ({
         const scrollingDown = currentOffset > lastOffsetRef.current && currentOffset > 10;
         onScrollDirectionChange(scrollingDown);
         lastOffsetRef.current = currentOffset;
+    };
+
+    const renderGroupedItems = () => {
+        if (!groupedItems) return null;
+
+        return groupedItems.map((item, index) => {
+            if (item.type === 'group') {
+                return (
+                    <SpeciesGroupCard
+                        key={`group-${item.species}`}
+                        group={item}
+                        onPress={onGroupPress ?? (() => {})}
+                        index={index}
+                    />
+                );
+            }
+            return (
+                <AnimalCard
+                    key={item.animal.id}
+                    animal={item.animal}
+                    onPress={onAnimalPress}
+                    matingStatus={matingStatuses[item.animal.id]}
+                    cocoonStatus={cocoonStatuses[item.animal.id]}
+                    lastMoltDate={lastMoltDates[item.animal.id]}
+                    index={index}
+                />
+            );
+        });
     };
 
     return (
@@ -56,17 +89,19 @@ const AnimalsList: React.FC<AnimalsListProps> = ({
                 <RefreshControl refreshing={loading} onRefresh={onRefresh} />
             }
         >
-            {animals.map((animal, index) => (
-                <AnimalCard
-                    key={animal.id}
-                    animal={animal}
-                    onPress={onAnimalPress}
-                    matingStatus={matingStatuses[animal.id]}
-                    cocoonStatus={cocoonStatuses[animal.id]}
-                    lastMoltDate={lastMoltDates[animal.id]}
-                    index={index}
-                />
-            ))}
+            {groupedItems ? renderGroupedItems() : (
+                animals.map((animal, index) => (
+                    <AnimalCard
+                        key={animal.id}
+                        animal={animal}
+                        onPress={onAnimalPress}
+                        matingStatus={matingStatuses[animal.id]}
+                        cocoonStatus={cocoonStatuses[animal.id]}
+                        lastMoltDate={lastMoltDates[animal.id]}
+                        index={index}
+                    />
+                ))
+            )}
         </ScrollView>
     );
 };

@@ -316,4 +316,16 @@ export type TabParamList = {
   Settings: undefined;
 };
 
+export interface SpeciesGroup {
+  type: 'group';
+  species: string;
+  animals: Animal[];
+  representativeAnimal: Animal;
+  count: number;
+}
+
+export type AnimalListItem =
+  | { type: 'individual'; animal: Animal }
+  | SpeciesGroup;
+
 export type { PublicUserProfile, FriendRequest, Friendship, FriendRequestStatus, FriendshipStatus } from './social';

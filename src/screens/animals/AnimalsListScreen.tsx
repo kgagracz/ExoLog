@@ -12,6 +12,7 @@ import UserAvatar from "../../components/atoms/UserAvatar";
 import {Theme} from "../../styles/theme";
 import {Animal} from "../../types";
 import {useAnimalFilters} from "../../hooks/useAnimalFilters";
+import {useSpeciesGrouping} from "../../hooks/useSpeciesGrouping";
 import { useAppTranslation } from '../../hooks/useAppTranslation';
 
 interface MatingStatus {
@@ -51,6 +52,7 @@ const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => 
   }, [headerAnim]);
 
   const filters = useAnimalFilters(animals);
+  const groupedItems = useSpeciesGrouping(filters.filteredAndSortedAnimals);
 
   const allIds = useMemo(() => animals.map(a => a.id), [animals]);
   const femaleIds = useMemo(() => animals.filter(a => a.sex === 'female').map(a => a.id), [animals]);
@@ -72,6 +74,10 @@ const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => 
 
   const handleAnimalPress = (animal: Animal): void => {
     navigation?.navigate('AnimalDetails', { animalId: animal.id });
+  };
+
+  const handleGroupPress = (species: string): void => {
+    navigation?.navigate('SpeciesAnimals', { species });
   };
 
   const handleProfilePress = (): void => {
@@ -145,6 +151,8 @@ const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => 
                   matingStatuses={matingStatuses}
                   cocoonStatuses={cocoonStatuses}
                   lastMoltDates={lastMoltDates}
+                  groupedItems={groupedItems}
+                  onGroupPress={handleGroupPress}
               />
           )}
         </View>

@@ -5,7 +5,8 @@
     "emptyTitle": "Brak zwierząt",
     "emptyDescription": "Dodaj swojego pierwszego ptasznika, aby rozpocząć zarządzanie hodowlą",
     "userEmptyDescription": "Ten użytkownik nie ma jeszcze żadnych zwierząt",
-    "userTitle": "Zwierzęta {{name}} ({{count}})"
+    "userTitle": "Zwierzęta {{name}} ({{count}})",
+    "groupCount": "{{count}} zwierząt"
   },
   "addSpider": {
     "title": "Dodaj Ptasznika",

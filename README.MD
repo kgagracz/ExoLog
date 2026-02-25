@@ -64,6 +64,7 @@
     - [x] Po nazwie
     - [x] Po dacie dodania
     - [x] Po gatunku
+- [x] Grupowanie po gatunku (>3 sztuki tego samego gatunku wyświetla kartę zbiorczą; kliknięcie otwiera ekran z listą zwierząt danego gatunku)
 
 ---
 
