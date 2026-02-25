@@ -92,11 +92,19 @@ export default function AddSpiderScreen({ navigation }: AddSpiderScreenProps) {
       const speciesLastWord = getLastWordFromSpecies(formData.species);
 
       // Przygotuj bazowe dane pająka
+      const numericStage = formData.stage as number | null;
+      const getLifecycleStage = (stage: number | null): 'baby' | 'juvenile' | 'subadult' | 'adult' => {
+        if (!stage || stage <= 3) return 'baby';
+        if (stage <= 6) return 'juvenile';
+        if (stage <= 8) return 'subadult';
+        return 'adult';
+      };
+
       const baseSpiderData = {
         species: formData.species?.trim(),
         sex: formData.sex as 'male' | 'female' | 'unknown',
-        stage: formData.stage as 'baby' | 'juvenile' | 'subadult' | 'adult',
-        currentStage: formData.currentStage,
+        stage: getLifecycleStage(numericStage),
+        currentStage: numericStage ?? undefined,
         dateAcquired: formData.dateAcquired,
         dateOfBirth: formData.dateOfBirth || undefined,
         weight: formData.weight || undefined,

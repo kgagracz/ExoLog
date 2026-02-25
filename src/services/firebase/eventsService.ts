@@ -36,9 +36,11 @@ export const eventsService = {
                 animalId: data.animalId,
                 userId: data.userId,
                 eventTypeId: 'molting',
-                title: data.eventData.previousStage && data.eventData.newStage
+                title: data.eventData.previousStage != null && data.eventData.newStage != null
                     ? `Wylinka L${data.eventData.previousStage} → L${data.eventData.newStage}`
-                    : `Wylinka L${data.eventData.newStage ?? '?'}`,
+                    : data.eventData.newStage != null
+                        ? `Wylinka L${data.eventData.newStage}`
+                        : 'Wylinka',
                 description: data.description,
                 date: data.date,
                 eventData: data.eventData,
