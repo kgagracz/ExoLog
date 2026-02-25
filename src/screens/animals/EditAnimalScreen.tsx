@@ -52,15 +52,15 @@ export default function EditAnimalScreen() {
         const newErrors: Record<string, string> = {};
 
         if (!formData.species.trim()) {
-            newErrors.species = t('editAnimal.validation.speciesRequired');
+            newErrors.species = t('edit.validation.speciesRequired');
         }
 
         if (!formData.sex) {
-            newErrors.sex = t('editAnimal.validation.sexRequired');
+            newErrors.sex = t('edit.validation.sexRequired');
         }
 
         if (!formData.dateAcquired) {
-            newErrors.dateAcquired = t('editAnimal.validation.dateRequired');
+            newErrors.dateAcquired = t('edit.validation.dateRequired');
         }
 
         setErrors(newErrors);
@@ -69,7 +69,7 @@ export default function EditAnimalScreen() {
 
     const handleSave = async () => {
         if (!validateForm()) {
-            Alert.alert(t('editAnimal.validation.title'), t('editAnimal.validation.fillRequired'));
+            Alert.alert(t('edit.validation.title'), t('edit.validation.fillRequired'));
             return;
         }
 
@@ -113,7 +113,7 @@ export default function EditAnimalScreen() {
 
             Alert.alert(
                 t('common:success'),
-                t('editAnimal.successMessage'),
+                t('edit.successMessage'),
                 [
                     {
                         text: 'OK',
@@ -123,7 +123,7 @@ export default function EditAnimalScreen() {
             );
         } catch (error) {
             console.error('Error updating animal:', error);
-            Alert.alert(t('common:error'), t('editAnimal.errorUpdate'));
+            Alert.alert(t('common:error'), t('edit.errorUpdate'));
         } finally {
             setSaving(false);
         }
@@ -131,11 +131,11 @@ export default function EditAnimalScreen() {
 
     const handleCancel = () => {
         Alert.alert(
-            t('editAnimal.cancelTitle'),
-            t('editAnimal.cancelMessage'),
+            t('edit.cancelTitle'),
+            t('edit.cancelMessage'),
             [
                 {
-                    text: t('editAnimal.continueEditing'),
+                    text: t('edit.continueEditing'),
                     style: 'cancel',
                 },
                 {
@@ -163,7 +163,7 @@ export default function EditAnimalScreen() {
         <View style={styles.container}>
             <Appbar.Header>
                 <Appbar.BackAction onPress={handleCancel} />
-                <Appbar.Content title={t('editAnimal.title')} />
+                <Appbar.Content title={t('edit.title')} />
             </Appbar.Header>
 
             <SpiderForm
@@ -189,7 +189,7 @@ export default function EditAnimalScreen() {
                     loading={saving}
                     disabled={saving}
                 >
-                    {t('editAnimal.saveChanges')}
+                    {t('edit.saveChanges')}
                 </Button>
             </View>
         </View>

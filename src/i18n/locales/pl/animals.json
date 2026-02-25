@@ -60,8 +60,13 @@
     "title": "Edytuj ptasznika",
     "saveChanges": "Zapisz zmiany",
     "successMessage": "Dane ptasznika zostały zaktualizowane",
-    "errorMessage": "Nie udało się zaktualizować danych ptasznika",
+    "errorUpdate": "Nie udało się zaktualizować danych ptasznika",
+    "cancelTitle": "Odrzucić zmiany?",
+    "cancelMessage": "Niezapisane zmiany zostaną utracone.",
+    "continueEditing": "Kontynuuj edycję",
     "validation": {
+      "title": "Błąd walidacji",
+      "fillRequired": "Wypełnij wszystkie wymagane pola",
       "speciesRequired": "Nazwa gatunkowa jest wymagana",
       "sexRequired": "Płeć jest wymagana",
       "dateRequired": "Data nabycia jest wymagana"
