@@ -2,9 +2,9 @@
 
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
-import {Card, Chip, IconButton, Text} from 'react-native-paper';
+import {IconButton, Text} from 'react-native-paper';
 import { useAppTranslation } from '../../hooks/useAppTranslation';
-import {MoltingEvent, MoltingEventData} from "../../types/events";
+import {MoltingEvent} from "../../types/events";
 import {useTheme} from "../../context/ThemeContext";
 import {Theme} from "../../styles/theme";
 
@@ -21,141 +21,194 @@ export default function MoltingHistoryCard({
     const {theme} = useTheme();
     const { t } = useAppTranslation('animals');
     const styles = makeStyles(theme);
+    const { previousStage, newStage, previousBodyLength, newBodyLength } = molting.eventData;
 
     const formatDate = (dateString: string): string => {
         const date = new Date(dateString);
         return date.toLocaleDateString('pl-PL', {
             day: '2-digit',
-            month: '2-digit',
+            month: 'long',
             year: 'numeric'
         });
     };
 
-    const calculateGrowth = (): string | null => {
-        const prevLength = molting.eventData.previousBodyLength;
-        const newLength = molting.eventData.newBodyLength;
+    const hasStage = previousStage != null && newStage != null;
+    const hasBodyLength = previousBodyLength != null && newBodyLength != null;
+    const hasOnlyNewBodyLength = previousBodyLength == null && newBodyLength != null;
 
-        if (!prevLength || !newLength) return null;
-
-        const growth = newLength - prevLength;
-        const percentage = (growth / prevLength) * 100;
-        return `+${growth.toFixed(1)}cm (${percentage.toFixed(0)}%)`;
-    };
-
-    const getMoltingStepLabel = ({
-        previousStage,
-        newStage,
-        previousBodyLength,
-        newBodyLength,
-                                 }: MoltingEventData) => {
-        const stageLabel = (previousStage && newStage) ? `L${previousStage} → L${newStage}` : ''
-        const bodyLengthLabel = (previousBodyLength && newBodyLength) ? `${previousBodyLength}DC → ${newBodyLength}DC` : ''
-
-        return t('moltingHistory.moltLabel', { stageLabel, bodyLengthLabel })
-    }
+    const growthDiff = hasBodyLength ? newBodyLength - previousBodyLength : null;
+    const growthPercent = hasBodyLength && previousBodyLength > 0
+        ? Math.round(((newBodyLength - previousBodyLength) / previousBodyLength) * 100)
+        : null;
 
     return (
-        <Card style={styles.card}>
-            <Card.Content>
+        <View style={styles.card}>
+            <View style={styles.accentBar} />
+            <View style={styles.content}>
                 <View style={styles.header}>
                     <View style={styles.headerLeft}>
-                        <Text variant="titleMedium" style={styles.title}>
-                            {getMoltingStepLabel(molting.eventData)}
-                        </Text>
-                        <Text variant="bodySmall" style={styles.date}>
-                            {formatDate(molting.date)}
-                        </Text>
-                    </View>
-                    <View style={styles.headerRight}>
-                        {onDelete && (
-                            <IconButton
-                                icon="delete"
-                                size={20}
-                                onPress={onDelete}
-                                iconColor={theme.colors.error}
-                            />
+                        {hasStage ? (
+                            <View style={styles.stageRow}>
+                                <View style={styles.stageBadge}>
+                                    <Text style={styles.stageBadgeText}>L{previousStage}</Text>
+                                </View>
+                                <Text style={styles.stageArrow}>→</Text>
+                                <View style={[styles.stageBadge, styles.stageBadgeNew]}>
+                                    <Text style={[styles.stageBadgeText, styles.stageBadgeNewText]}>L{newStage}</Text>
+                                </View>
+                            </View>
+                        ) : (
+                            <Text style={styles.title}>{t('moltingHistory.moltLabelFallback')}</Text>
                         )}
+                        <Text style={styles.date}>{formatDate(molting.date)}</Text>
                     </View>
-                </View>
-
-                <View style={styles.infoRow}>
-                    {calculateGrowth() && (
-                        <Chip
-                            mode="outlined"
-                            compact
-                            icon="ruler"
-                            style={styles.growthChip}
-                        >
-                            {calculateGrowth()}
-                        </Chip>
+                    {onDelete && (
+                        <IconButton
+                            icon="delete-outline"
+                            size={18}
+                            onPress={onDelete}
+                            iconColor={theme.colors.onSurfaceVariant}
+                            style={styles.deleteButton}
+                        />
                     )}
                 </View>
 
+                {(hasBodyLength || hasOnlyNewBodyLength) && (
+                    <View style={styles.bodyLengthSection}>
+                        <Text style={styles.bodyLengthIcon}>📏</Text>
+                        {hasBodyLength ? (
+                            <View style={styles.bodyLengthContent}>
+                                <Text style={styles.bodyLengthText}>
+                                    {previousBodyLength} cm → {newBodyLength} cm
+                                </Text>
+                                {growthDiff != null && growthDiff > 0 && (
+                                    <View style={styles.growthBadge}>
+                                        <Text style={styles.growthBadgeText}>
+                                            +{growthDiff.toFixed(1)} cm ({growthPercent}%)
+                                        </Text>
+                                    </View>
+                                )}
+                            </View>
+                        ) : (
+                            <Text style={styles.bodyLengthText}>{newBodyLength} cm</Text>
+                        )}
+                    </View>
+                )}
+
                 {molting.description && (
-                    <Text variant="bodySmall" style={styles.notes} numberOfLines={2}>
+                    <Text style={styles.notes} numberOfLines={2}>
                         {molting.description}
                     </Text>
                 )}
-            </Card.Content>
-        </Card>
+            </View>
+        </View>
     );
 }
 
 const makeStyles = (theme: Theme) => StyleSheet.create({
     card: {
         marginHorizontal: 16,
-        marginVertical: 8,
+        marginVertical: 6,
         backgroundColor: theme.colors.surface,
+        borderRadius: 12,
+        flexDirection: 'row',
+        overflow: 'hidden',
+        elevation: 1,
+    },
+    accentBar: {
+        width: 4,
+        backgroundColor: theme.colors.events.molting.color,
+    },
+    content: {
+        flex: 1,
+        padding: 12,
     },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'flex-start',
-        marginBottom: 12,
     },
     headerLeft: {
         flex: 1,
     },
-    headerRight: {
+    stageRow: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 8,
+        marginBottom: 4,
+    },
+    stageBadge: {
+        backgroundColor: theme.colors.events.molting.background,
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 8,
+    },
+    stageBadgeNew: {
+        backgroundColor: theme.colors.events.molting.color,
+    },
+    stageBadgeText: {
+        fontSize: 14,
+        fontWeight: '700',
+        color: theme.colors.events.molting.color,
+    },
+    stageBadgeNewText: {
+        color: '#fff',
+    },
+    stageArrow: {
+        fontSize: 16,
+        color: theme.colors.onSurfaceVariant,
     },
     title: {
-        fontWeight: 'bold',
+        fontSize: 15,
+        fontWeight: '600',
         color: theme.colors.onSurface,
         marginBottom: 4,
     },
     date: {
-        color: theme.colors.onSurfaceVariant,
-    },
-    chip: {
-        height: 28,
-    },
-    chipText: {
         fontSize: 12,
+        color: theme.colors.onSurfaceVariant,
+        marginTop: 2,
     },
-    successChip: {
-        backgroundColor: theme.colors.successContainer,
+    deleteButton: {
+        margin: -8,
     },
-    failChip: {
-        backgroundColor: theme.colors.errorContainer,
-    },
-    infoRow: {
+    bodyLengthSection: {
         flexDirection: 'row',
-        flexWrap: 'wrap',
+        alignItems: 'center',
+        gap: 6,
+        marginTop: 10,
+        paddingTop: 10,
+        borderTopWidth: StyleSheet.hairlineWidth,
+        borderTopColor: theme.colors.border || theme.colors.onSurfaceVariant + '20',
+    },
+    bodyLengthIcon: {
+        fontSize: 14,
+    },
+    bodyLengthContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
         gap: 8,
-        marginBottom: 8,
+        flexWrap: 'wrap',
     },
-    categoryChip: {
-        height: 28,
+    bodyLengthText: {
+        fontSize: 13,
+        color: theme.colors.onSurface,
     },
-    growthChip: {
-        height: 28,
+    growthBadge: {
+        backgroundColor: theme.colors.successContainer,
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 6,
+    },
+    growthBadgeText: {
+        fontSize: 11,
+        fontWeight: '600',
+        color: theme.colors.success,
     },
     notes: {
+        fontSize: 12,
         color: theme.colors.onSurfaceVariant,
-        marginTop: 8,
         fontStyle: 'italic',
+        marginTop: 8,
     },
 });

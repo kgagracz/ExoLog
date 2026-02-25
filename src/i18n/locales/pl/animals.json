@@ -126,6 +126,7 @@
     "feedingNote": "Karmienie z dnia {{date}}"
   },
   "moltingHistory": {
-    "moltLabel": "Wylinka {{stageLabel}} {{bodyLengthLabel}}"
+    "moltLabel": "Wylinka {{stageLabel}} {{bodyLengthLabel}}",
+    "moltLabelFallback": "Wylinka"
   }
 }
