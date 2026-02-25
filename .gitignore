@@ -3,6 +3,9 @@
 # dependencies
 node_modules/
 
+# Firebase
+google-services.json
+
 # Expo
 .expo/
 dist/

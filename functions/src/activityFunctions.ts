@@ -12,16 +12,24 @@ async function sendPushToFollowers(
     actorId: string,
     notification: { title: string; body: string; data: Record<string, string> },
 ): Promise<void> {
+    console.log(`[Push] Sending notifications for actorId=${actorId}, type=${notification.data.type}`);
+
     const followsSnap = await db
         .collection('follows')
         .where('followingId', '==', actorId)
         .get();
 
-    if (followsSnap.empty) return;
+    if (followsSnap.empty) {
+        console.log('[Push] No followers found — skipping');
+        return;
+    }
 
     const followerIds = followsSnap.docs.map((d) => d.data().followerId as string);
+    console.log(`[Push] Found ${followerIds.length} followers: ${followerIds.join(', ')}`);
 
     const messages: ExpoPushMessage[] = [];
+    const missingTokenIds: string[] = [];
+    const invalidTokenIds: string[] = [];
 
     // Firestore 'in' queries limited to 10 values
     for (let i = 0; i < followerIds.length; i += 10) {
@@ -33,26 +41,45 @@ async function sendPushToFollowers(
 
         profilesSnap.docs.forEach((doc) => {
             const token = doc.data().expoPushToken;
-            if (token && Expo.isExpoPushToken(token)) {
-                messages.push({
-                    to: token,
-                    sound: 'default',
-                    title: notification.title,
-                    body: notification.body,
-                    data: notification.data,
-                });
+            if (!token) {
+                missingTokenIds.push(doc.id);
+                return;
             }
+            if (!Expo.isExpoPushToken(token)) {
+                invalidTokenIds.push(doc.id);
+                console.warn(`[Push] Invalid token for user ${doc.id}: ${token}`);
+                return;
+            }
+            messages.push({
+                to: token,
+                sound: 'default',
+                title: notification.title,
+                body: notification.body,
+                data: notification.data,
+            });
         });
     }
 
-    if (messages.length > 0) {
-        const chunks = expo.chunkPushNotifications(messages);
-        for (const chunk of chunks) {
-            try {
-                await expo.sendPushNotificationsAsync(chunk);
-            } catch (error) {
-                console.error('Error sending push notifications:', error);
-            }
+    if (missingTokenIds.length > 0) {
+        console.warn(`[Push] ${missingTokenIds.length} followers have NO expoPushToken: ${missingTokenIds.join(', ')}`);
+    }
+    if (invalidTokenIds.length > 0) {
+        console.warn(`[Push] ${invalidTokenIds.length} followers have INVALID token: ${invalidTokenIds.join(', ')}`);
+    }
+
+    if (messages.length === 0) {
+        console.log('[Push] No valid tokens — no notifications sent');
+        return;
+    }
+
+    console.log(`[Push] Sending ${messages.length} push notification(s)`);
+    const chunks = expo.chunkPushNotifications(messages);
+    for (const chunk of chunks) {
+        try {
+            const tickets = await expo.sendPushNotificationsAsync(chunk);
+            console.log('[Push] Tickets:', JSON.stringify(tickets));
+        } catch (error) {
+            console.error('[Push] Error sending chunk:', error);
         }
     }
 }
