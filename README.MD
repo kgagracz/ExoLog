@@ -229,6 +229,11 @@
 - [x] Rejestracja Expo push tokenów (automatyczna przy logowaniu, czyszczenie przy wylogowaniu)
 - [x] Toggle preferencji powiadomień aktywności obserwowanych
 
+#### Udostępnianie profilu (Deep Link)
+- [x] URL scheme `exolog://` skonfigurowany w app.config.js
+- [x] Deep link `exolog://profile/{userId}` otwiera profil użytkownika
+- [x] Przycisk "Udostępnij" w headerze profilu użytkownika (natywny share sheet)
+
 #### Nawigacja
 - [x] Zakładka "Społeczność" w bottom tabs (ikona account-group)
 - [x] Stack: Społeczność → Wyszukiwanie → Profil użytkownika → Zaproszenia → Aktywność

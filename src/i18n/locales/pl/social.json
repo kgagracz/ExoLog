@@ -41,7 +41,9 @@
     "follow": "Obserwuj",
     "unfollow": "Przestań obserwować",
     "followers": "Obserwujący",
-    "following": "Obserwowani"
+    "following": "Obserwowani",
+    "shareTitle": "Udostępnij profil",
+    "shareMessage": "Zobacz profil {{name}} w ExoLog!"
   },
   "friendRequests": {
     "title": "Zaproszenia",

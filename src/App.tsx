@@ -8,6 +8,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from './api/queryClient';
 import {AuthProvider} from "./hooks/useAuth";
 import AppNavigator from "./navigation/AppNavigator";
+import linking from "./navigation/linking";
 import {ThemeProvider, useTheme} from "./context/ThemeContext";
 import {Theme} from "./styles/theme";
 
@@ -46,7 +47,7 @@ function AppContent() {
     return (
         <PaperProvider theme={paperTheme}>
             <AuthProvider>
-                <NavigationContainer>
+                <NavigationContainer linking={linking}>
                     <AppNavigator />
                     <StatusBar style={isDark ? 'light' : 'dark'} backgroundColor={theme.colors.background} />
                 </NavigationContainer>

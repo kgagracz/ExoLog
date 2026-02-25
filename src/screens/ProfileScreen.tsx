@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, StyleSheet, Alert, Animated } from 'react-native';
+import { View, ScrollView, StyleSheet, Alert, Animated, Share } from 'react-native';
 import { Appbar, Card, Button, Divider, Switch } from 'react-native-paper';
 // @ts-ignore
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -76,6 +76,14 @@ export default function ProfileScreen() {
         );
     };
 
+    const handleShare = async () => {
+        if (!user) return;
+        const name = getDisplayName();
+        await Share.share({
+            message: t('shareMessage', { name }) + `\nexolog://profile/${user.uid}`,
+        });
+    };
+
     const getInitials = (email: string | null | undefined): string => {
         if (!email) return '?';
         return email.charAt(0).toUpperCase();
@@ -92,6 +100,7 @@ export default function ProfileScreen() {
             <Appbar.Header>
                 <Appbar.BackAction onPress={() => navigation.goBack()} />
                 <Appbar.Content title={t('title')} />
+                <Appbar.Action icon="share-variant" onPress={handleShare} />
             </Appbar.Header>
 
             <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>

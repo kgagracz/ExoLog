@@ -2,6 +2,7 @@ export default {
   expo: {
     name: "ExoLog",
     slug: "ExoLog",
+    scheme: "exolog",
     version: "1.0.0",
     orientation: "portrait",
     icon: "./assets/icon.png",

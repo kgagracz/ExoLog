@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ScrollView, StyleSheet, Alert } from 'react-native';
+import { View, ScrollView, StyleSheet, Alert, Share } from 'react-native';
 import { Appbar, Card, Button, Divider } from 'react-native-paper';
 // @ts-ignore
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -52,6 +52,13 @@ export default function UserProfileScreen() {
     const { data: isFollowing } = useFollowStatusQuery(userId);
     const follow = useFollowMutation();
     const unfollow = useUnfollowMutation();
+
+    const handleShare = async () => {
+        const name = profile?.displayName ?? t('userProfile.title');
+        await Share.share({
+            message: t('userProfile.shareMessage', { name }) + `\nexolog://profile/${userId}`,
+        });
+    };
 
     const canViewAnimals = profile?.isPublic || friendshipStatus === 'friends';
     const animalCount = (profile?.stats.totalAnimals || 0) > 0
@@ -149,6 +156,7 @@ export default function UserProfileScreen() {
             <Appbar.Header style={{ backgroundColor: theme.colors.surface }}>
                 <Appbar.BackAction onPress={() => navigation.goBack()} />
                 <Appbar.Content title={profile.displayName} />
+                <Appbar.Action icon="share-variant" onPress={handleShare} />
             </Appbar.Header>
 
             <ScrollView contentContainerStyle={{ paddingBottom: tabBarHeight + 16 }}>
