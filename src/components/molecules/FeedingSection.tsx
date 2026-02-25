@@ -23,9 +23,6 @@ const FeedingSection: React.FC<FeedingSectionProps> = ({
 
   return (
     <>
-      <Text variant="titleMedium" style={styles.sectionTitle}>
-        {t('forms:spider.feedingSection')}
-      </Text>
       <List.Item
         title={t('addFeeding.lastFeeding')}
         description={
@@ -76,11 +73,6 @@ const FeedingSection: React.FC<FeedingSectionProps> = ({
 };
 
 const makeStyles = (theme: Theme) => StyleSheet.create({
-  sectionTitle: {
-    fontWeight: 'bold',
-    color: theme.colors.primary,
-    marginBottom: 8,
-  },
   subsectionTitle: {
     fontWeight: '500',
     marginBottom: 8,

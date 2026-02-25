@@ -1,9 +1,6 @@
 import React from 'react';
-import { StyleSheet } from 'react-native';
-import { Text, List } from 'react-native-paper';
+import { List } from 'react-native-paper';
 import { useAppTranslation } from '../../hooks/useAppTranslation';
-import { useTheme } from "../../context/ThemeContext";
-import { Theme } from "../../styles/theme";
 import { Animal } from "../../types";
 
 interface MeasurementsSectionProps {
@@ -11,9 +8,7 @@ interface MeasurementsSectionProps {
 }
 
 const MeasurementsSection: React.FC<MeasurementsSectionProps> = ({ animal }) => {
-  const { theme } = useTheme();
   const { t } = useAppTranslation('animals');
-  const styles = makeStyles(theme);
 
   const calculateAge = (dateAcquired: string, dateOfBirth?: string): string => {
     const referenceDate = dateOfBirth ? new Date(dateOfBirth) : new Date(dateAcquired);
@@ -28,9 +23,6 @@ const MeasurementsSection: React.FC<MeasurementsSectionProps> = ({ animal }) => 
 
   return (
     <>
-      <Text variant="titleMedium" style={styles.sectionTitle}>
-        {t('details.measurementsIcon')} {t('details.measurements')}
-      </Text>
       <List.Item
         title={t('forms:spider.bodyLengthLabel')}
         description={animal.measurements?.length ? `${animal.measurements.length} cm` : 'Nie zmierzono'}
@@ -56,13 +48,5 @@ const MeasurementsSection: React.FC<MeasurementsSectionProps> = ({ animal }) => 
     </>
   );
 };
-
-const makeStyles = (theme: Theme) => StyleSheet.create({
-  sectionTitle: {
-    fontWeight: 'bold',
-    color: theme.colors.primary,
-    marginBottom: 8,
-  },
-});
 
 export default MeasurementsSection;
