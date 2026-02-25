@@ -9,6 +9,7 @@ import CocoonStackNavigator from "./CocoonStackNavigator";
 import SocialStackNavigator from "./SocialStackNavigator";
 import QRScannerScreen from "../screens/QRScannerScreen";
 import {useTheme} from "../context/ThemeContext";
+import { useUserTier } from "../hooks/useUserTier";
 import Text from "../components/atoms/Text";
 
 
@@ -27,6 +28,7 @@ const Tab = createBottomTabNavigator<TabParamList>();
 
 export default function TabNavigator() {
     const {theme} = useTheme()
+    const { isProfessional } = useUserTier()
     const insets = useSafeAreaInsets()
     const {t} = useTranslation('navigation')
     return (
@@ -96,14 +98,16 @@ export default function TabNavigator() {
                     headerShown: false,
                 }}
             />
-            <Tab.Screen
-                name="Cocoons"
-                component={CocoonStackNavigator}
-                options={{
-                    title: t('tabs.cocoons'),
-                    headerShown: false,
-                }}
-            />
+            {isProfessional && (
+                <Tab.Screen
+                    name="Cocoons"
+                    component={CocoonStackNavigator}
+                    options={{
+                        title: t('tabs.cocoons'),
+                        headerShown: false,
+                    }}
+                />
+            )}
             <Tab.Screen
                 name="Community"
                 component={SocialStackNavigator}

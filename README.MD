@@ -247,6 +247,7 @@
 - [x] Amateur: limit 10 aktywnych zwierząt; Professional: bez ograniczeń
 - [x] Aktywacja Professional ręcznie przez admina w Firestore (pole `tier` w `userProfiles`)
 - [x] Blokada dodawania zwierząt po osiągnięciu limitu (AddSpiderScreen, OpenCocoonScreen)
+- [x] Zakładka kokonów i dodawanie kokonów dostępne tylko dla planu Hodowca
 - [x] Karta planu na ekranie profilu z ProgressBar (ilość zwierząt / limit)
 - [x] Modułowa konfiguracja (`tierConfig.ts`) — łatwe dodawanie kolejnych limitów w przyszłości
 

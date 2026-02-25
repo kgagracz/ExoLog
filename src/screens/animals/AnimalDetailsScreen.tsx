@@ -19,6 +19,7 @@ import { useDeleteAnimalMutation, useMarkDeceasedMutation } from "../../api/anim
 import { useFeedingHistoryQuery } from "../../api/feeding";
 import { useMoltingHistoryQuery, useMatingHistoryQuery, useCocoonHistoryQuery } from "../../api/events";
 import { useAppTranslation } from '../../hooks/useAppTranslation';
+import { useUserTier } from '../../hooks/useUserTier';
 
 const HERO_HEIGHT = 280;
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -115,6 +116,7 @@ export default function AnimalDetailsScreen() {
     const { animalId } = route.params;
 
     const { user } = useAuth();
+    const { isProfessional } = useUserTier();
     const { theme } = useTheme();
     const styles = makeStyles(theme);
 
@@ -429,13 +431,13 @@ export default function AnimalDetailsScreen() {
                         color: theme.colors.events.mating.color,
                         style: { backgroundColor: theme.colors.events.mating.background },
                     },
-                    {
+                    ...(isProfessional ? [{
                         icon: 'egg',
                         label: t('details.fabCocoon'),
                         onPress: handleAddCocoon,
                         color: theme.colors.events.cocoon.color,
                         style: { backgroundColor: theme.colors.events.cocoon.background },
-                    },
+                    }] : []),
                     {
                         icon: 'camera',
                         label: t('details.fabPhoto'),

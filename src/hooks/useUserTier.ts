@@ -8,7 +8,7 @@ export function useUserTier() {
     const { data: profile } = useUserProfileQuery(user?.uid);
 
     return useMemo(() => {
-        const tier: UserTier = profile?.tier ?? DEFAULT_TIER;
+        const tier: UserTier = profile?.tier && profile.tier in TIER_CONFIG ? profile.tier : DEFAULT_TIER;
         const limits: TierLimits = TIER_CONFIG[tier];
         const totalAnimals: number = profile?.stats?.totalAnimals ?? 0;
 
