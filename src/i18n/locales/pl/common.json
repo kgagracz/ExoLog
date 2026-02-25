@@ -32,5 +32,16 @@
   "partialSuccess": "Częściowy sukces",
   "cancelEdit": "Anulować edycję?",
   "unsavedChanges": "Niezapisane zmiany zostaną utracone",
-  "continueEditing": "Kontynuuj edycję"
+  "continueEditing": "Kontynuuj edycję",
+  "tier": {
+    "planTitle": "Plan",
+    "amateur": "Hobbysta",
+    "professional": "Hodowca",
+    "animalsCount": "Zwierzęta: {{current}} / {{max}}",
+    "animalsUnlimited": "Zwierzęta: {{count}} (bez limitu)",
+    "limitReachedTitle": "Osiągnięto limit",
+    "limitReachedMessage": "Twój plan Amateur pozwala na maksymalnie {{limit}} aktywnych zwierząt. Usuń zwierzęta lub ulepsz plan, aby dodać więcej.",
+    "limitExceededMessage": "Możesz dodać jeszcze {{remaining}} zwierząt, ale próbujesz dodać {{requested}}.",
+    "countExceedsLimit": "Twój plan pozwala na dodanie jeszcze {{remaining}} zwierząt"
+  }
 }

@@ -9,3 +9,6 @@ export { useNotificationPreferences } from './useNotificationPreferences';
 
 // Animations
 export { useFadeIn, useSlideUp, usePressScale } from './useAnimations';
+
+// Tier
+export { useUserTier } from './useUserTier';

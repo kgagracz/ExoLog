@@ -3,6 +3,7 @@ import { View, StyleSheet, ScrollView, Alert } from 'react-native';
 import { Text, Appbar, Card, Button, TextInput, HelperText, ActivityIndicator } from 'react-native-paper';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useAppTranslation } from '../../hooks/useAppTranslation';
+import { useUserTier } from '../../hooks/useUserTier';
 import { useTheme } from "../../context/ThemeContext";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAddMultipleSpidersMutation } from "../../api/animals";
@@ -21,6 +22,8 @@ export default function OpenCocoonScreen() {
     const updateCocoonStatusMutation = useUpdateCocoonStatusMutation();
     const addMultipleSpidersMutation = useAddMultipleSpidersMutation();
 
+    const { canAddAnimals, remainingSlots, limits } = useUserTier();
+
     const [spiderCount, setSpiderCount] = useState('');
     const [error, setError] = useState('');
     const saving = updateCocoonStatusMutation.isPending || addMultipleSpidersMutation.isPending;
@@ -33,6 +36,10 @@ export default function OpenCocoonScreen() {
         }
         if (num > 2000) {
             setError(t('open.validationMax'));
+            return false;
+        }
+        if (remainingSlots !== null && num > remainingSlots) {
+            setError(t('common:tier.countExceedsLimit', { remaining: remainingSlots }));
             return false;
         }
         setError('');
@@ -56,6 +63,21 @@ export default function OpenCocoonScreen() {
         }
 
         const count = parseInt(spiderCount, 10);
+
+        if (!canAddAnimals(count)) {
+            if (remainingSlots !== null && remainingSlots > 0) {
+                Alert.alert(
+                    t('common:tier.limitReachedTitle'),
+                    t('common:tier.limitExceededMessage', { remaining: remainingSlots, requested: count }),
+                );
+            } else {
+                Alert.alert(
+                    t('common:tier.limitReachedTitle'),
+                    t('common:tier.limitReachedMessage', { limit: limits.maxActiveAnimals }),
+                );
+            }
+            return;
+        }
 
         Alert.alert(
             t('open.confirmTitle'),

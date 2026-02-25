@@ -1,3 +1,5 @@
+import type { UserTier } from '../config/tierConfig';
+
 export interface PublicUserProfile {
     uid: string;
     displayName: string;
@@ -6,6 +8,7 @@ export interface PublicUserProfile {
     photoURL?: string;
     bio?: string;
     isPublic: boolean;
+    tier?: UserTier;
     stats: {
         totalAnimals: number;
         joinDate: string;

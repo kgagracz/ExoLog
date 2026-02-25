@@ -240,3 +240,14 @@
 - [x] Stack: Społeczność → Wyszukiwanie → Profil użytkownika → Zaproszenia → Aktywność
 
 ---
+
+### 🏷️ SYSTEM RÓL (TIER)
+
+- [x] Dwa plany: **Amateur** (domyślny, darmowy) i **Professional** (bez limitu)
+- [x] Amateur: limit 10 aktywnych zwierząt; Professional: bez ograniczeń
+- [x] Aktywacja Professional ręcznie przez admina w Firestore (pole `tier` w `userProfiles`)
+- [x] Blokada dodawania zwierząt po osiągnięciu limitu (AddSpiderScreen, OpenCocoonScreen)
+- [x] Karta planu na ekranie profilu z ProgressBar (ilość zwierząt / limit)
+- [x] Modułowa konfiguracja (`tierConfig.ts`) — łatwe dodawanie kolejnych limitów w przyszłości
+
+---

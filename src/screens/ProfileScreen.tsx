@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, StyleSheet, Alert, Animated, Share } from 'react-native';
-import { Appbar, Card, Button, Divider, Switch } from 'react-native-paper';
+import { Appbar, Card, Button, Divider, Switch, ProgressBar } from 'react-native-paper';
 // @ts-ignore
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -9,6 +9,7 @@ import { useAppTranslation } from '../hooks/useAppTranslation';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../hooks/useAuth';
 import { useSlideUp } from '../hooks/useAnimations';
+import { useUserTier } from '../hooks/useUserTier';
 import { useNotificationPreferences } from '../hooks/useNotificationPreferences';
 import { useUserProfileQuery, useToggleVisibilityMutation, useUpdateProfileMutation } from '../api/social';
 import { Theme } from '../styles/theme';
@@ -33,6 +34,7 @@ export default function ProfileScreen() {
     const [loggingOut, setLoggingOut] = useState(false);
 
     const { data: profile } = useUserProfileQuery(user?.uid);
+    const { tier, totalAnimals, limits, isProfessional } = useUserTier();
     const toggleVisibility = useToggleVisibilityMutation();
     const updateProfile = useUpdateProfileMutation();
     const { preferences, loading: prefsLoading, toggleMoltReminders, toggleCocoonReminders, toggleFollowedUserActivity } = useNotificationPreferences();
@@ -148,6 +150,42 @@ export default function ProfileScreen() {
                                     <Text variant="caption" numberOfLines={1}>{user?.uid || '—'}</Text>
                                 </View>
                             </View>
+                        </Card.Content>
+                    </Card>
+                </AnimatedCard>
+
+                {/* Plan */}
+                <AnimatedCard delay={50}>
+                    <Card style={styles.card}>
+                        <Card.Content>
+                            <Text variant="h3" style={styles.sectionTitle}>{t('common:tier.planTitle')}</Text>
+
+                            <View style={styles.infoRow}>
+                                <MaterialCommunityIcons
+                                    name={isProfessional ? 'star' : 'shield-outline'}
+                                    size={20}
+                                    color={theme.colors.primary}
+                                    style={styles.rowIcon}
+                                />
+                                <View style={{ flex: 1 }}>
+                                    <Text variant="body">
+                                        {isProfessional ? t('common:tier.professional') : t('common:tier.amateur')}
+                                    </Text>
+                                    <Text variant="caption" style={{ color: theme.colors.textSecondary }}>
+                                        {isProfessional
+                                            ? t('common:tier.animalsUnlimited', { count: totalAnimals })
+                                            : t('common:tier.animalsCount', { current: totalAnimals, max: limits.maxActiveAnimals })}
+                                    </Text>
+                                </View>
+                            </View>
+
+                            {!isProfessional && limits.maxActiveAnimals !== null && (
+                                <ProgressBar
+                                    progress={totalAnimals / limits.maxActiveAnimals}
+                                    color={totalAnimals >= limits.maxActiveAnimals ? theme.colors.error : theme.colors.primary}
+                                    style={styles.tierProgressBar}
+                                />
+                            )}
                         </Card.Content>
                     </Card>
                 </AnimatedCard>
@@ -350,5 +388,9 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     },
     logoutButton: {
         borderColor: theme.colors.error,
+    },
+    tierProgressBar: {
+        marginTop: theme.spacing.small,
+        borderRadius: theme.borderRadius.small,
     },
 });

@@ -8,6 +8,7 @@ import { Theme } from "../../styles/theme";
 import { useTheme } from "../../context/ThemeContext";
 import SpiderForm from "../../components/molecules/SpiderForm";
 import { useAppTranslation } from '../../hooks/useAppTranslation';
+import { useUserTier } from '../../hooks/useUserTier';
 
 interface AddSpiderScreenProps {
   navigation: any;
@@ -25,6 +26,7 @@ export default function AddSpiderScreen({ navigation }: AddSpiderScreenProps) {
   const saving = addSpiderMutation.isPending || addMultipleSpidersMutation.isPending || uploadCitesMutation.isPending || updateAnimalMutation.isPending;
   const { user } = useAuth();
 
+  const { canAddAnimals, remainingSlots, limits } = useUserTier();
   const { theme } = useTheme();
   const insets = useSafeAreaInsets();
   const styles = createStyles(theme);
@@ -85,8 +87,23 @@ export default function AddSpiderScreen({ navigation }: AddSpiderScreenProps) {
       return;
     }
 
+    const quantity = formData.quantity || 1;
+    if (!canAddAnimals(quantity)) {
+      if (remainingSlots !== null && remainingSlots > 0) {
+        Alert.alert(
+            t('common:tier.limitReachedTitle'),
+            t('common:tier.limitExceededMessage', { remaining: remainingSlots, requested: quantity }),
+        );
+      } else {
+        Alert.alert(
+            t('common:tier.limitReachedTitle'),
+            t('common:tier.limitReachedMessage', { limit: limits.maxActiveAnimals }),
+        );
+      }
+      return;
+    }
+
     try {
-      const quantity = formData.quantity || 1;
       const speciesLastWord = getLastWordFromSpecies(formData.species);
 
       // Przygotuj bazowe dane pająka
