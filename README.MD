@@ -47,6 +47,8 @@
 - [x] Usuwanie z Firestore
 - [x] Usuwanie powiązanych zdjęć z Storage
 - [x] Usuwanie powiązanych dokumentów CITES
+- [x] Hurtowe usuwanie grupy gatunku (long press na karcie grupy na liście głównej)
+- [x] Multi-select na ekranie gatunku z checkboxami i usuwanie zaznaczonych zwierząt
 
 #### Wyświetlanie ptaszników
 - [x] Lista wszystkich ptaszników

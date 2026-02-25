@@ -1,8 +1,8 @@
-import {useAnimalsQuery} from "../../api/animals";
+import {useAnimalsQuery, useDeleteMultipleAnimalsMutation} from "../../api/animals";
 import {useLastMoltDatesQuery, useMatingStatusesQuery, useCocoonStatusesQuery} from "../../api/events";
 import {useTheme} from "../../context/ThemeContext";
 import {useCallback, useMemo, useRef, useState} from "react";
-import {Animated, StyleSheet, View} from "react-native";
+import {Alert, Animated, StyleSheet, View} from "react-native";
 import {Appbar, Searchbar, Text} from "react-native-paper";
 import {EmptyState} from "../../components";
 import AnimalsList from "../../components/organisms/AnimalList";
@@ -10,7 +10,7 @@ import AddActionsFAB from "../../components/molecules/AddActionsFAB";
 import AnimalFiltersToolbar from "../../components/molecules/AnimalFiltersToolbar";
 import UserAvatar from "../../components/atoms/UserAvatar";
 import {Theme} from "../../styles/theme";
-import {Animal} from "../../types";
+import {Animal, SpeciesGroup} from "../../types";
 import {useAnimalFilters} from "../../hooks/useAnimalFilters";
 import {useSpeciesGrouping} from "../../hooks/useSpeciesGrouping";
 import { useAppTranslation } from '../../hooks/useAppTranslation';
@@ -37,6 +37,7 @@ const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => 
   const { theme } = useTheme();
   const styles = makeStyles(theme);
 
+  const deleteMultipleMutation = useDeleteMultipleAnimalsMutation();
   const [fabOpen, setFabOpen] = useState<boolean>(false);
   const headerAnim = useRef(new Animated.Value(0)).current;
   const isHiddenRef = useRef(false);
@@ -78,6 +79,22 @@ const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => 
 
   const handleGroupPress = (species: string): void => {
     navigation?.navigate('SpeciesAnimals', { species });
+  };
+
+  const handleGroupLongPress = (group: SpeciesGroup): void => {
+    const animalIds = group.animals.map(a => a.id);
+    Alert.alert(
+        t('list.deleteGroupTitle'),
+        t('list.deleteGroupMessage', { count: group.count, species: group.species }),
+        [
+          { text: t('common:cancel'), style: 'cancel' },
+          {
+            text: t('common:delete'),
+            style: 'destructive',
+            onPress: () => deleteMultipleMutation.mutate(animalIds),
+          },
+        ],
+    );
   };
 
   const handleProfilePress = (): void => {
@@ -153,6 +170,7 @@ const AnimalsListScreen: React.FC<AnimalsListScreenProps> = ({ navigation }) => 
                   lastMoltDates={lastMoltDates}
                   groupedItems={groupedItems}
                   onGroupPress={handleGroupPress}
+                  onGroupLongPress={handleGroupLongPress}
               />
           )}
         </View>

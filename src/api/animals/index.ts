@@ -5,4 +5,5 @@ export { useAddSpiderMutation, useAddMultipleSpidersMutation } from './useAddSpi
 export type { SpiderData } from './useAddSpiderMutation';
 export { useUpdateAnimalMutation } from './useUpdateAnimalMutation';
 export { useDeleteAnimalMutation } from './useDeleteAnimalMutation';
+export { useDeleteMultipleAnimalsMutation } from './useDeleteMultipleAnimalsMutation';
 export { useMarkDeceasedMutation } from './useMarkDeceasedMutation';

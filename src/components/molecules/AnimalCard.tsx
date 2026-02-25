@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, Image, Animated } from 'react-native';
-import { Text, Card, Chip } from 'react-native-paper';
+import { Text, Card, Chip, Checkbox } from 'react-native-paper';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAppTranslation } from '../../hooks/useAppTranslation';
 import { useTheme } from "../../context/ThemeContext";
@@ -27,9 +27,12 @@ interface AnimalCardProps {
   cocoonStatus?: CocoonStatus;
   lastMoltDate?: string;
   index?: number;
+  selectable?: boolean;
+  selected?: boolean;
+  onToggleSelect?: (id: string) => void;
 }
 
-const AnimalCard: React.FC<AnimalCardProps> = ({ animal, onPress, matingStatus, cocoonStatus, lastMoltDate, index = 0 }) => {
+const AnimalCard: React.FC<AnimalCardProps> = ({ animal, onPress, matingStatus, cocoonStatus, lastMoltDate, index = 0, selectable, selected, onToggleSelect }) => {
   const { theme } = useTheme();
   const { t } = useAppTranslation('animals');
   const styles = makeStyles(theme);
@@ -90,10 +93,23 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal, onPress, matingStatus, 
   const cocoonLabel = animal.sex === 'female' ? getCocoonLabel() : null;
   const moltLabel = getMoltLabel();
 
+  const handlePress = () => {
+    if (selectable && onToggleSelect) {
+      onToggleSelect(animal.id);
+    } else {
+      onPress(animal);
+    }
+  };
+
   return (
       <Animated.View style={{ opacity, transform: [{ translateY }] }}>
-        <Card style={styles.animalCard} onPress={() => onPress(animal)}>
+        <Card style={[styles.animalCard, selected && { borderLeftColor: theme.colors.error }]} onPress={handlePress}>
           <View style={styles.cardContent}>
+            {selectable && (
+                <View style={styles.checkboxContainer}>
+                  <Checkbox status={selected ? 'checked' : 'unchecked'} onPress={() => onToggleSelect?.(animal.id)} />
+                </View>
+            )}
             {/* Miniaturka zdjęcia */}
             <View style={styles.photoContainer}>
               {photoUrl ? (
@@ -183,6 +199,10 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
   cardContent: {
     flexDirection: 'row',
     padding: theme.spacing.ms,
+    alignItems: 'center',
+  },
+  checkboxContainer: {
+    marginRight: theme.spacing.xs,
   },
   photoContainer: {
     width: 70,

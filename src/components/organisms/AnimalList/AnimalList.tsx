@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { ScrollView, RefreshControl, StyleSheet, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
-import {Animal, AnimalListItem} from "../../../types";
+import {Animal, AnimalListItem, SpeciesGroup} from "../../../types";
 import AnimalCard from "../../molecules/AnimalCard";
 import SpeciesGroupCard from "../../molecules/SpeciesGroupCard";
 
@@ -27,6 +27,10 @@ interface AnimalsListProps {
     lastMoltDates?: Record<string, string>;
     groupedItems?: AnimalListItem[];
     onGroupPress?: (species: string) => void;
+    onGroupLongPress?: (group: SpeciesGroup) => void;
+    selectionMode?: boolean;
+    selectedIds?: Set<string>;
+    onToggleSelect?: (id: string) => void;
 }
 
 const AnimalsList: React.FC<AnimalsListProps> = ({
@@ -40,6 +44,10 @@ const AnimalsList: React.FC<AnimalsListProps> = ({
                                                      lastMoltDates = {},
                                                      groupedItems,
                                                      onGroupPress,
+                                                     onGroupLongPress,
+                                                     selectionMode,
+                                                     selectedIds,
+                                                     onToggleSelect,
                                                  }) => {
     const lastOffsetRef = useRef(0);
 
@@ -61,6 +69,7 @@ const AnimalsList: React.FC<AnimalsListProps> = ({
                         key={`group-${item.species}`}
                         group={item}
                         onPress={onGroupPress ?? (() => {})}
+                        onLongPress={onGroupLongPress}
                         index={index}
                     />
                 );
@@ -74,6 +83,9 @@ const AnimalsList: React.FC<AnimalsListProps> = ({
                     cocoonStatus={cocoonStatuses[item.animal.id]}
                     lastMoltDate={lastMoltDates[item.animal.id]}
                     index={index}
+                    selectable={selectionMode}
+                    selected={selectedIds?.has(item.animal.id)}
+                    onToggleSelect={onToggleSelect}
                 />
             );
         });
@@ -99,6 +111,9 @@ const AnimalsList: React.FC<AnimalsListProps> = ({
                         cocoonStatus={cocoonStatuses[animal.id]}
                         lastMoltDate={lastMoltDates[animal.id]}
                         index={index}
+                        selectable={selectionMode}
+                        selected={selectedIds?.has(animal.id)}
+                        onToggleSelect={onToggleSelect}
                     />
                 ))
             )}

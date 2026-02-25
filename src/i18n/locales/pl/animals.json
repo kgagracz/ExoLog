@@ -6,7 +6,15 @@
     "emptyDescription": "Dodaj swojego pierwszego ptasznika, aby rozpocząć zarządzanie hodowlą",
     "userEmptyDescription": "Ten użytkownik nie ma jeszcze żadnych zwierząt",
     "userTitle": "Zwierzęta {{name}} ({{count}})",
-    "groupCount": "{{count}} zwierząt"
+    "groupCount": "{{count}} zwierząt",
+    "deleteGroupTitle": "Usuń grupę",
+    "deleteGroupMessage": "Czy na pewno chcesz trwale usunąć wszystkie {{count}} zwierząt gatunku {{species}}?\n\nTa operacja jest nieodwracalna.",
+    "deleteSelectedTitle": "Usuń zaznaczone",
+    "deleteSelectedMessage": "Czy na pewno chcesz trwale usunąć {{count}} zaznaczonych zwierząt?\n\nTa operacja jest nieodwracalna.",
+    "selectedCount": "Wybrano: {{count}}",
+    "selectAll": "Zaznacz wszystko",
+    "deselectAll": "Odznacz wszystko",
+    "selectionMode": "Wybieranie"
   },
   "addSpider": {
     "title": "Dodaj Ptasznika",

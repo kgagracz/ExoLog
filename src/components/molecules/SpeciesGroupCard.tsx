@@ -11,10 +11,11 @@ import { SpeciesGroup } from '../../types';
 interface SpeciesGroupCardProps {
     group: SpeciesGroup;
     onPress: (species: string) => void;
+    onLongPress?: (group: SpeciesGroup) => void;
     index?: number;
 }
 
-const SpeciesGroupCard: React.FC<SpeciesGroupCardProps> = ({ group, onPress, index = 0 }) => {
+const SpeciesGroupCard: React.FC<SpeciesGroupCardProps> = ({ group, onPress, onLongPress, index = 0 }) => {
     const { theme } = useTheme();
     const { t } = useAppTranslation('animals');
     const styles = makeStyles(theme);
@@ -28,7 +29,7 @@ const SpeciesGroupCard: React.FC<SpeciesGroupCardProps> = ({ group, onPress, ind
 
     return (
         <Animated.View style={{ opacity, transform: [{ translateY }] }}>
-            <Card style={styles.card} onPress={() => onPress(group.species)}>
+            <Card style={styles.card} onPress={() => onPress(group.species)} onLongPress={onLongPress ? () => onLongPress(group) : undefined}>
                 <View style={styles.cardContent}>
                     <View style={styles.photoContainer}>
                         {photoUrl ? (

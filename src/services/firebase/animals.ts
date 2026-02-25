@@ -451,6 +451,30 @@ export const animalsService = {
       return { success: false, error: error.message };
     }
   },
+  async deleteMultipleAnimals(animalIds: string[]): Promise<{ success: boolean; deletedCount?: number; failedCount?: number; error?: string }> {
+    try {
+      const results = await Promise.allSettled(
+          animalIds.map(id => this.deleteAnimalCompletely(id))
+      );
+
+      let deletedCount = 0;
+      let failedCount = 0;
+
+      results.forEach(result => {
+        if (result.status === 'fulfilled' && result.value.success) {
+          deletedCount++;
+        } else {
+          failedCount++;
+        }
+      });
+
+      return { success: true, deletedCount, failedCount };
+    } catch (error: any) {
+      console.error("Error deleting multiple animals:", error);
+      return { success: false, error: error.message };
+    }
+  },
+
   async getAnimalsDueForFeeding(userId: string, daysSinceLastFeeding: number = 7): Promise<{ success: boolean; data?: Animal[]; error?: string }> {
     try {
       const cutoffDate = new Date();
